@@ -1,9 +1,9 @@
 import { LoadingOverlay } from "@mantine/core";
 const LoadingComponent = () => {
   return (
-    <div className="h-screen overflow-hidden">
+    <div className="max-h-screen overflow-hidden">
       <LoadingOverlay
-        loaderProps={{ color: "green", type: "bars" }}
+        loaderProps={{ color: "#7DBA28", type: "bars" }}
         overlayProps={{ radius: "sm", blur: 1 }}
         zIndex={1000}
         visible={true}

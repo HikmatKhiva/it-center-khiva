@@ -1,26 +1,47 @@
 import { useDisclosure } from "@mantine/hooks";
 import { Button, Group, Modal, Text } from "@mantine/core";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { deleteTeacher } from "../../api/api.teachers";
-import { useAppSelector } from "../../../hooks/redux";
+import { deleteTeacher } from "@/admin/api/api.teachers";
+import { useAppSelector } from "@/hooks/redux";
+import { selectUser } from "@/lib/redux/reducer/admin";
+import { useRef } from "react";
+import {
+  createNotification,
+  showErrorNotification,
+  showSuccessNotification,
+} from "@/utils/notification";
+import { Trash } from "lucide-react";
 const DeleteTeacherModal = ({ id }: { id: number }) => {
-  const { admin } = useAppSelector((state) => state.admin);
+  const admin = useAppSelector(selectUser);
+  const idNotification = useRef<string>("");
   const [opened, { open, close }] = useDisclosure(false);
   const client = useQueryClient();
   const { mutateAsync, isPending } = useMutation({
     mutationFn: () => deleteTeacher(id, admin?.token || ""),
-    onSuccess: () => {
+    mutationKey: ["teacher", "delete", id],
+    onSuccess: (success) => {
+      showSuccessNotification(idNotification.current, success?.message);
       client.invalidateQueries({ queryKey: ["teachers"] });
       close();
+    },
+    onError: (error) => {
+      showErrorNotification(idNotification.current, error.message);
     },
   });
   const handleDelete = async () => {
     await mutateAsync();
+    idNotification.current = createNotification(isPending);
   };
   return (
     <>
-      <Button onClick={open} color="red" size="xs" variant="outline">
-        O'chirish 🗑️
+      <Button
+        onClick={open}
+        rightSection={<Trash size="16" />}
+        color="red"
+        size="xs"
+        variant="outline"
+      >
+        O'chirish.
       </Button>
       <Modal
         centered

@@ -22,12 +22,19 @@ import {
   LoadAdminCourse,
   LoadAdminTeachers,
   LoadAdminNewsCreate,
-  LoadAdminNewStudents,
+  // LoadAdminNewStudents,
   LoadAdminNewsPreview,
   LoadAdminNewsUpdate,
+  LoadNotFoundPage,
+  LoadAdminRoom,
+  LoadAdminRoomId,
+  LoadAdminReception,
 } from "./admin/pages";
 // Admin Layout
 import { LoadAdminLayout } from "./admin/layouts";
+import ReceptionLayout from "./reception/layouts/ReceptionLayout";
+import { LoadReceptionMainPage, LoadReceptionTeachers } from "./reception/page";
+import { LoadCertificatePage, LoadNewStudents } from "./common/pages";
 export const routes = createBrowserRouter([
   {
     path: "/",
@@ -49,7 +56,7 @@ export const routes = createBrowserRouter([
             element: <LazyLoadPage Page={LoadNewsPage} />,
           },
           {
-            path: ":id",
+            path: ":slug",
             element: <LazyLoadPage Page={LoadNewsPreview} />,
           },
         ],
@@ -93,7 +100,7 @@ export const routes = createBrowserRouter([
             element: <LazyAdminPage Page={LoadAdminNewsPreview} />,
           },
           {
-            path: "update/:id",
+            path: "update/:slug",
             element: <LazyAdminPage Page={LoadAdminNewsUpdate} />,
           },
         ],
@@ -111,13 +118,60 @@ export const routes = createBrowserRouter([
         element: <LazyAdminPage Page={LoadAdminMessages} />,
       },
       {
+        path: "rooms",
+        children: [
+          {
+            index: true,
+            element: <LazyLoadPage Page={LoadAdminRoom} />,
+          },
+          {
+            path: ":id",
+            element: <LazyLoadPage Page={LoadAdminRoomId} />,
+          },
+        ],
+      },
+      {
         path: "students",
-        element: <LazyAdminPage Page={LoadAdminNewStudents} />,
+        element: <LazyAdminPage Page={LoadNewStudents} />,
+      },
+      {
+        path: "reception",
+        element: <LazyAdminPage Page={LoadAdminReception} />,
+      },
+      {
+        path: "certificate",
+        element: <LazyAdminPage Page={LoadCertificatePage} />,
+      },
+    ],
+  },
+  {
+    path: "/reception",
+    element: <LazyAdminPage Page={ReceptionLayout} />,
+    children: [
+      {
+        path: "main",
+        element: <LazyAdminPage Page={LoadReceptionMainPage} />,
+      },
+      {
+        path: "new-students",
+        element: <LazyAdminPage Page={LoadNewStudents} />,
+      },
+      {
+        path: "teachers",
+        element: <LazyAdminPage Page={LoadReceptionTeachers} />,
+      },
+      {
+        path: "certificate",
+        element: <LazyAdminPage Page={LoadCertificatePage} />,
       },
     ],
   },
   {
     path: "/auth",
     element: <LazyLoadPage Page={LoadAdminLogin} />,
+  },
+  {
+    path: "*",
+    element: <LazyLoadPage Page={LoadNotFoundPage} />,
   },
 ]);

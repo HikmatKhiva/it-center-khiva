@@ -1,26 +1,37 @@
-import GroupTable from "../../components/group/GroupTable";
-import { Divider, TextInput, Group, Text, Select } from "@mantine/core";
+import GroupTable from "@/admin/components/group/GroupTable";
+import {
+  TextInput,
+  Group,
+  Text,
+  Select,
+  Stack,
+  Pagination,
+} from "@mantine/core";
 import { Filter, LoaderCircle, Search, Users } from "lucide-react";
-import CreateGroup from "../../components/group/CreateGroupModal";
+import CreateGroupModal from "@/admin/components/group/CreateGroupModal";
 import { useQuery } from "@tanstack/react-query";
-import { getAllGroup } from "../../api/api.group";
+import { getAllGroup } from "@/admin/api/api.group";
 import { useState } from "react";
-import { useAppSelector } from "../../../hooks/redux";
+import { useAppSelector } from "@/hooks/redux";
 const AdminGroups = () => {
-  const [name, setName] = useState<string>("");
   const { admin } = useAppSelector((state) => state.admin);
-  const [status, setStatus] = useState<boolean>(false);
-  const { data, isLoading } = useQuery<IGroup[]>({
-    queryKey: ["groups", name, status],
-    queryFn: () => getAllGroup(name, admin?.token || "", status),
-    enabled: !!admin?.token
+  const [query, setQuery] = useState({
+    name: "",
+    page: 1,
+    limit: 12,
+    isGroupFinished: false,
+  });
+  const { data, isPending } = useQuery<GroupQueryResponse>({
+    queryKey: ["groups", query.name, query.isGroupFinished, query.page],
+    queryFn: () => getAllGroup(query, admin?.token || ""),
+    enabled: !!admin?.token,
   });
   return (
     <section>
       <Group pb="20" justify="space-between">
         <Group>
           <Text size="lg" fw="bold">
-            O'qituvchi boshqaruv bo'limi
+            Guruhlarni boshqaruv bo'limi
           </Text>
           <Users />
         </Group>
@@ -28,7 +39,12 @@ const AdminGroups = () => {
           <Select
             defaultValue="false"
             rightSection={<Filter />}
-            onChange={(value: string | null) => setStatus(value === "true")}
+            onChange={(value: string | null) =>
+              setQuery((prev) => ({
+                ...prev,
+                isGroupFinished: value === "true",
+              }))
+            }
             data={[
               { value: "true", label: "Yakunlangan Guruhlar" },
               { value: "false", label: "Aktiv Guruhlar" },
@@ -36,23 +52,38 @@ const AdminGroups = () => {
           />
           <TextInput
             w={230}
-            value={name}
+            value={query.name}
             fz="xs"
             rightSection={
-              isLoading ? (
+              isPending ? (
                 <LoaderCircle size={16} className="animate-spin" />
               ) : (
                 <Search size={16} />
               )
             }
-            onChange={(event) => setName(event.target.value.trim())}
+            onChange={(event) =>
+              setQuery((prev) => ({ ...prev, name: event.currentTarget.value }))
+            }
             placeholder="Guruh nomi orqali qidirish..."
           />
-          <CreateGroup />
+          <CreateGroupModal />
         </Group>
       </Group>
-      <Divider py={10} />
-      <GroupTable status={status} data={data || []} isLoading={isLoading} />
+      <Stack className="h-[calc(100vh_-_150px)]" justify="space-between ">
+        <GroupTable
+          status={query.isGroupFinished}
+          data={data?.groups || []}
+          isPending={isPending}
+        />
+        <Pagination
+          value={query.page}
+          className="self-end"
+            color="indigo"
+          hidden={(data?.totalPages ?? 0) <= 1 || isPending}
+          onChange={(pageNumber) => setQuery({ ...query, page: pageNumber })}
+          total={data?.totalPages || 1}
+        />
+      </Stack>
     </section>
   );
 };

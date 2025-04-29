@@ -1,6 +1,6 @@
 import { Accordion, Container, Group, Title } from "@mantine/core";
 import { motion } from "motion/react";
-import { Megaphone2 } from "../assets";
+import { Megaphone2 } from "@/assets";
 const FaqSection = () => {
   return (
     <motion.section

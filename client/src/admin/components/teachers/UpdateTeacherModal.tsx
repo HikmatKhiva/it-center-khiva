@@ -1,65 +1,167 @@
 import { useDisclosure } from "@mantine/hooks";
-import { Button, Modal, Stack, TextInput } from "@mantine/core";
+import {
+  Avatar,
+  Button,
+  FileButton,
+  Group,
+  Modal,
+  Stack,
+  TextInput,
+} from "@mantine/core";
 import { useForm } from "@mantine/form";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { updateTeacher } from "../../api/api.teachers";
-import { useAppSelector } from "../../../hooks/redux";
+import { deleteTeacherPhoto, updateTeacher } from "@/admin/api/api.teachers";
+import { useAppSelector } from "@/hooks/redux";
+import { Pen, Trash2 } from "lucide-react";
+import {
+  createNotification,
+  showErrorNotification,
+  showSuccessNotification,
+} from "@/utils/notification";
+import { useRef } from "react";
+import { selectUser } from "@/lib/redux/reducer/admin";
+import { teacherValidate } from "@/validation";
+import { InputMask } from "@react-input/mask";
 const UpdateTeacherModal = ({ teacher }: { teacher: ITeacher }) => {
-  const { admin } = useAppSelector((state) => state.admin);
+  const admin = useAppSelector(selectUser);
+  const idNotification = useRef<string>("");
   const client = useQueryClient();
   const [opened, { open, close }] = useDisclosure(false);
-  const { mutateAsync } = useMutation({
-    mutationFn: (data: ITeacher)=>updateTeacher(data,admin?.token || ""),
-    onSuccess: () => {
+  const { mutateAsync, isPending } = useMutation({
+    mutationFn: (data: FormData) =>
+      updateTeacher(data, admin?.token || "", teacher.id),
+    mutationKey: ["teacher", "update", teacher.id],
+    onSuccess: (success) => {
       client.invalidateQueries({ queryKey: ["teachers"] });
+      showSuccessNotification(idNotification.current, success?.message);
       close();
+    },
+    onError: (error) => {
+      showErrorNotification(idNotification.current, error.message);
     },
   });
   const form = useForm({
     initialValues: {
-      id: teacher?.id,
-      first_name: teacher?.first_name,
-      second_name: teacher?.second_name,
-    } as ITeacher,
+      firstName: teacher?.firstName || "",
+      secondName: teacher?.secondName || "",
+      phone: teacher.phone || "",
+      image: null,
+    } as ITeacherForm,
+    validate: teacherValidate,
   });
-  const handleSubmit = async (data: ITeacher) => {
-    mutateAsync(data);
+  const handleSubmit = async (teacher: ITeacherForm) => {
+    const formData = new FormData();
+    formData.append("firstName", teacher.firstName);
+    formData.append("secondName", teacher.secondName);
+    formData.append("phone", teacher.phone);
+    if (teacher.image) {
+      formData.append("image", teacher.image);
+    }
+    mutateAsync(formData);
+    idNotification.current = createNotification(isPending);
+  };
+  const setFile = (file: File | null) => {
+    form.setFieldValue("image", file);
+  };
+  const photo_url = form.values.image
+    ? URL.createObjectURL(form?.values?.image as Blob)
+    : teacher?.photo_url;
+  const deletePhoto = async () => {
+    if (!admin?.token || !teacher.id) return;
+    await deleteTeacherPhoto(teacher.id, admin?.token);
+    client.invalidateQueries({ queryKey: ["teachers"] });
+    close()
+
   };
   return (
     <>
-      <Button onClick={open} color="green" size="xs" variant="outline">
-        O'zgartirish ✏️
+      <Button
+        onClick={open}
+        rightSection={<Pen size={16} />}
+        color="green"
+        size="xs"
+        variant="outline"
+      >
+        O'zgartirish
       </Button>
-      <Modal opened={opened} onClose={close} title="O'qituvchini o'zgartirish">
+      <Modal opened={opened} onClose={close}>
         <form onSubmit={form.onSubmit(handleSubmit)}>
+          <Group justify="center " mb="20">
+            <FileButton onChange={setFile} accept="image/png,image/jpeg">
+              {(props) => (
+                <Avatar {...props} size={60} radius="xl" src={photo_url} />
+              )}
+            </FileButton>
+            <Button
+              pos="absolute"
+              left="50%"
+              top="125px"
+              className="translate-x-[-50%] z-10"
+              size="xs"
+              color="red"
+              type="button"
+              hidden={!form.values.image}
+              onClick={() => form.setFieldValue("image", null)}
+            >
+              <Trash2 size="14" />
+            </Button>
+            <Button
+              pos="absolute"
+              left="50%"
+              top="125px"
+              className="translate-x-[-50%] "
+              size="xs"
+              color="red"
+              type="button"
+              hidden={!photo_url}
+              onClick={deletePhoto}
+            >
+              <Trash2 size="14" />
+            </Button>
+          </Group>
           <Stack>
             <TextInput
               onChange={(e) =>
-                form.setFieldValue("first_name", e.currentTarget.value.trim())
+                form.setFieldValue("firstName", e.currentTarget.value.trim())
               }
-              value={form.values.first_name}
-              required
+              value={form.values.firstName}
+              error={form.errors.firstName}
               label="Ismini kiriting!"
               placeholder="Xudayshukur"
-              size="md"
+              size="sm"
               radius="md"
             />
             <TextInput
               onChange={(e) =>
-                form.setFieldValue("second_name", e.currentTarget.value.trim())
+                form.setFieldValue("secondName", e.currentTarget.value.trim())
               }
-              value={form.values.second_name}
-              required
+              value={form.values.secondName}
+              error={form.errors.secondName}
               label="Familiyasini kiriting!"
               placeholder="Polvonov"
-              size="md"
+              size="sm"
               radius="md"
+            />
+            <InputMask
+              mask="+99 (8__) ___-__-__"
+              replacement={{ _: /\d/ }}
+              autoComplete="off"
+              placeholder="+99 (8__) ___-__-__"
+              label="Telefon raqamini kiriting!"
+              component={TextInput}
+              error={form.errors.phone}
+              value={form.values.phone}
+              onChange={(event) => {
+                form.setFieldValue("phone", event.target.value);
+              }}
             />
           </Stack>
           <Button
-            aria-labelledby="update a teacher button"
-            aria-label="update a teacher"
-            size="md"
+            loading={isPending}
+            disabled={
+              isPending || !!form.errors.firstName || !!form.errors.secondName
+            }
+            size="sm"
             mt="15"
             color="green"
             type="submit"
@@ -72,5 +174,4 @@ const UpdateTeacherModal = ({ teacher }: { teacher: ITeacher }) => {
     </>
   );
 };
-
 export default UpdateTeacherModal;

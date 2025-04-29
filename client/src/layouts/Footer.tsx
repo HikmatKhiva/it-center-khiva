@@ -5,7 +5,7 @@ import {
   Stack,
   Image,
 } from "@mantine/core";
-import LogoSVG from "../motions_components/LogoSVG";
+import LogoSVG from "@/motions_components/LogoSVG";
 import { CallOnly, Location, Telegram } from "../assets";
 const Footer = () => {
   return (
@@ -61,5 +61,4 @@ const Footer = () => {
     </footer>
   );
 };
-
 export default Footer;

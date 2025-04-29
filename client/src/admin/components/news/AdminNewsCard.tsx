@@ -1,6 +1,6 @@
 import { Card, Image, Text, ActionIcon } from "@mantine/core";
 import { Eye, Pen } from "lucide-react";
-import { CoolMode } from "../../../animation/cool-mode";
+import { CoolMode } from "@/animation/cool-mode";
 import { useNavigate } from "react-router-dom";
 import NewsDeleteModal from "./NewsDeleteModal";
 const AdminNewsCard = ({ news }: { news: INews }) => {
@@ -21,7 +21,7 @@ const AdminNewsCard = ({ news }: { news: INews }) => {
         </ActionIcon>
       </CoolMode>
       <ActionIcon
-        onClick={() => navigate(`/admin/news/update/${news?.id}`)}
+        onClick={() => navigate(`/admin/news/update/${news?.slug}`)}
         size="md"
         top="0px"
         p="2"
@@ -34,9 +34,9 @@ const AdminNewsCard = ({ news }: { news: INews }) => {
       <NewsDeleteModal id={news?.id || 0} />
       <Image src={news?.photo_url} h={250} alt="Norway" />
       <Card.Section p="lg">
-        <Text fw={500}>{news.news_title}</Text>
+        <Text fw={500}>{news.title}</Text>
         <Text size="sm" c="dimmed">
-          {news.news_description}
+          {news.description}
         </Text>
       </Card.Section>
     </Card>

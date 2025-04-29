@@ -1,43 +1,59 @@
 import { useDisclosure } from "@mantine/hooks";
 import { Button, Modal, Select, Stack, TextInput } from "@mantine/core";
 import { useForm } from "@mantine/form";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { createCourseValidation } from "../../../validation";
-import { updateCourse } from "../../api/api.course";
-import { adminFormData } from "../../api/api.admin";
-import { useAppSelector } from "../../../hooks/redux";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { createCourseValidation } from "@/validation";
+import { updateCourse } from "@/admin/api/api.course";
+import { useAppSelector } from "@/hooks/redux";
+import { selectUser } from "@/lib/redux/reducer/admin";
+import { Pen } from "lucide-react";
+import { useRef } from "react";
+import {
+  createNotification,
+  showErrorNotification,
+  showSuccessNotification,
+} from "@/utils/notification";
+import useFormData from "@/hooks/useFormData";
 const UpdatedCourseModal = ({ course }: { course: ICourse }) => {
   const client = useQueryClient();
-  const { admin } = useAppSelector((state) => state.admin);
+  const admin = useAppSelector(selectUser);
+  const idNotification = useRef<string>("");
+  const { teachers, loading } = useFormData();
   const [opened, { open, close }] = useDisclosure(false);
-  const { data, isLoading } = useQuery({
-    queryFn: () => adminFormData(admin?.token || ""),
-    queryKey: ["teachers"],
-  });
-  const { mutateAsync } = useMutation({
-    mutationFn: (course: INewCourse) =>
-      updateCourse(course, admin?.token || ""),
-    onSuccess: () => {
-      client.invalidateQueries({ queryKey: ["courses"] });
+  const { mutateAsync, isPending } = useMutation({
+    mutationFn: (data: INewCourse) =>
+      updateCourse(data, admin?.token || "", course.id),
+    onSuccess: (success) => {
+      client.invalidateQueries({ queryKey: ["courses", course.id] });
+      showSuccessNotification(idNotification.current, success?.message);
       close();
+    },
+    onError: (error) => {
+      showErrorNotification(idNotification.current, error.message);
     },
   });
   const form = useForm({
     initialValues: {
-      id: course?.id,
       name: course?.name,
-      price: course?.price,
-      teacher_id: course?.teacher?.id.toString(),
+      teacherId: course.teacher.id.toString(),
+      nameCertificate: course.nameCertificate,
     } as INewCourse,
     validate: createCourseValidation,
   });
   const handleSubmit = async (course: INewCourse) => {
+    idNotification.current = createNotification(isPending);
     mutateAsync(course);
   };
   return (
     <>
-      <Button onClick={open} color="green" size="xs" variant="outline">
-        O'zgartirish ✏️
+      <Button
+        onClick={open}
+        rightSection={<Pen size={16} />}
+        color="green"
+        size="xs"
+        variant="outline"
+      >
+        O'zgartirish.
       </Button>
       <Modal opened={opened} onClose={close} title="Kursni o'zgartirish">
         <form onSubmit={form.onSubmit(handleSubmit)}>
@@ -54,38 +70,39 @@ const UpdatedCourseModal = ({ course }: { course: ICourse }) => {
               radius="md"
             />
             <TextInput
-              label="Kurs bahosini kiriting"
-              placeholder="100000"
+              label="Kurs sertificate uchun nom"
+              placeholder="Front-End programming"
               size="sm"
-              value={form.values.price}
-              onChange={(event) => {
-                const value = event.target.value;
-                if (/^\d*$/.test(value)) {
-                  form.setFieldValue("price", +value);
-                }
-              }}
-              error={form.errors.price}
-              radius="md"
+              value={form.values.nameCertificate}
+              onChange={(event) =>
+                form.setFieldValue("nameCertificate", event.target.value)
+              }
+              error={form.errors.nameCertificate}
+              radius="sm"
             />
-
             <Select
-              disabled={isLoading}
+              disabled={loading}
               label="O'qituvchini tanlang..."
               placeholder="O''qituvchini tanlang..."
-              {...form.getInputProps("teacher_id")}
-              data={data?.teachers}
+              {...form.getInputProps("teacherId")}
+              data={teachers}
             />
           </Stack>
           <Button
-            aria-labelledby="create new student button"
-            aria-label="create new student"
-            size="md"
+            loading={isPending}
+            disabled={
+              loading ||
+              !!form.errors.name ||
+              !!form.errors.nameCertificate ||
+              !!form.errors.teacherId
+            }
+            size="sm"
             mt="15"
             color="green"
             type="submit"
-            radius="md"
+            radius="sm"
           >
-            Yangilash
+            Yangilash.
           </Button>
         </form>
       </Modal>

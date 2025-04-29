@@ -1,0 +1,207 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  ADMIN
+  TEACHER
+  RECEPTION
+}
+
+enum gender {
+  MALE
+  FEMALE
+}
+
+model Admin {
+  id        Int      @id @default(autoincrement()) // Ensure PostgreSQL is configured correctly
+  username  String   @unique @db.VarChar(50)
+  password  String   @db.VarChar(255)
+  photo_url String?  @db.VarChar(255)
+  secret    String   @db.VarChar(255)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt // Ensure database triggers are enabled for automatic updates
+  role      Role
+  isActive  Boolean  @default(true)
+}
+
+model Teacher {
+  id         Int      @id @default(autoincrement())
+  firstName  String   @db.VarChar(255)
+  secondName String   @db.VarChar(255)
+  photo_url  String?  @db.VarChar(255)
+  createdAt  DateTime @default(now())
+  phone      String?
+  updatedAt  DateTime @updatedAt
+  Groups     Group[]
+  Blog       Blog[]
+  Course     Course[]
+}
+
+model Course {
+  id              Int          @id @default(autoincrement())
+  name            String       @unique @db.VarChar(255)
+  nameCertificate String       @db.VarChar(255)
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime     @updatedAt
+  teacher         Teacher      @relation(fields: [teacherId], references: [id])
+  Student         Student[]
+  Group           Group[]
+  // Foreign key relationship to the Teachers table
+  NewStudent      NewStudent[]
+  teacherId       Int
+}
+
+model Group {
+  id              Int        @id @default(autoincrement())
+  name            String     @unique @db.VarChar(60)
+  isGroupFinished Boolean    @default(false)
+  createdAt       DateTime   @default(now())
+  finishedDate    DateTime?
+  price           Decimal    @db.Decimal
+  duration        Int
+  groupTime       String?    @db.VarChar(20)
+  // Foreign key relationships
+  teacher         Teacher    @relation(fields: [teacherId], references: [id])
+  course          Course     @relation(fields: [courseId], references: [id])
+  schedules       Schedule[]
+
+  Students    Student[]
+  courseId    Int // course_id (nullable)
+  teacherId   Int // teacher_id (nullable)
+  Certificate Certificate[]
+}
+
+model Room {
+  id        Int        @id @default(autoincrement())
+  name      String
+  capacity  Int?
+  schedules Schedule[]
+}
+
+model Schedule {
+  id        Int       @id @default(autoincrement())
+  startTime DateTime
+  endTime   DateTime
+  dayOfWeek DayOfWeek
+  Room      Room      @relation(fields: [roomId], references: [id])
+  group     Group     @relation(fields: [groupId], references: [id])
+  roomId    Int
+  groupId   Int
+}
+
+enum DayOfWeek {
+  MONDAY
+  TUESDAY
+  WEDNESDAY
+  THURSDAY
+  FRIDAY
+  SATURDAY
+  // SUNDAY
+}
+
+model Student {
+  id          Int          @id @default(autoincrement())
+  firstName   String       @db.VarChar(50)
+  secondName  String       @db.VarChar(50)
+  passportId  String?      @unique @db.VarChar(9)
+  gender      gender
+  debt        Decimal      @default(0.00)
+  code        String       @unique
+  Certificate Certificate?
+  Group       Group        @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  course      Course       @relation(fields: [courseId], references: [id])
+  discount    Decimal      @default(0.00)
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+  phone       String?      @db.VarChar(50)
+  // Foreign key relationships
+  Payments    Payment[]
+  courseId    Int
+  groupId     Int
+}
+
+model Payment {
+  id          Int      @id @default(autoincrement())
+  paymentDate DateTime @default(now())
+  amount      Decimal
+  status      String   @default("Paid")
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  // Foreign key relationships
+  Student     Student  @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  studentId   Int
+}
+
+model Certificate {
+  id             Int      @id @default(autoincrement())
+  certificateUrl String   @unique @db.Text
+  filePath       String   @unique
+  createdAt      DateTime @default(now())
+  // Foreign key relationships
+  student        Student  @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  group          Group    @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  studentId      Int      @unique
+  groupId        Int
+}
+
+model Messages {
+  id        Int      @id @default(autoincrement())
+  fullName  String   @db.VarChar(255)
+  message   String   @db.Text
+  createdAt DateTime @default(now())
+}
+
+model NewStudent {
+  id         Int      @id @default(autoincrement())
+  fullName   String
+  phone      String
+  courseTime String
+  createdAt  DateTime @default(now())
+  isAttend   String   @default("pending") // Allowed values: 'success', 'pending', 'reject' @map("is_attend")
+  // Foreign key relationship to Course
+  course     Course   @relation(fields: [courseId], references: [id])
+  courseId   Int
+}
+
+model News {
+  id          Int      @id @default(autoincrement())
+  slug        String   @unique // Add slug field
+  photo_url   String?  @db.Text
+  title       String   @db.Text
+  description String   @db.Text
+  content     String   @db.Text
+  createdAt   DateTime @default(now())
+}
+
+model Blog {
+  id        Int      @id @default(autoincrement())
+  title     String   @db.Text
+  slug      String   @unique // Add slug field
+  content   String   @db.Text
+  authorId  Int // Foreign key to Teacher model
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  views     Int      @default(0) // Track the number of views
+
+  author     Teacher   @relation(fields: [authorId], references: [id])
+  Category   Category? @relation(fields: [categoryId], references: [id])
+  categoryId Int?
+}
+
+model Category {
+  id    Int    @id @default(autoincrement())
+  name  String @unique
+  blogs Blog[] // Many-to-many relationship with Blog
+}

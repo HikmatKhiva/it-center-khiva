@@ -1,6 +1,7 @@
-import { Avatar, Divider, Group } from "@mantine/core";
 import {
   BookOpenText,
+  ConciergeBell,
+  GraduationCap,
   House,
   Mails,
   Newspaper,
@@ -9,19 +10,9 @@ import {
   Users,
 } from "lucide-react";
 import { NavLink } from "react-router-dom";
-import { useAppSelector } from "../../hooks/redux";
-import { CoolMode } from "../../animation/cool-mode";
 const AdminNavbar = ({ close }: { close: () => void }) => {
-  const { admin } = useAppSelector((state) => state.admin);
   return (
     <div className="flex flex-col admin-navbar">
-      <Group align="center" gap="5" className="pt-5 pb-3">
-        <h3 className="text-xl px-4 ">Boshqaruv Paneli </h3>
-        <CoolMode>
-          <Avatar src={admin?.photo_url} alt={`${admin?.username} photo`} />
-        </CoolMode>
-      </Group>
-      <Divider />
       <NavLink
         onClick={close}
         className="w-full py-2 px-4 flex items-center gap-2  text-lg"
@@ -79,6 +70,30 @@ const AdminNavbar = ({ close }: { close: () => void }) => {
         <UserRoundPlus />
         Yangi o'quvchilar
       </NavLink>
+      <NavLink
+        onClick={close}
+        className="w-full py-2 px-4 flex items-center gap-2  text-lg"
+        to="/admin/reception"
+      >
+        <ConciergeBell />
+        Reception
+      </NavLink>
+      <NavLink
+        onClick={close}
+        className="w-full py-2 px-4 flex items-center gap-2  text-lg"
+        to="/admin/certificate"
+      >
+        <GraduationCap />
+        Tayor Sertificatlar
+      </NavLink>
+      {/* <NavLink
+        onClick={close}
+        className="w-full py-2 px-4 flex items-center gap-2  text-lg"
+        to="/admin/rooms"
+      >
+        <DoorClosed  />
+        Xonalar
+      </NavLink> */}
     </div>
   );
 };

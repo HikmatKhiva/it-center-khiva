@@ -1,8 +1,8 @@
 import { useDisclosure } from "@mantine/hooks";
 import { Button, Group, Modal, Text } from "@mantine/core";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { deleteStudent } from "../../api/api.student";
-import { useAppSelector } from "../../../hooks/redux";
+import { deleteStudent } from "@/admin/api/api.student";
+import { useAppSelector } from "@/hooks/redux";
 
 const DeleteStudentModal = ({ id }: { id: number }) => {
   const { admin } = useAppSelector((state) => state.admin);

@@ -12,7 +12,7 @@ const Header = () => {
   const [opened, { toggle,close }] = useDisclosure(false);
   const { data } = useQuery({
     queryKey: ["openedGroups"],
-    queryFn: getNewGroupList,
+    queryFn:()=> getNewGroupList<IOpenedGroup>(),
   });
   return (
     <AppShell

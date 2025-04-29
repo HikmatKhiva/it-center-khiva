@@ -8,37 +8,49 @@ import Superscript from "@tiptap/extension-superscript";
 import SubScript from "@tiptap/extension-subscript";
 import ImageResize from "tiptap-extension-resize-image";
 import "@mantine/tiptap/styles.css";
-import { ActionIcon, Button, Divider, Group, Text } from "@mantine/core";
-import { ArrowLeft, Save } from "lucide-react";
+import { Button, Divider, Group, Text } from "@mantine/core";
+import { ArrowLeft, Save, Youtube } from "lucide-react";
 import { useNavigate, useParams } from "react-router-dom";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import CreateCard from "../../components/news/CreateCard";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { getNews, updateNews } from "../../api/api.news";
-import { useAppSelector } from "../../../hooks/redux";
+import { getNews, updateNews } from "@/admin/api/api.news";
+import { useAppSelector } from "@/hooks/redux";
+import { selectUser } from "@/lib/redux/reducer/admin";
+import { DateInput } from "@mantine/dates";
+import {
+  createNotification,
+  showErrorNotification,
+  showSuccessNotification,
+} from "@/utils/notification";
+import CustomIFrame from "@/admin/extension/CustomIFrame";
 const AdminNewsUpdate = () => {
-  const { admin } = useAppSelector((state) => state.admin);
+  const admin = useAppSelector(selectUser);
+  const idNotification = useRef<string>("");
   const client = useQueryClient();
-  const { id } = useParams();
+  const { slug } = useParams();
   const navigate = useNavigate();
   const { data, isFetching, isLoading } = useQuery({
-    queryFn: () => getNews(id || ""),
-    queryKey: ["news", id],
+    queryFn: () => getNews(slug || ""),
+    queryKey: ["news", slug],
   });
-  const news: INews | null = Array.isArray(data) ? (data[0] as INews) : null;
-  const [content, setContent] = useState<string>(news?.content || "");
+  const [content, setContent] = useState<string>(data?.content || "");
   const { mutateAsync, isPending } = useMutation({
     mutationFn: (formData: FormData) =>
-      updateNews(formData, admin?.token || ""),
+      updateNews(formData, admin?.token || "", slug || ""),
     mutationKey: ["news", "create"],
-    onSuccess: () => {
-      client.invalidateQueries({ queryKey: ["news", id] });
+    onSuccess: (success) => {
+      client.invalidateQueries({ queryKey: ["news", slug] });
+      showSuccessNotification(idNotification.current, success.message);
       navigate("/admin/news");
+    },
+    onError: (error) => {
+      showErrorNotification(idNotification.current, error.message);
     },
   });
   const [newsCard, setNewsCard] = useState<INewsCard>({
-    title: news?.news_title || "",
-    description: news?.news_description || "",
+    title: data?.title || "",
+    description: data?.description || "",
     image: null,
   });
   const handleInputChange = (
@@ -57,18 +69,16 @@ const AdminNewsUpdate = () => {
       image: file,
     }));
   };
-  const [date, setDate] = useState<string>(
-    new Date().toISOString().split("T")[0]
-  );
+  const [createdAt, setCreatedAt] = useState<Date>(new Date());
   useEffect(() => {
-    if (news) {
-      setDate(new Date(news?.created_at).toISOString().split("T")[0]);
-      setNewsCard({
-        ...newsCard,
-        title: news.news_title,
-        description: news.news_description,
-      });
-      setContent(news?.content);
+    if (data) {
+      setCreatedAt(new Date(data?.createdAt));
+      setNewsCard((prev) => ({
+        ...prev,
+        title: data.title,
+        description: data.description,
+      }));
+      setContent(data?.content);
     }
   }, [data]);
   const editor = useEditor({
@@ -81,6 +91,7 @@ const AdminNewsUpdate = () => {
       Highlight,
       TextAlign.configure({ types: ["heading", "paragraph"] }),
       ImageResize.configure({ allowBase64: true }), // Use ImageResize here
+      CustomIFrame,
     ],
     content,
     onUpdate: ({ editor }) => {
@@ -92,11 +103,12 @@ const AdminNewsUpdate = () => {
     if (newsCard.image) {
       formData.append("image", newsCard.image);
     }
-    formData.append("id", (news?.id || id) as string);
     formData.append("title", newsCard.title);
     formData.append("description", newsCard.description);
     formData.append("content", content);
+    formData.append("createdAt", createdAt.toISOString());
     mutateAsync(formData);
+    idNotification.current = createNotification(isPending);
   };
   const handleImageUpload = (file: File): Promise<string> => {
     return new Promise((resolve) => {
@@ -104,6 +116,11 @@ const AdminNewsUpdate = () => {
       reader.onload = () => resolve(reader.result as string);
       reader.readAsDataURL(file);
     });
+  };
+  const handleUploadIframeData = (url: string) => {
+    if (editor) {
+      editor.commands?.setIframe({ src: url });
+    }
   };
   return (
     <>
@@ -113,7 +130,7 @@ const AdminNewsUpdate = () => {
             onClick={() => navigate(-1)}
             color="red"
             variant="outline"
-            size="sm"
+            size="xs"
           >
             <ArrowLeft size={16} />
           </Button>
@@ -122,14 +139,11 @@ const AdminNewsUpdate = () => {
           </Text>
         </Group>
         <Group>
-          <ActionIcon size="lg" variant="default" w={150}>
-            <input
-              type="date"
-              value={date}
-              onChange={(event) => setDate(event.target.value)}
-              className=" outline-none p-1 rounded  "
-            />
-          </ActionIcon>
+          <DateInput
+            value={createdAt}
+            onChange={(value) => setCreatedAt(value || new Date())}
+            placeholder="Date input"
+          />
           <Button
             disabled={isPending}
             onClick={handleSubmit}
@@ -157,6 +171,16 @@ const AdminNewsUpdate = () => {
           >
             <RichTextEditor.Toolbar sticky stickyOffset={60}>
               <RichTextEditor.ControlsGroup>
+                <RichTextEditor.Control
+                  onClick={() => {
+                    const url = prompt("Enter iframe URL");
+                    if (url) {
+                      handleUploadIframeData(url);
+                    }
+                  }}
+                >
+                  <Youtube size="16" />
+                </RichTextEditor.Control>
                 <RichTextEditor.Bold />
                 <RichTextEditor.Italic />
                 <RichTextEditor.Underline />
@@ -221,7 +245,7 @@ const AdminNewsUpdate = () => {
           </RichTextEditor>
         )}
         <CreateCard
-          photo={news?.photo_url || ""}
+          photo={data?.photo_url || ""}
           newsCard={newsCard}
           handleFileChange={handleFileChange}
           handleInputChange={handleInputChange}

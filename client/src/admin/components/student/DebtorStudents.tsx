@@ -1,45 +1,109 @@
-import { Table, Text } from "@mantine/core";
+import {
+  ActionIcon,
+  Group,
+  Pagination,
+  Stack,
+  Table,
+  Text,
+  TextInput,
+} from "@mantine/core";
 import { useQuery } from "@tanstack/react-query";
-import { getDebtorStudents } from "../../api/api.student";
-import { useAppSelector } from "../../../hooks/redux";
+import { useAppSelector } from "@/hooks/redux";
+import { selectUser } from "@/lib/redux/reducer/admin";
+import { LoaderCircle, RefreshCw, Search } from "lucide-react";
+import { useState } from "react";
+import { getDebtorStudents } from "@/api/api.helper";
+import { formatTime } from "@/utils/helper";
 const DebtorStudents = () => {
-  const { admin } = useAppSelector((state) => state.admin);
-  const { data } = useQuery({
-    queryFn: () => getDebtorStudents(admin?.token || ""),
-    queryKey: ["debtors"],
+  const admin = useAppSelector(selectUser);
+  const [query, setQuery] = useState<IDebtorQuery>({
+    name: "",
+    page: 1,
+    limit: 10,
+    month: (new Date().getMonth() + 1).toString(),
+  });
+  const { data, isPending, refetch } = useQuery<IDebtorsResponse>({
+    queryFn: () => getDebtorStudents(admin?.token || "", query),
+    queryKey: ["debtors", query.name, query.page, query.month],
     enabled: !!admin?.token,
   });
-  const currentMonth = new Date().toLocaleString("default", { month: "long" });
-  const rows =
-    Array.isArray(data) &&
-    data?.map((student: IDebtors, index: number) => (
-      <Table.Tr key={index}>
-        <Table.Td>{student.student_full_name}</Table.Td>
-        <Table.Td>{student.teacher_name}</Table.Td>
-        <Table.Td>{student.group_price}</Table.Td>
-        <Table.Td>{student.passport_id}</Table.Td>
-        <Table.Td>{student.last_payment_date}</Table.Td>
-        <Table.Td>{student.total_paid_this_month}</Table.Td>
-      </Table.Tr>
-    ));
+  const rows = data?.debtors?.map((student: IDebtor, index: number) => (
+    <Table.Tr key={index}>
+      <Table.Td>{student.id}</Table.Td>
+      <Table.Td>{student.fullName}</Table.Td>
+      <Table.Td>{student.teacherName}</Table.Td>
+      <Table.Td>{student.courseName}</Table.Td>
+      <Table.Td>{student.groupPrice}</Table.Td>
+      <Table.Td>{student.passportId}</Table.Td>
+      <Table.Td>{student.lastPaymentDate}</Table.Td>
+      <Table.Td>{student.totalPaidThisMonth}</Table.Td>
+      <Table.Td>{formatTime.DateTime(student.createdAt)}</Table.Td>
+    </Table.Tr>
+  ));
   return (
     <>
-      <Text fz={{ sm: "md", md: "20px" }} mb="20">
-        {currentMonth} oy qarzdor o'quvchilar ro'yxati
-      </Text>
-      <Table  title="Qarzdorlar ro'yxati.">
-        <Table.Thead>
-          <Table.Tr>
-            <Table.Th>O'quvchini ismi</Table.Th>
-            <Table.Th>O'qituvchini ismi</Table.Th>
-            <Table.Th>Kursni oylik puli</Table.Th>
-            <Table.Th>Passport ID</Table.Th>
-            <Table.Th>Oxirgi to'lov sanasi</Table.Th>
-            <Table.Th>Oxirgi to'lov miqdori</Table.Th>
-          </Table.Tr>
-        </Table.Thead>
-        <Table.Tbody>{rows}</Table.Tbody>
-      </Table>
+      <Group justify="space-between" align="self-start">
+        <Text fz={{ sm: "md", md: "20px" }} mb="10">
+          {data?.currentMonth} oy qarzdor o'quvchilar ro'yxati.
+        </Text>
+        <Group>
+          {/* <Select
+            size="xs"
+            leftSection={<CalendarFold />}
+            w={130}
+            data={selectMonths}
+            value={query.month}
+            onChange={(value) => setQuery({ ...query, month: value || "" })}
+          /> */}
+          <TextInput
+            size="xs"
+            value={query.name}
+            fz="xs"
+            rightSection={
+              isPending ? (
+                <LoaderCircle size={16} className="animate-spin" />
+              ) : (
+                <Search size={16} />
+              )
+            }
+            onChange={(event) =>
+              setQuery((prev) => ({ ...prev, name: event.target.value }))
+            }
+            placeholder="O'quvchi ismi..."
+          />
+        </Group>
+      </Group>
+      <Stack className="h-[calc(100vh_-_360px)]" justify="space-between ">
+        <Table withTableBorder highlightOnHover title="Qarzdorlar ro'yxati.">
+          <Table.Thead>
+            <Table.Tr>
+              <Table.Th>ID</Table.Th>
+              <Table.Th>O'quvchini ismi</Table.Th>
+              <Table.Th>O'qituvchini ismi</Table.Th>
+              <Table.Th>Kurs nomi</Table.Th>
+              <Table.Th>Guruh oylik puli</Table.Th>
+              <Table.Th>Passport ID</Table.Th>
+              <Table.Th>Oxirgi to'lov sanasi</Table.Th>
+              <Table.Th>Oxirgi to'lov miqdori</Table.Th>
+              <Table.Th>O'quvchi qo'shilgan sana</Table.Th>
+            </Table.Tr>
+          </Table.Thead>
+          <Table.Tbody>{rows}</Table.Tbody>
+        </Table>
+        <Group justify="space-between">
+          <ActionIcon onClick={() => refetch()} size="lg" color="indigo">
+            <RefreshCw size="18" />
+          </ActionIcon>
+          <Pagination
+            value={query.page}
+            className="self-end"
+            color="indigo"
+            hidden={(data?.totalPages ?? 0) <= 1 || isPending}
+            onChange={(pageNumber) => setQuery({ ...query, page: pageNumber })}
+            total={data?.totalPages || 1}
+          />
+        </Group>
+      </Stack>
     </>
   );
 };

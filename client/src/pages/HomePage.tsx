@@ -1,8 +1,8 @@
 import { Container } from "@mantine/core";
 import { lazy, Suspense } from "react";
-import { TextAnimate } from "../animation/text-animation";
+import { TextAnimate } from "@/animation/text-animation";
 // import TeacherSection from "../section/TeacherSection";
-import FaqSection from "../section/FaqSection";
+import FaqSection from "@/section/FaqSection";
 // import CourseSection from "../section/CourseSection";
 const Spline = lazy(() => import("@splinetool/react-spline"));
 const urlCube = "https://prod.spline.design/xqVtEciHtU0-h29j/scene.splinecode"

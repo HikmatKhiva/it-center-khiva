@@ -1,6 +1,6 @@
 import { Container, Group, Title } from "@mantine/core";
-import { Computer } from "../assets";
-import TeacherCard from "../components/teacher/TeacherCard";
+import { Computer } from "@/assets";
+import TeacherCard from "@/components/teacher/TeacherCard";
 import { motion } from "motion/react";
 const TeacherSection = () => {
   return (
@@ -31,5 +31,4 @@ const TeacherSection = () => {
     </motion.section>
   );
 };
-
 export default TeacherSection;

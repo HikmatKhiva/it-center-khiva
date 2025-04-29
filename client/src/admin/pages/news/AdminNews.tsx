@@ -7,21 +7,21 @@ import {
   Pagination,
 } from "@mantine/core";
 import { Newspaper, Pencil, Search } from "lucide-react";
-import AdminNewsCard from "../../components/news/AdminNewsCard";
+import AdminNewsCard from "@/admin/components/news/AdminNewsCard";
 import { Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
-import { getAllNews } from "../../api/api.news";
+import { getAllNews } from "@/admin/api/api.news";
 import { useState } from "react";
 const AdminNews = () => {
-  const [activePage, setPage] = useState(1);
-  const [search, setSearch] = useState<string>("");
-  const { data } = useQuery({
-    queryFn: () =>
-      getAllNews({ limit: 6, offset: (activePage - 1) * 6, search }),
-    queryKey: ["news", search],
+  const [query, setQuery] = useState({
+    name: "",
+    page: 1,
+    limit: 10,
   });
-  const totalCount = parseInt(data?.total_count) || 0;
-  const totalPages = Math.ceil(totalCount / 4);
+  const { data, isPending } = useQuery({
+    queryFn: () => getAllNews(query),
+    queryKey: ["news", query.name, query.page],
+  });
   return (
     <section>
       <Group pb="20" justify="space-between">
@@ -35,8 +35,10 @@ const AdminNews = () => {
           <TextInput
             rightSection={<Search size={16} />}
             fz={"xs"}
-            onChange={(event) => setSearch(event.target.value)}
-            value={search}
+            onChange={(event) =>
+              setQuery((prev) => ({ ...prev, name: event.target.value }))
+            }
+            value={query.name}
             placeholder="Izlash..."
           />
           <Link to="/admin/news/create">
@@ -49,7 +51,7 @@ const AdminNews = () => {
               type="button"
               variant="filled"
             >
-              Yangilik Yaratish
+              Yangilik Yaratish.
             </Button>
           </Link>
         </Group>
@@ -63,9 +65,10 @@ const AdminNews = () => {
       <Pagination
         className="ml-auto pb-5"
         color="#40C057"
-        total={totalPages}
-        value={activePage}
-        onChange={setPage}
+        hidden={(data?.totalPages ?? 0) <= 1 || isPending}
+        total={data?.totalPages || 0}
+        value={query.page}
+        onChange={(pageNumber) => setQuery({ ...query, page: pageNumber })}
         mt="sm"
       />
     </section>

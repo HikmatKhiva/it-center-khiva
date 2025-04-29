@@ -3,7 +3,7 @@ import {
   useMantineColorScheme,
   useComputedColorScheme,
 } from "@mantine/core";
-import { Moon, Sun } from "../assets";
+import { Moon, Sun } from "@/assets";
 import { motion } from "motion/react";
 const ThemeControl = () => {
   const { setColorScheme, colorScheme } = useMantineColorScheme({

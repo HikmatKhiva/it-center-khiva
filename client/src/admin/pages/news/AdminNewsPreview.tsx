@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { useNavigate, useParams } from "react-router-dom";
-import { getNews } from "../../api/api.news";
+import { getNews } from "@/admin/api/api.news";
 import { Button, Divider, Group, Text } from "@mantine/core";
 import { ArrowLeft } from "lucide-react";
 const AdminNewsPreview = () => {
@@ -29,5 +29,4 @@ const AdminNewsPreview = () => {
     </section>
   );
 };
-
 export default AdminNewsPreview;

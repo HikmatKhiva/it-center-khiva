@@ -1,59 +1,59 @@
-import { ActionIcon, Avatar, Indicator, Table } from "@mantine/core";
+import { ActionIcon, Indicator, Table, Text } from "@mantine/core";
 import { useNavigate } from "react-router-dom";
 import DeleteGroupModal from "./DeleteGroupModal";
+import { formatTime } from "@/utils/helper";
+import { Pencil } from "lucide-react";
 const GroupTable = ({
   data,
-  isLoading,
+  isPending,
   status,
 }: {
   data: IGroup[];
-  isLoading: boolean;
+  isPending: boolean;
   status: boolean;
 }) => {
   const navigate = useNavigate();
   const rows = data?.map((group: IGroup) => (
-    <Table.Tr key={group.code}>
-      <Table.Td>{group.code}</Table.Td>
+    <Table.Tr key={group.id}>
       <Table.Td>{group.name}</Table.Td>
-      <Table.Td>{group.course_name}</Table.Td>
-      <Table.Td>{group.teacher_name}</Table.Td>
-      <Table.Td>{group.students.length}</Table.Td>
-      <Table.Td>{group.created_at}</Table.Td>
+      <Table.Td>{group.course.name}</Table.Td>
+      <Table.Td>{group.teacher.firstName}</Table.Td>
+      <Table.Td>{group.Students.length}</Table.Td>
+      <Table.Td>{formatTime.DateTime(group.createdAt)}</Table.Td>
       <Table.Td>
-        <div className="relative w-[40px] h-[40px]">
+        <div className="relative w-fit h-fit">
           <Indicator
             withBorder
-            color={group.is_group_finished ? "red" : "green"}
-            processing={!group.is_group_finished}
+            color={group.isGroupFinished ? "red" : "green"}
+            processing={!group.isGroupFinished}
           >
-            <Avatar />
+            <Text>
+              {group.isGroupFinished === false ? "Active" : "Finished"}
+            </Text>
           </Indicator>
         </div>
       </Table.Td>
       <Table.Td>
         <ActionIcon
           onClick={() => navigate(`/admin/group/${group.id}`)}
-          aria-label="edit"
-          aria-labelledby="edit"
-          variant="filled"
+          variant="outline"
           size="md"
-          color="green"
+          color="grape"
         >
-          ✏️
+          <Pencil size="16" />
         </ActionIcon>
       </Table.Td>
-      {!group?.is_group_finished && (
+      {!group?.isGroupFinished && (
         <Table.Td>
-          <DeleteGroupModal disabled={group?.is_group_finished} id={group.id} />
+          <DeleteGroupModal disabled={group?.isGroupFinished} id={group.id} />
         </Table.Td>
       )}
     </Table.Tr>
   ));
   return (
-    <Table verticalSpacing="md" highlightOnHover>
+    <Table withTableBorder highlightOnHover>
       <Table.Thead>
         <Table.Tr>
-          <Table.Th>Guruh code</Table.Th>
           <Table.Th>Guruh nomi</Table.Th>
           <Table.Th>Kurs nomi</Table.Th>
           <Table.Th>O'qitivchisi</Table.Th>
@@ -64,7 +64,7 @@ const GroupTable = ({
           {!status && <Table.Th>O'chirish</Table.Th>}
         </Table.Tr>
       </Table.Thead>
-      <Table.Tbody>{!isLoading && rows}</Table.Tbody>
+      <Table.Tbody>{!isPending && rows}</Table.Tbody>
     </Table>
   );
 };

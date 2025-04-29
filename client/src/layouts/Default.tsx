@@ -12,5 +12,4 @@ const Default = () => {
     </div>
   );
 };
-
 export default Default;

@@ -1,18 +1,20 @@
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
-import "./index.css";
-import { routes } from "./Router.tsx";
+import { routes } from "@/Router.tsx";
 import { RouterProvider } from "react-router-dom";
-import "@mantine/core/styles.css";
-import "@mantine/carousel/styles.css";
 import { createTheme, MantineProvider } from "@mantine/core";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { Notifications } from "@mantine/notifications";
+import { Provider } from "react-redux";
+import { store } from "@/lib/redux/app.ts";
 // devtool
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
-import { Notifications } from "@mantine/notifications";
+// css imports
+import "@/css/index.css";
+import "@mantine/core/styles.css";
 import "@mantine/notifications/styles.css";
-import { Provider } from "react-redux";
-import { store } from "./lib/redux/app.ts";
+import '@mantine/dates/styles.css';
+// import NavigationProgressComponent from "./loading/NavigationProgressComponent.tsx";
 // Create a client
 const queryClient = new QueryClient();
 const theme = createTheme({
@@ -22,7 +24,6 @@ const theme = createTheme({
   },
   /** Put your mantine theme override here */
 });
-
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
     {/* tanstack query wrapper */}
