@@ -36,7 +36,7 @@
     "config": "^3.3.12",
     "cors": "^2.8.5",
     "dotenv": "^16.4.5",
-    "helmet": "^8.0.0",
+    "helmet": "^8.1.0",
     "hi-base32": "^0.5.1",
     "jsonwebtoken": "^9.0.2",
     "morgan": "^1.10.0",
