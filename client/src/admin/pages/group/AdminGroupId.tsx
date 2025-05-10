@@ -49,9 +49,9 @@ const AdminGroupId = () => {
     queryFn: () => getAllStudent(query, admin?.token || "", group?.id),
     enabled: !!admin?.token && !!group?.id,
   });
-  const rows = data?.students?.map((student: IStudent) => (
+  const rows = data?.students?.map((student: IStudent, index: number) => (
     <Table.Tr key={student.id}>
-      <Table.Td>{student.id}</Table.Td>
+      <Table.Td>{index + 1}</Table.Td>
       <Table.Td>{student.firstName}</Table.Td>
       <Table.Td>{student.secondName}</Table.Td>
       <Table.Td>{student.passportId}</Table.Td>
@@ -64,7 +64,7 @@ const AdminGroupId = () => {
       </Table.Td>
       <Table.Td>{student?.gender === "MALE" ? "Erkak" : "Ayol"}</Table.Td>
       {!group?.isGroupFinished && (
-        <Table.Td>{id  && <UpdateStudentModal student={student} />}</Table.Td>
+        <Table.Td>{id && <UpdateStudentModal student={student} />}</Table.Td>
       )}
       {!group?.isGroupFinished && (
         <Table.Td>
@@ -121,7 +121,7 @@ const AdminGroupId = () => {
         <Table withTableBorder highlightOnHover>
           <Table.Thead>
             <Table.Tr>
-              <Table.Th>id</Table.Th>
+              <Table.Th>N</Table.Th>
               <Table.Th>Ism</Table.Th>
               <Table.Th>Familiyasi</Table.Th>
               <Table.Th>Passport</Table.Th>
