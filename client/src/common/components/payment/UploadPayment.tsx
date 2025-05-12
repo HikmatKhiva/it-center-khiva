@@ -12,7 +12,7 @@ import {
   showSuccessNotification,
 } from "@/utils/notification";
 import { selectUser } from "@/lib/redux/reducer/admin";
-import { uploadPayment } from "@/admin/api/api.payment";
+import { Server } from "@/api/api";
 const UploadPayment = ({ studentId }: { studentId: number }) => {
   const admin = useAppSelector(selectUser);
   const [opened, { open, close }] = useDisclosure(false);
@@ -26,7 +26,14 @@ const UploadPayment = ({ studentId }: { studentId: number }) => {
     validate: createPaymentValidation,
   });
   const { mutateAsync, isPending } = useMutation({
-    mutationFn: (data: INewPayment) => uploadPayment(data, admin?.token || ""),
+    mutationFn: (data: INewPayment) =>
+      Server<IMessageResponse>(`payment/create`, {
+        method: "POST",
+        body: JSON.stringify(data),
+        headers: {
+          authorization: `Bearer ${admin?.token || ""}`,
+        },
+      }),
     mutationKey: ["payments"],
     onSuccess(success) {
       client.invalidateQueries({ queryKey: ["payments", studentId] });

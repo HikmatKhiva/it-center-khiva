@@ -1,4 +1,4 @@
-import { updateReceptionStatus } from "@/admin/api/api.admin";
+import { Server } from "@/api/api";
 import { useAppSelector } from "@/hooks/redux";
 import { selectUser } from "@/lib/redux/reducer/admin";
 import {
@@ -16,7 +16,13 @@ const ReceptionStatusUpdate = ({ profile }: { profile: IUserProfile }) => {
   const client = useQueryClient();
   const { mutateAsync, isPending } = useMutation({
     mutationFn: (value: { username: string; isActive: boolean }) =>
-      updateReceptionStatus(admin?.token || "", value),
+      Server<IMessageResponse>(`admin/reception/status`, {
+        method: "PUT",
+        body: JSON.stringify(value),
+        headers: {
+          authorization: `Bearer ${admin?.token}`,
+        },
+      }),
     mutationKey: ["reception", "status", "update"],
     onSuccess: (success) => {
       showSuccessNotification(idNotification.current, success?.message);

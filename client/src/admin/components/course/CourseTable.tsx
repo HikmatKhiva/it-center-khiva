@@ -1,6 +1,5 @@
 import { Pagination, Stack, Table } from "@mantine/core";
 import { useQuery } from "@tanstack/react-query";
-import { getAllCourse } from "@/admin/api/api.course";
 import UpdatedCourseModal from "./UpdatedCourseModal";
 import DeleteCourseModal from "./DeleteCourseModal";
 import { useAppSelector } from "@/hooks/redux";
@@ -8,15 +7,27 @@ import { selectUser } from "@/lib/redux/reducer/admin";
 import { useState } from "react";
 import { formatTime } from "@/utils/helper";
 import CourseCertificateDemo from "./CourseCertificateDemo";
+import { Server } from "@/api/api";
 const CourseTable = ({ name }: { name: string }) => {
   const [query, setQuery] = useState({
     page: 1,
     limit: 10,
   });
   const admin = useAppSelector(selectUser);
+  const params = new URLSearchParams({
+    name,
+    page: query.page.toString(),
+    limit: query.limit.toString(),
+  });
   const { data, isPending } = useQuery<ICoursesResponse>({
     queryKey: ["courses", name, query.page],
-    queryFn: () => getAllCourse({ ...query, name }, admin?.token || ""),
+    queryFn: () =>
+      Server<ICoursesResponse>(`course?${params}`, {
+        method: "GET",
+        headers: {
+          authorization: `Bearer ${admin?.token}`,
+        },
+      }),
     enabled: !!admin?.token,
   });
   const rows =

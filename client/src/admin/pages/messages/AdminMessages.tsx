@@ -1,19 +1,29 @@
 import { Divider, Group, Pagination, Stack, Text } from "@mantine/core";
 import { useQuery } from "@tanstack/react-query";
-import { getMessages } from "@/admin/api/api.message";
 import { useState } from "react";
 import MessageCard from "../../components/messages/MessageCard";
 import { useAppSelector } from "@/hooks/redux";
 import { selectUser } from "@/lib/redux/reducer/admin";
 import { Mails } from "lucide-react";
+import { Server } from "@/api/api";
 const AdminMessages = () => {
   const admin = useAppSelector(selectUser);
   const [query, setQuery] = useState({
     limit: 9,
     page: 1,
   });
-  const { data,isPending } = useQuery<IMessagesResponse>({
-    queryFn: () => getMessages(query, admin?.token || ""),
+  const params = new URLSearchParams({
+    limit: query.limit.toString(),
+    page: query.page.toString(),
+  });
+  const { data, isPending } = useQuery<IMessagesResponse>({
+    queryFn: () =>
+      Server(`admin/messages?${params}`, {
+        method: "GET",
+        headers: {
+          authorization: `Bearer ${admin?.token}`,
+        },
+      }),
     queryKey: ["message", query.page],
     enabled: !!admin?.token,
   });
@@ -29,7 +39,7 @@ const AdminMessages = () => {
       </Group>
       <Divider mb="40" />
       <Stack justify="space-between" className="h-[calc(100vh_-_160px)]">
-        <Group justify="center" wrap="wrap"  >
+        <Group justify="center" wrap="wrap">
           {data?.messages?.map((m: IMessage) => (
             <MessageCard message={m} key={m.id} />
           ))}

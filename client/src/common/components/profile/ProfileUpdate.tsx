@@ -11,7 +11,6 @@ import { useAppDispatch, useAppSelector } from "@/hooks/redux";
 import { useForm } from "@mantine/form";
 import { adminValidate } from "@/validation";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { generateSecret, updateAdminProfile } from "@/admin/api/api.admin";
 import { useRef, useState } from "react";
 import { login, selectUser } from "@/lib/redux/reducer/admin";
 import {
@@ -19,6 +18,7 @@ import {
   showErrorNotification,
   showSuccessNotification,
 } from "@/utils/notification";
+import { Server } from "@/api/api";
 const ProfileUpdate = ({ profile }: { profile: IUserProfile | undefined }) => {
   const admin = useAppSelector(selectUser);
   const idNotification = useRef<string>("");
@@ -27,7 +27,13 @@ const ProfileUpdate = ({ profile }: { profile: IUserProfile | undefined }) => {
   const [updateSecret, setUpdateSecret] = useState<boolean>(false);
   const { mutateAsync, isPending } = useMutation({
     mutationFn: (data: IUserUpdate) =>
-      updateAdminProfile(data, admin?.token || ""),
+      Server<I2FAResponse>("admin/profile/update", {
+        method: "PUT",
+        body: JSON.stringify(data),
+        headers: {
+          authorization: `Bearer ${admin?.token}`,
+        },
+      }),
     mutationKey: ["admin", "profile", "update"],
     onSuccess: (success) => {
       showSuccessNotification(idNotification.current, success?.message);
@@ -52,8 +58,13 @@ const ProfileUpdate = ({ profile }: { profile: IUserProfile | undefined }) => {
     await mutateAsync(data);
   };
   const handleUpdateSecretKey = async () => {
-    const secret = await generateSecret(admin?.token || "");
-    form.setFieldValue("secret", secret);
+    const response = await Server<string>(`generate-secret`, {
+      method: "GET",
+      headers: {
+        authorization: `Bearer ${admin?.token || ""}`,
+      },
+    });
+    form.setFieldValue("secret", response);
     setUpdateSecret(!updateSecret);
   };
   return (
@@ -106,7 +117,7 @@ const ProfileUpdate = ({ profile }: { profile: IUserProfile | undefined }) => {
         type="submit"
         rightSection={<Save />}
       >
-        Yangilash
+        Yangilash.
       </Button>
     </form>
   );

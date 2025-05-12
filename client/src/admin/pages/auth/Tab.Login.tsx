@@ -3,12 +3,12 @@ import { useForm } from "@mantine/form";
 import { adminValidation } from "@/validation";
 import { useRef } from "react";
 import { useMutation } from "@tanstack/react-query";
-import { adminLogin } from "@/admin/api/api.admin";
 import {
   createNotification,
   showErrorNotification,
   showSuccessNotification,
 } from "@/utils/notification";
+import { Server } from "@/api/api";
 const TabLogin = ({
   nextStep,
   handleLogin,
@@ -21,11 +21,15 @@ const TabLogin = ({
     initialValues: {
       username: "",
       password: "",
-    } as IAdminLogin,
+    } as IUserLogin,
     validate: adminValidation,
   });
   const { isPending, mutateAsync } = useMutation({
-    mutationFn: adminLogin,
+    mutationFn: (user: IUserLogin) =>
+      Server<ILoginResponse>("auth/admin/login", {
+        method: "POST",
+        body: JSON.stringify(user),
+      }),
     mutationKey: ["user", "login"],
     onSuccess: (success) => {
       showSuccessNotification(idNotification.current, success?.message);
@@ -36,7 +40,7 @@ const TabLogin = ({
       showErrorNotification(idNotification.current, error.message);
     },
   });
-  const handleSubmit = async (user: IAdminLogin): Promise<void> => {
+  const handleSubmit = async (user: IUserLogin): Promise<void> => {
     idNotification.current = createNotification(isPending);
     await mutateAsync(user);
   };

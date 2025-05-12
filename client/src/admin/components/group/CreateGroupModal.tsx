@@ -2,7 +2,6 @@ import { Button, Modal, Stack, TextInput, Select } from "@mantine/core";
 import { useForm } from "@mantine/form";
 import { useDisclosure } from "@mantine/hooks";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { createGroup } from "@/admin/api/api.group";
 import { Pencil } from "lucide-react";
 import { createGroupValidation } from "@/validation";
 import { useAppSelector } from "@/hooks/redux";
@@ -14,6 +13,7 @@ import {
   showErrorNotification,
   showSuccessNotification,
 } from "@/utils/notification";
+import { Server } from "@/api/api";
 const CreateGroupModal = () => {
   const admin = useAppSelector(selectUser);
   const idNotification = useRef<string>("");
@@ -36,10 +36,17 @@ const CreateGroupModal = () => {
     validate: createGroupValidation,
   });
   const { isPending, mutateAsync } = useMutation({
-    mutationFn: (group: INewGroup) => createGroup(group, admin?.token || ""),
+    mutationFn: (group: INewGroup) =>
+      Server<IMessageResponse>(`group/create`, {
+        method: "POST",
+        body: JSON.stringify(group),
+        headers: {
+          authorization: `Bearer ${admin?.token || ""}`,
+        },
+      }),
     onSuccess: (success) => {
       client.invalidateQueries({ queryKey: ["groups"] });
-      showSuccessNotification(idNotification.current, success?.message);  
+      showSuccessNotification(idNotification.current, success?.message);
       form.reset();
       close();
     },
@@ -83,7 +90,7 @@ const CreateGroupModal = () => {
               label="Qancha oy davom etishi belgilang!"
               placeholder="6"
               size="sm"
-              min={1} 
+              min={1}
               max={13}
               maxLength={2}
               value={form.values.duration}

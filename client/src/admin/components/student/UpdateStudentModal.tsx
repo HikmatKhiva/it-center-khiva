@@ -1,7 +1,6 @@
 import { useDisclosure } from "@mantine/hooks";
 import { Button, Modal, Select, Stack, TextInput } from "@mantine/core";
 import { useForm } from "@mantine/form";
-import { updateStudent } from "@/admin/api/api.student";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useAppSelector } from "@/hooks/redux";
 import { selectUser } from "@/lib/redux/reducer/admin";
@@ -12,6 +11,7 @@ import {
   showSuccessNotification,
 } from "@/utils/notification";
 import { Pencil } from "lucide-react";
+import { Server } from "@/api/api";
 const UpdateStudentModal = ({ student }: { student: IStudent }) => {
   const client = useQueryClient();
   const admin = useAppSelector(selectUser);
@@ -19,7 +19,13 @@ const UpdateStudentModal = ({ student }: { student: IStudent }) => {
   const [opened, { open, close }] = useDisclosure(false);
   const { mutateAsync, isPending } = useMutation({
     mutationFn: (data: IStudent) =>
-      updateStudent(data, admin?.token || "", student?.id),
+      Server<IMessageResponse>(`students/update/${student.id}`, {
+        method: "PUT",
+        body: JSON.stringify(data),
+        headers: {
+          authorization: `Bearer ${admin?.token || ""}`,
+        },
+      }),
     onSuccess: (success) => {
       client.invalidateQueries({ queryKey: ["students"] });
       showSuccessNotification(idNotification.current, success?.message);

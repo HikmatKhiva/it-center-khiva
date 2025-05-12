@@ -1,5 +1,4 @@
-import { generateSecret } from "@/admin/api/api.admin";
-import { createReceptionAccount } from "@/admin/api/api.reception";
+import { Server } from "@/api/api";
 import { useAppSelector } from "@/hooks/redux";
 import { selectUser } from "@/lib/redux/reducer/admin";
 import {
@@ -39,7 +38,13 @@ const ReceptionCreateModal = () => {
   });
   const { mutateAsync, isPending } = useMutation({
     mutationFn: (data: IUserRegister) =>
-      createReceptionAccount(data, admin?.token || ""),
+      Server<IMessageResponse>(`admin/reception/register`, {
+        method: "POST",
+        body: JSON.stringify(data),
+        headers: {
+          authorization: `Bearer ${admin?.token || ""}`,
+        },
+      }),
     mutationKey: ["reception", "profile", "create"],
     onSuccess: (success) => {
       client.invalidateQueries({ queryKey: ["receptions"] });
@@ -56,8 +61,13 @@ const ReceptionCreateModal = () => {
     await mutateAsync(data);
   };
   const handleUpdateSecretKey = async () => {
-    const secret = await generateSecret(admin?.token || "");
-    form.setFieldValue("secret", secret);
+    const response = await Server<string>(`generate-secret`, {
+      method: "GET",
+      headers: {
+        authorization: `Bearer ${admin?.token || ""}`,
+      },
+    });
+    form.setFieldValue("secret", response);
     setUpdateSecret(!updateSecret);
   };
   return (

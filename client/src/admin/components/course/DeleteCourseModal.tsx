@@ -1,7 +1,6 @@
 import { useDisclosure } from "@mantine/hooks";
 import { Button, Group, Modal, Text } from "@mantine/core";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { deleteCourse } from "@/admin/api/api.course";
 import { useRef, MutableRefObject } from "react";
 import { Trash } from "lucide-react";
 import { useAppSelector } from "@/hooks/redux";
@@ -11,13 +10,20 @@ import {
   showSuccessNotification,
 } from "@/utils/notification";
 import { selectUser } from "@/lib/redux/reducer/admin";
+import { Server } from "@/api/api";
 const DeleteCourseModal = ({ id }: { id: number }) => {
   const admin = useAppSelector(selectUser);
   const [opened, { open, close }] = useDisclosure(false);
   const idNotification: MutableRefObject<string> = useRef("");
   const client = useQueryClient();
   const { mutateAsync, isPending } = useMutation({
-    mutationFn: () => deleteCourse(id, admin?.token || ""),
+    mutationFn: () =>
+      Server<IMessageResponse>(`course/delete/${id}`, {
+        method: "DELETE",
+        headers: {
+          authorization: `Bearer ${admin?.token || ""}`,
+        },
+      }),
     onSuccess: (success) => {
       showSuccessNotification(idNotification.current, success?.message);
       client.invalidateQueries({ queryKey: ["courses"] });

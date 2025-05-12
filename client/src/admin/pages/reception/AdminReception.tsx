@@ -1,6 +1,6 @@
-import { getReceptionAccounts } from "@/admin/api/api.reception";
 import ReceptionCreateModal from "@/admin/components/reception/ReceptionCreateModal";
 import ReceptionTable from "@/admin/components/reception/ReceptionTable";
+import { Server } from "@/api/api";
 import { useAppSelector } from "@/hooks/redux";
 import { selectUser } from "@/lib/redux/reducer/admin";
 import { Group, Text } from "@mantine/core";
@@ -9,7 +9,13 @@ import { ConciergeBell } from "lucide-react";
 const AdminReception = () => {
   const admin = useAppSelector(selectUser);
   const { data } = useQuery<IReceptionResponse, Error>({
-    queryFn: () => getReceptionAccounts(admin?.token || ""),
+    queryFn: () =>
+      Server<IReceptionResponse>(`admin/reception`, {
+        method: "GET",
+        headers: {
+          authorization: `Bearer ${admin?.token}`,
+        },
+      }),
     queryKey: ["receptions"],
     enabled: !!admin?.token,
   });

@@ -2,7 +2,6 @@ import { Button, PinInput, Stack, Text } from "@mantine/core";
 import { useForm } from "@mantine/form";
 import { tokenValidation } from "@/validation";
 import { useMutation } from "@tanstack/react-query";
-import { adminVerify } from "@/admin/api/api.admin";
 import { useRef } from "react";
 import {
   createNotification,
@@ -12,6 +11,7 @@ import {
 import { login } from "@/lib/redux/reducer/admin";
 import { useAppDispatch } from "@/hooks/redux";
 import { useNavigate } from "react-router-dom";
+import { Server } from "@/api/api";
 const TabVerify2FA = ({ username }: { username: string }) => {
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
@@ -36,7 +36,11 @@ const TabVerify2FA = ({ username }: { username: string }) => {
     validate: tokenValidation,
   });
   const { isPending, mutateAsync } = useMutation({
-    mutationFn: adminVerify,
+    mutationFn: (data: I2FAData) =>
+      Server<I2FAResponse>("auth/admin/verify-2fa", {
+        method: "POST",
+        body: JSON.stringify(data),
+      }),
     mutationKey: ["user", "verify"],
     onSuccess: (success) => {
       showSuccessNotification(idNotification.current, success?.message);

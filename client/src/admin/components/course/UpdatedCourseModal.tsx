@@ -3,7 +3,6 @@ import { Button, Modal, Select, Stack, TextInput } from "@mantine/core";
 import { useForm } from "@mantine/form";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { createCourseValidation } from "@/validation";
-import { updateCourse } from "@/admin/api/api.course";
 import { useAppSelector } from "@/hooks/redux";
 import { selectUser } from "@/lib/redux/reducer/admin";
 import { Pen } from "lucide-react";
@@ -14,6 +13,7 @@ import {
   showSuccessNotification,
 } from "@/utils/notification";
 import useFormData from "@/hooks/useFormData";
+import { Server } from "@/api/api";
 const UpdatedCourseModal = ({ course }: { course: ICourse }) => {
   const client = useQueryClient();
   const admin = useAppSelector(selectUser);
@@ -22,7 +22,13 @@ const UpdatedCourseModal = ({ course }: { course: ICourse }) => {
   const [opened, { open, close }] = useDisclosure(false);
   const { mutateAsync, isPending } = useMutation({
     mutationFn: (data: INewCourse) =>
-      updateCourse(data, admin?.token || "", course.id),
+      Server<IMessageResponse>(`course/update/${course.id}`, {
+        method: "PUT",
+        body: JSON.stringify(data),
+        headers: {
+          authorization: `Bearer ${admin?.token || ""}`,
+        },
+      }),
     onSuccess: (success) => {
       client.invalidateQueries({ queryKey: ["courses", course.id] });
       showSuccessNotification(idNotification.current, success?.message);

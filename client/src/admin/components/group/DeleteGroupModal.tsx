@@ -1,7 +1,6 @@
 import { useDisclosure } from "@mantine/hooks";
 import { Button, Group, Modal, Text } from "@mantine/core";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { deleteGroup } from "@/admin/api/api.group";
 import { useAppSelector } from "@/hooks/redux";
 import {
   createNotification,
@@ -11,6 +10,7 @@ import {
 import { useRef } from "react";
 import { selectUser } from "@/lib/redux/reducer/admin";
 import { Trash2 } from "lucide-react";
+import { Server } from "@/api/api";
 const DeleteGroupModal = ({
   id,
   disabled,
@@ -23,7 +23,13 @@ const DeleteGroupModal = ({
   const idNotification = useRef<string>("");
   const client = useQueryClient();
   const { mutateAsync, isPending } = useMutation({
-    mutationFn: (id: number) => deleteGroup(id, admin?.token || ""),
+    mutationFn: (id: number) =>
+      Server<IMessageResponse>(`group/delete/${id}`, {
+        method: "DELETE",
+        headers: {
+          authorization: `Bearer ${admin?.token || ""}`,
+        },
+      }),
     onSuccess: (success) => {
       showSuccessNotification(idNotification.current, success?.message);
       client.invalidateQueries({ queryKey: ["groups"] });

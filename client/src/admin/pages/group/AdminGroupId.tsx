@@ -7,7 +7,6 @@ import {
   LoadingOverlay,
 } from "@mantine/core";
 import { useParams } from "react-router-dom";
-import { getGroup } from "@/admin/api/api.group";
 import { useQuery } from "@tanstack/react-query";
 import DeleteStudentModal from "@/admin/components/student/DeleteStudentModal";
 import UpdateStudentModal from "@/admin/components/student/UpdateStudentModal";
@@ -17,9 +16,9 @@ import { useAppSelector } from "@/hooks/redux";
 import { ChangeEvent, useCallback, useState } from "react";
 import { selectUser } from "@/lib/redux/reducer/admin";
 import NavigateCertificate from "@/admin/components/group/NavigateCertificate";
-import { getAllStudent } from "@/admin/api/api.student";
 import GroupIdHeader from "@/admin/components/group/GroupIdHeader";
 import { Check, Eye, RefreshCw } from "lucide-react";
+import { Server } from "@/api/api";
 const AdminGroupId = () => {
   const url = `http://${window?.location?.hostname}/site/certificate?code`;
   const admin = useAppSelector(selectUser);
@@ -39,14 +38,31 @@ const AdminGroupId = () => {
     queryKey: ["group", id],
     queryFn: () => {
       if (id) {
-        return getGroup(parseInt(id), admin?.token || "");
+        return Server<IGroup>(`group/${id}`, {
+          method: "GET",
+          headers: {
+            authorization: `Bearer ${admin?.token || ""}`,
+          },
+        });
       }
     },
     enabled: !!id && !!admin?.token,
   });
-  const { data, isPending, refetch } = useQuery({
+  const params = new URLSearchParams({
+    name: query.name,
+    page: query.page.toString(),
+    limit: query.limit.toString(),
+    ...(id !== undefined && { groupId: id.toString() }),
+  });
+  const { data, isPending, refetch } = useQuery<IStudentsResponse>({
     queryKey: ["students", query.name, query.page],
-    queryFn: () => getAllStudent(query, admin?.token || "", group?.id),
+    queryFn: () =>
+      Server<IStudentsResponse>(`students?${params}`, {
+        method: "GET",
+        headers: {
+          authorization: `Bearer ${admin?.token || ""}`,
+        },
+      }),
     enabled: !!admin?.token && !!group?.id,
   });
   const rows = data?.students?.map((student: IStudent, index: number) => (

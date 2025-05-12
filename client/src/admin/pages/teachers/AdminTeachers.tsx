@@ -1,12 +1,12 @@
 import TeachersTable from "@/admin/components/teachers/TeachersTable";
 import { TextInput, Group, Text, Pagination, Stack } from "@mantine/core";
 import { LoaderCircle, Search, User } from "lucide-react";
-import CreateTeacherModal from "../../components/teachers/CreateTeacherModal";
+import CreateTeacherModal from "@/admin/components/teachers/CreateTeacherModal";
 import { useQuery } from "@tanstack/react-query";
-import { getAllTeachers } from "@/admin/api/api.teachers";
 import { useState } from "react";
 import { useAppSelector } from "@/hooks/redux";
 import { selectUser } from "@/lib/redux/reducer/admin";
+import { Server } from "@/api/api";
 const AdminTeachers = () => {
   const admin = useAppSelector(selectUser);
   const [query, setQuery] = useState({
@@ -14,9 +14,20 @@ const AdminTeachers = () => {
     page: 1,
     limit: 10,
   });
+  const params = new URLSearchParams({
+    name: query.name,
+    page: query.page.toString(),
+    limit: query.limit.toString(),
+  });
   const { data, isPending } = useQuery<ITeacherResponse>({
     queryKey: ["teachers", query.name, query.page],
-    queryFn: () => getAllTeachers(query, admin?.token || ""),
+    queryFn: () =>
+      Server<ITeacherResponse>(`teachers?${params}`, {
+        method: "GET",
+        headers: {
+          authorization: `Bearer ${admin?.token}`,
+        },
+      }),
     enabled: !!admin?.token,
   });
   return (

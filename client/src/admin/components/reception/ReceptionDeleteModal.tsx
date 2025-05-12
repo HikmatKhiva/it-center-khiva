@@ -1,4 +1,4 @@
-import { deleteReceptionAccount } from "@/admin/api/api.reception";
+import { Server } from "@/api/api";
 import { useAppSelector } from "@/hooks/redux";
 import { selectUser } from "@/lib/redux/reducer/admin";
 import {
@@ -17,7 +17,13 @@ const ReceptionDeleteModal = ({ id }: { id: number }) => {
   const idNotification = useRef<string>("");
   const client = useQueryClient();
   const { mutateAsync, isPending } = useMutation({
-    mutationFn: () => deleteReceptionAccount(admin?.token || "", id),
+    mutationFn: () =>
+      Server<IMessageResponse>(`admin/reception/delete/${id}`, {
+        method: "DELETE",
+        headers: {
+          authorization: `Bearer ${admin?.token || ""}`,
+        },
+      }),
     onSuccess: (success) => {
       showSuccessNotification(idNotification.current, success?.message);
       client.invalidateQueries({ queryKey: ["receptions"] });

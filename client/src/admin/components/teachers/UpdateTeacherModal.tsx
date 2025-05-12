@@ -10,7 +10,6 @@ import {
 } from "@mantine/core";
 import { useForm } from "@mantine/form";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { deleteTeacherPhoto, updateTeacher } from "@/admin/api/api.teachers";
 import { useAppSelector } from "@/hooks/redux";
 import { Pen, Trash2 } from "lucide-react";
 import {
@@ -22,6 +21,7 @@ import { useRef } from "react";
 import { selectUser } from "@/lib/redux/reducer/admin";
 import { teacherValidate } from "@/validation";
 import { InputMask } from "@react-input/mask";
+import { Server } from "@/api/api";
 const UpdateTeacherModal = ({ teacher }: { teacher: ITeacher }) => {
   const admin = useAppSelector(selectUser);
   const idNotification = useRef<string>("");
@@ -29,7 +29,13 @@ const UpdateTeacherModal = ({ teacher }: { teacher: ITeacher }) => {
   const [opened, { open, close }] = useDisclosure(false);
   const { mutateAsync, isPending } = useMutation({
     mutationFn: (data: FormData) =>
-      updateTeacher(data, admin?.token || "", teacher.id),
+      Server<IMessageResponse>(`teachers/update/${teacher.id}`, {
+        method: "PUT",
+        headers: {
+          authorization: `Bearer ${admin?.token || ""}`,
+        },
+        body: JSON.stringify(data),
+      }),
     mutationKey: ["teacher", "update", teacher.id],
     onSuccess: (success) => {
       client.invalidateQueries({ queryKey: ["teachers"] });
@@ -68,10 +74,14 @@ const UpdateTeacherModal = ({ teacher }: { teacher: ITeacher }) => {
     : teacher?.photo_url;
   const deletePhoto = async () => {
     if (!admin?.token || !teacher.id) return;
-    await deleteTeacherPhoto(teacher.id, admin?.token);
+    await Server<IMessageResponse>(`teachers/deletePhoto/${teacher.id}`, {
+      method: "PATCH",
+      headers: {
+        authorization: `Bearer ${admin?.token || ""}`,
+      },
+    });
     client.invalidateQueries({ queryKey: ["teachers"] });
-    close()
-
+    close();
   };
   return (
     <>

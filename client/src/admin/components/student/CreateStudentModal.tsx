@@ -2,7 +2,6 @@ import { Button, Modal, Stack, TextInput, Select } from "@mantine/core";
 import { useForm } from "@mantine/form";
 import { useDisclosure } from "@mantine/hooks";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { createStudent } from "@/admin/api/api.student";
 import { Pencil } from "lucide-react";
 import { studentValidation } from "@/validation";
 import { useAppSelector } from "@/hooks/redux";
@@ -13,8 +12,9 @@ import {
   showSuccessNotification,
 } from "@/utils/notification";
 import { selectUser } from "@/lib/redux/reducer/admin";
-import { discounts } from "../../../config";
+import { discounts } from "@/config";
 import { InputMask } from "@react-input/mask";
+import { Server } from "@/api/api";
 const CreateStudent = ({
   courseId,
   groupId,
@@ -43,7 +43,13 @@ const CreateStudent = ({
   });
   const { mutateAsync, isPending } = useMutation({
     mutationFn: (student: IStudentCreate) =>
-      createStudent(student, admin?.token || ""),
+      Server<IMessageResponse>(`students/create`, {
+        method: "POST",
+        body: JSON.stringify(student),
+        headers: {
+          authorization: `Bearer ${admin?.token || ""}`,
+        },
+      }),
     onSuccess: (success) => {
       client.invalidateQueries({ queryKey: ["students"] });
       showSuccessNotification(idNotification.current, success?.message);

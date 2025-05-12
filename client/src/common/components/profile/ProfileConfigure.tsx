@@ -18,13 +18,14 @@ import ProfileUpdate from "./ProfileUpdate";
 import { Check, X } from "lucide-react";
 import { selectUser } from "@/lib/redux/reducer/admin";
 import { useMutation, useQuery } from "@tanstack/react-query";
-import { getProfile, uploadImage } from "@/admin/api/api.admin";
+import { uploadImage } from "@/admin/api/api.admin";
 import {
   createNotification,
   showErrorNotification,
   showSuccessNotification,
 } from "@/utils/notification";
 import ProfilePhotoDelete from "./ProfilePhotoDelete";
+import { Server } from "@/api/api";
 const ProfileConfigure = () => {
   const [opened, { open, close }] = useDisclosure(false);
   const profile = useAppSelector(selectUser);
@@ -37,7 +38,13 @@ const ProfileConfigure = () => {
   >({});
   const { data, refetch } = useQuery<IUserProfile>({
     queryKey: ["profile"],
-    queryFn: () => getProfile(profile?.token || "", profile?.id || 0),
+    queryFn: () =>
+      Server(`admin/profile/${profile?.id}`, {
+        method: "GET",
+        headers: {
+          authorization: `Bearer ${profile?.token || ""}`,
+        },
+      }),
     enabled: !!profile?.token && !!profile.id,
   });
   const { mutateAsync, isPending } = useMutation({

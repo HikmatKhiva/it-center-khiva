@@ -1,7 +1,6 @@
 import { useDisclosure } from "@mantine/hooks";
 import { Button, Group, Modal, Text } from "@mantine/core";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { generateGroupCertificate } from "@/admin/api/api.certificate";
 import { Check } from "lucide-react";
 import confetti from "canvas-confetti";
 import { useAppSelector } from "@/hooks/redux";
@@ -12,6 +11,7 @@ import {
   showErrorNotification,
   showSuccessNotification,
 } from "@/utils/notification";
+import { Server } from "@/api/api";
 const FinishGroupModal = ({ id }: { id: number }) => {
   const admin = useAppSelector(selectUser);
   const [opened, { open, close }] = useDisclosure(false);
@@ -42,7 +42,13 @@ const FinishGroupModal = ({ id }: { id: number }) => {
     }, 250);
   };
   const { mutateAsync, isPending } = useMutation({
-    mutationFn: () => generateGroupCertificate(id, admin?.token || ""),
+    mutationFn: () =>
+      Server<IMessageResponse>(`group/finish/${id}`, {
+        method: "PATCH",
+        headers: {
+          authorization: `Bearer ${admin?.token || ""}`,
+        },
+      }),
     onSuccess(success) {
       client.invalidateQueries({ queryKey: ["group", id] });
       frame();

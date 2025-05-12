@@ -3,7 +3,7 @@ import { useMutation } from "@tanstack/react-query";
 import { DownloadIcon } from "lucide-react";
 import { useAppSelector } from "@/hooks/redux";
 import { selectUser } from "@/lib/redux/reducer/admin";
-import { downloadGroupCertificate } from "@/admin/api/api.group";
+import { downloadGroupCertificate } from "@/api/api";
 const DownloadCertificate = ({ id, name }: { id: number; name: string }) => {
   const admin = useAppSelector(selectUser);
   const { mutateAsync, isPending } = useMutation({

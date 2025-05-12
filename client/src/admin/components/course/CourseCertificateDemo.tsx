@@ -9,19 +9,23 @@ import Poppins from "@/admin/assets/font/Poppins/Poppins-Regular.ttf"; // Ensure
 import { useQuery } from "@tanstack/react-query";
 import { selectUser } from "@/lib/redux/reducer/admin";
 import { useAppSelector } from "@/hooks/redux";
-import { getACourse } from "@/admin/api/api.course";
+import { Server } from "@/api/api";
 const CourseCertificateDemo = ({ id }: { id: number }) => {
   const admin = useAppSelector(selectUser);
   const [opened, { open, close }] = useDisclosure(false);
-  // color
-  // Original RGB values
+  //color Original RGB values
   const red = 151;
   const green = 193;
   const blue = 25;
-
   const { data, isPending, refetch } = useQuery<ICourse>({
     queryKey: ["course", id],
-    queryFn: () => getACourse(admin?.token || "", id),
+    queryFn: () =>
+      Server<ICourse>(`course/${id}`, {
+        method: "GET",
+        headers: {
+          authorization: `Bearer ${admin?.token}`,
+        },
+      }),
     enabled: !!admin?.token && !!id,
   });
   const [pdfInfo, setPdfInfo] = useState<string | null>(null);
@@ -55,7 +59,6 @@ const CourseCertificateDemo = ({ id }: { id: number }) => {
         color: rgb(normalizedRed, normalizedGreen, normalizedBlue),
       });
       const currentYear = new Date().getFullYear().toString().slice(2, 4);
-
       // write id
       page.drawText(`${currentYear}/100-001`, {
         x: 635,

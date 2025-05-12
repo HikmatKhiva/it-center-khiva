@@ -3,8 +3,6 @@ import { useForm } from "@mantine/form";
 import { useDisclosure } from "@mantine/hooks";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { createCourseValidation } from "@/validation";
-import { createCourse } from "@/admin/api/api.course";
-import { Pencil } from "lucide-react";
 import { useAppSelector } from "@/hooks/redux";
 import { selectUser } from "@/lib/redux/reducer/admin";
 import {
@@ -14,6 +12,8 @@ import {
 } from "@/utils/notification";
 import { useRef } from "react";
 import useFormData from "@/hooks/useFormData";
+import { Server } from "@/api/api";
+import { Pencil } from "lucide-react";
 const CreateCourseModal = () => {
   const admin = useAppSelector(selectUser);
   const idNotification = useRef<string>("");
@@ -30,7 +30,13 @@ const CreateCourseModal = () => {
   });
   const { isPending, mutateAsync } = useMutation({
     mutationFn: (course: INewCourse) =>
-      createCourse(course, admin?.token || ""),
+      Server<IMessageResponse>(`course/create`, {
+        method: "POST",
+        body: JSON.stringify(course),
+        headers: {
+          authorization: `Bearer ${admin?.token || ""}`,
+        },
+      }),
     onSuccess: (success) => {
       client.invalidateQueries({ queryKey: ["courses"] });
       showSuccessNotification(idNotification.current, success?.message);

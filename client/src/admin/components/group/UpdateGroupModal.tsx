@@ -17,10 +17,10 @@ import {
   showSuccessNotification,
 } from "@/utils/notification";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { getGroup, updateGroup } from "@/admin/api/api.group";
 import { updateGroupValidation } from "@/validation";
 import useFormData from "@/hooks/useFormData";
 import { useForm } from "@mantine/form";
+import { Server } from "@/api/api";
 const UpdateGroupModal = ({ id }: { id: number }) => {
   const admin = useAppSelector(selectUser);
   const idNotification = useRef<string>("");
@@ -31,7 +31,12 @@ const UpdateGroupModal = ({ id }: { id: number }) => {
     queryKey: ["group", id],
     queryFn: () => {
       if (id) {
-        return getGroup(id, admin?.token || "");
+        return Server<IGroup>(`group/${id}`, {
+          method: "GET",
+          headers: {
+            authorization: `Bearer ${admin?.token || ""}`,
+          },
+        });
       }
     },
     enabled: !!id && !!admin?.token,
@@ -50,7 +55,14 @@ const UpdateGroupModal = ({ id }: { id: number }) => {
     }
   }, [data]);
   const { isPending, mutateAsync } = useMutation({
-    mutationFn: (data: INewGroup) => updateGroup(id, admin?.token || "", data),
+    mutationFn: (data: INewGroup) =>
+      Server<IMessageResponse>(`group/update/${id}`, {
+        method: "PUT",
+        body: JSON.stringify(data),
+        headers: {
+          authorization: `Bearer ${admin?.token || ""}`,
+        },
+      }),
     onSuccess: (success) => {
       showSuccessNotification(idNotification.current, success?.message);
       client.invalidateQueries({ queryKey: ["group", id] });
@@ -72,7 +84,6 @@ const UpdateGroupModal = ({ id }: { id: number }) => {
       <Modal opened={opened} onClose={close} title="Guruh yangilash">
         <form onSubmit={form.onSubmit(handleSubmit)}>
           <Stack>
- 
             <TextInput
               label="Guruh vaqtini kiriting"
               placeholder="Juft 14:00"

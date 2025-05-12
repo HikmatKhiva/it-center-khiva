@@ -2,7 +2,6 @@ import { useDisclosure } from "@mantine/hooks";
 import { ActionIcon, Button, Group, Modal, Text } from "@mantine/core";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Trash2 } from "lucide-react";
-import { deleteMessage } from "@/admin/api/api.message";
 import { useRef } from "react";
 import { useAppSelector } from "@/hooks/redux";
 import {
@@ -10,6 +9,7 @@ import {
   showErrorNotification,
   showSuccessNotification,
 } from "@/utils/notification";
+import { Server } from "@/api/api";
 const MessageDeleteModal = ({ id }: { id: number }) => {
   const [opened, { open, close }] = useDisclosure(false);
   const { admin } = useAppSelector((state) => state.admin);
@@ -17,7 +17,12 @@ const MessageDeleteModal = ({ id }: { id: number }) => {
   const idNotification = useRef<string>("");
   const { mutateAsync, isPending } = useMutation({
     mutationFn: () =>
-      admin?.token ? deleteMessage(id, admin.token || "") : Promise.reject(),
+      Server<IMessageResponse>(`admin/messages/${id}`, {
+        method: "DELETE",
+        headers: {
+          authorization: `Bearer ${admin?.token || ""}`,
+        },
+      }),
     onSuccess: (success) => {
       client.invalidateQueries({ queryKey: ["message"] });
       showSuccessNotification(idNotification.current, success?.message);

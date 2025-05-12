@@ -4,19 +4,24 @@ import { useMutation } from "@tanstack/react-query";
 import { Trash2 } from "lucide-react";
 import { useAppSelector } from "@/hooks/redux";
 import { selectUser } from "@/lib/redux/reducer/admin";
-import { adminPhotoDelete } from "@/admin/api/api.admin";
 import { useRef } from "react";
 import {
   createNotification,
   showErrorNotification,
   showSuccessNotification,
 } from "@/utils/notification";
+import { Server } from "@/api/api";
 const ProfilePhotoDelete = ({ photo }: { photo: string | null }) => {
   const [opened, { open, close }] = useDisclosure(false);
   const idNotification = useRef<string>("");
   const admin = useAppSelector(selectUser);
   const { mutateAsync, isPending } = useMutation({
-    mutationFn: () => adminPhotoDelete(admin?.token || ""),
+    mutationFn: () => Server<IMessageResponse>(``,{
+      method: "DELETE",
+      headers: {
+        authorization: `Bearer ${admin?.token || ""}`,
+      },
+    }),
     mutationKey: ["admin", "photo", "delete"],
     onSuccess: (success) => {
       showSuccessNotification(idNotification.current, success?.message);

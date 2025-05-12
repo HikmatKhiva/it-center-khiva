@@ -163,7 +163,7 @@ interface IMessage {
   message: string;
   createdAt: Date;
 }
-interface IAdminLogin {
+interface IUserLogin {
   username: string;
   password: string;
 }

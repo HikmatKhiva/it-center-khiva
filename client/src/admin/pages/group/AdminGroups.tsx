@@ -10,9 +10,9 @@ import {
 import { Filter, LoaderCircle, Search, Users } from "lucide-react";
 import CreateGroupModal from "@/admin/components/group/CreateGroupModal";
 import { useQuery } from "@tanstack/react-query";
-import { getAllGroup } from "@/admin/api/api.group";
 import { useState } from "react";
 import { useAppSelector } from "@/hooks/redux";
+import { Server } from "@/api/api";
 const AdminGroups = () => {
   const { admin } = useAppSelector((state) => state.admin);
   const [query, setQuery] = useState({
@@ -21,9 +21,21 @@ const AdminGroups = () => {
     limit: 12,
     isGroupFinished: false,
   });
+  const params = new URLSearchParams({
+    name: query.name,
+    page: query.page.toString(),
+    limit: query.limit.toString(),
+    isGroupFinished: query.isGroupFinished.toString(),
+  });
   const { data, isPending } = useQuery<GroupQueryResponse>({
     queryKey: ["groups", query.name, query.isGroupFinished, query.page],
-    queryFn: () => getAllGroup(query, admin?.token || ""),
+    queryFn: () =>
+      Server(`groups?${params}`, {
+        method: "GET",
+        headers: {
+          authorization: `Bearer ${admin?.token}`,
+        },
+      }),
     enabled: !!admin?.token,
   });
   return (
@@ -78,7 +90,7 @@ const AdminGroups = () => {
         <Pagination
           value={query.page}
           className="self-end"
-            color="indigo"
+          color="indigo"
           hidden={(data?.totalPages ?? 0) <= 1 || isPending}
           onChange={(pageNumber) => setQuery({ ...query, page: pageNumber })}
           total={data?.totalPages || 1}

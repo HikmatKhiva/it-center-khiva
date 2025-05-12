@@ -1,15 +1,21 @@
 import { useDisclosure } from "@mantine/hooks";
 import { Button, Group, Modal, Text } from "@mantine/core";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { deleteStudent } from "@/admin/api/api.student";
 import { useAppSelector } from "@/hooks/redux";
-
+import { Server } from "@/api/api";
+import { selectUser } from "@/lib/redux/reducer/admin";
 const DeleteStudentModal = ({ id }: { id: number }) => {
-  const { admin } = useAppSelector((state) => state.admin);
+  const admin = useAppSelector(selectUser);
   const [opened, { open, close }] = useDisclosure(false);
   const client = useQueryClient();
   const { mutateAsync } = useMutation({
-    mutationFn: () => deleteStudent(id, admin?.token || ""),
+    mutationFn: () =>
+      Server(`students/delete/${id}`, {
+        method: "DELETE",
+        headers: {
+          authorization: `Bearer ${admin?.token || ""}`,
+        },
+      }),
     onSuccess: () => {
       client.invalidateQueries({ queryKey: ["students"] });
     },
@@ -33,10 +39,7 @@ const DeleteStudentModal = ({ id }: { id: number }) => {
         </Text>
         {/* Confirmation message */}
         <Group mt={20} justify="end" gap="10">
-          <Button
-            color="green"
-            onClick={handleDelete}
-          >
+          <Button color="green" onClick={handleDelete}>
             Ha
           </Button>
           <Button color="red" variant="outline" onClick={close}>
