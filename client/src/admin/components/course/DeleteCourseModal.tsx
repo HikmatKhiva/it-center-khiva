@@ -21,7 +21,7 @@ const DeleteCourseModal = ({ id }: { id: number }) => {
       Server<IMessageResponse>(`course/delete/${id}`, {
         method: "DELETE",
         headers: {
-          authorization: `Bearer ${admin?.token || ""}`,
+          authorization: `Bearer ${admin?.token}`,
         },
       }),
     onSuccess: (success) => {
@@ -55,7 +55,7 @@ const DeleteCourseModal = ({ id }: { id: number }) => {
         title="O'qituvchini o'chirish"
       >
         <Text size="md" className="text-center">
-          Siz ushbu Kurni o'chirishni xohlaysizmi?
+          Siz ushbu Kursni o'chirishni xohlaysizmi?
         </Text>
         <Group mt={20} justify="end" gap="10">
           <Button

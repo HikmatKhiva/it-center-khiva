@@ -13,8 +13,9 @@ import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import { useAppSelector } from "@/hooks/redux";
 import { Server } from "@/api/api";
+import { selectUser } from "@/lib/redux/reducer/admin";
 const AdminGroups = () => {
-  const { admin } = useAppSelector((state) => state.admin);
+  const admin = useAppSelector(selectUser);
   const [query, setQuery] = useState({
     name: "",
     page: 1,
@@ -30,7 +31,7 @@ const AdminGroups = () => {
   const { data, isPending } = useQuery<GroupQueryResponse>({
     queryKey: ["groups", query.name, query.isGroupFinished, query.page],
     queryFn: () =>
-      Server(`groups?${params}`, {
+      Server(`group?${params}`, {
         method: "GET",
         headers: {
           authorization: `Bearer ${admin?.token}`,

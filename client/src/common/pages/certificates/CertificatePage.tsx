@@ -1,11 +1,11 @@
 import { useQuery } from "@tanstack/react-query";
-import { getAllCertificates } from "@/api/api.helper";
 import { useAppSelector } from "@/hooks/redux";
 import { selectUser } from "@/lib/redux/reducer/admin";
 import { useState } from "react";
 import { Group, Pagination, Stack, Text, TextInput } from "@mantine/core";
 import { GraduationCap, LoaderCircle, Search } from "lucide-react";
 import CertificateTable from "@/common/components/CertificateTable";
+import { Server } from "@/api/api";
 const CertificatePage = () => {
   const admin = useAppSelector(selectUser);
   const [query, setQuery] = useState({
@@ -13,9 +13,20 @@ const CertificatePage = () => {
     page: 1,
     limit: 10,
   });
-  const { data, isPending } = useQuery({
+  const params = new URLSearchParams({
+    name: query.name,
+    page: query.page.toString(),
+    limit: query.limit.toString(),
+  });
+  const { data, isPending } = useQuery<ICertificateResponse>({
     queryKey: ["certificates", query.name, query.page],
-    queryFn: () => getAllCertificates(query, admin?.token || ""),
+    queryFn: () =>
+      Server<ICertificateResponse>(`certificate?${params}`, {
+        method: "GET",
+        headers: {
+          authorization: `Bearer ${admin?.token}`,
+        },
+      }),
     enabled: !!admin?.token,
   });
   return (

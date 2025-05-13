@@ -18,7 +18,6 @@ import ProfileUpdate from "./ProfileUpdate";
 import { Check, X } from "lucide-react";
 import { selectUser } from "@/lib/redux/reducer/admin";
 import { useMutation, useQuery } from "@tanstack/react-query";
-import { uploadImage } from "@/admin/api/api.admin";
 import {
   createNotification,
   showErrorNotification,
@@ -48,7 +47,14 @@ const ProfileConfigure = () => {
     enabled: !!profile?.token && !!profile.id,
   });
   const { mutateAsync, isPending } = useMutation({
-    mutationFn: (data: FormData) => uploadImage(data, profile?.token || ""),
+    mutationFn: (data: FormData) =>
+      Server<IMessageResponse>(`admin/upload-image`, {
+        method: "POST",
+        headers: {
+          authorization: `Bearer ${profile?.token || ""}`,
+        },
+        formData: data,
+      }),
     onSuccess: (success) => {
       showSuccessNotification(idNotification.current, success?.message);
       refetch();

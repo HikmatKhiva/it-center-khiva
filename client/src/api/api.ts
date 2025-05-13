@@ -3,16 +3,25 @@ const API_URL = `${import.meta.env.VITE_BACKEND_URL}api/v1`;
 const API_URL_ADMIN = `${import.meta.env.VITE_BACKEND_URL}api/v1/admin`;
 interface IOptionAPI {
   method: string;
-  body?: string | null;
+  body?: string | null | FormData | any;
   headers?: Record<string, string>;
+  formData?: FormData;
+  data?: any;
 }
 export async function Server<T>(url: string, options: IOptionAPI): Promise<T> {
   try {
-    let { body, headers, method } = options;
-
+    let { body, headers, method, formData, data } = options;
     if (body) {
       headers = headers || {};
       headers["Content-Type"] = "application/json";
+    }
+    if (formData) {
+      body = formData;
+      headers = headers || {};
+      headers["Content-Type"] = "multipart/form-data";
+    }
+    if (data) {
+      body = data;
     }
     const response = await fetch(`${API_URL}/${url}`, {
       method,

@@ -2,16 +2,13 @@ import { Button, Menu } from "@mantine/core";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Check, Ellipsis, Trash2, X } from "lucide-react";
 import { useRef, useState } from "react";
-import {
-  deleteNewStudentStatus,
-  updateNewStudentStatus,
-} from "@/api/api.new.student";
 import { useAppSelector } from "@/hooks/redux";
 import {
   createNotification,
   showErrorNotification,
   showSuccessNotification,
 } from "@/utils/notification";
+import { Server } from "@/api/api";
 const OptionsMenuNewStudent = ({ id }: { id: number }) => {
   const { admin } = useAppSelector((state) => state.admin);
   const idNotification = useRef<string>("");
@@ -19,7 +16,13 @@ const OptionsMenuNewStudent = ({ id }: { id: number }) => {
   const client = useQueryClient();
   const { mutateAsync } = useMutation({
     mutationFn: (status: string) =>
-      updateNewStudentStatus(id, status, admin?.token || ""),
+      Server<IMessageResponse>(`newStudents/update/${id}`, {
+        method: "PUT",
+        headers: {
+          authorization: `Bearer ${admin?.token}`,
+        },
+        body: JSON.stringify({ status }),
+      }),
     mutationKey: ["update", "newStudent", id],
     onSuccess: (success) => {
       client.invalidateQueries({ queryKey: ["newStudents"] });
@@ -30,7 +33,13 @@ const OptionsMenuNewStudent = ({ id }: { id: number }) => {
     },
   });
   const { mutateAsync: mutationDelete, isPending } = useMutation({
-    mutationFn: () => deleteNewStudentStatus(id, admin?.token || ""),
+    mutationFn: () =>
+      Server<IMessageResponse>(`newStudents/delete/${id}`, {
+        method: "DELETE",
+        headers: {
+          authorization: `Bearer ${admin?.token}`,
+        },
+      }),
     mutationKey: ["delete", "newStudent", id],
     onSuccess: (success) => {
       client.invalidateQueries({ queryKey: ["newStudents"] });

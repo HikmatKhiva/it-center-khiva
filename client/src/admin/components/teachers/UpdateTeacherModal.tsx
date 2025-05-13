@@ -32,15 +32,17 @@ const UpdateTeacherModal = ({ teacher }: { teacher: ITeacher }) => {
       Server<IMessageResponse>(`teachers/update/${teacher.id}`, {
         method: "PUT",
         headers: {
-          authorization: `Bearer ${admin?.token || ""}`,
+          authorization: `Bearer ${admin?.token}`,
         },
-        body: JSON.stringify(data),
+        data: data,
       }),
     mutationKey: ["teacher", "update", teacher.id],
     onSuccess: (success) => {
       client.invalidateQueries({ queryKey: ["teachers"] });
       showSuccessNotification(idNotification.current, success?.message);
       close();
+      form.reset();
+      
     },
     onError: (error) => {
       showErrorNotification(idNotification.current, error.message);
@@ -77,7 +79,7 @@ const UpdateTeacherModal = ({ teacher }: { teacher: ITeacher }) => {
     await Server<IMessageResponse>(`teachers/deletePhoto/${teacher.id}`, {
       method: "PATCH",
       headers: {
-        authorization: `Bearer ${admin?.token || ""}`,
+        authorization: `Bearer ${admin?.token}`,
       },
     });
     client.invalidateQueries({ queryKey: ["teachers"] });

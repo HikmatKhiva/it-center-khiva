@@ -1,12 +1,12 @@
 import { useDisclosure } from "@mantine/hooks";
 import { Button, Modal, Select, Stack, TextInput } from "@mantine/core";
 import { useForm } from "@mantine/form";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { createCourseValidation } from "@/validation";
 import { useAppSelector } from "@/hooks/redux";
 import { selectUser } from "@/lib/redux/reducer/admin";
 import { Pen } from "lucide-react";
-import { useRef } from "react";
+import { useEffect, useRef } from "react";
 import {
   createNotification,
   showErrorNotification,
@@ -14,23 +14,34 @@ import {
 } from "@/utils/notification";
 import useFormData from "@/hooks/useFormData";
 import { Server } from "@/api/api";
-const UpdatedCourseModal = ({ course }: { course: ICourse }) => {
+const UpdatedCourseModal = ({ id }: { id: number }) => {
   const client = useQueryClient();
   const admin = useAppSelector(selectUser);
   const idNotification = useRef<string>("");
   const { teachers, loading } = useFormData();
   const [opened, { open, close }] = useDisclosure(false);
+  const { data } = useQuery<ICourseResponse>({
+    queryKey: ["course", id],
+    queryFn: () =>
+      Server<ICourseResponse>(`course/${id}`, {
+        method: "GET",
+        headers: {
+          authorization: `Bearer ${admin?.token}`,
+        },
+      }),
+    enabled: !!admin?.token && !!id,
+  });
   const { mutateAsync, isPending } = useMutation({
     mutationFn: (data: INewCourse) =>
-      Server<IMessageResponse>(`course/update/${course.id}`, {
+      Server<IMessageResponse>(`course/update/${id}`, {
         method: "PUT",
         body: JSON.stringify(data),
         headers: {
-          authorization: `Bearer ${admin?.token || ""}`,
+          authorization: `Bearer ${admin?.token}`,
         },
       }),
     onSuccess: (success) => {
-      client.invalidateQueries({ queryKey: ["courses", course.id] });
+      client.invalidateQueries({ queryKey: ["courses"] });
       showSuccessNotification(idNotification.current, success?.message);
       close();
     },
@@ -40,12 +51,21 @@ const UpdatedCourseModal = ({ course }: { course: ICourse }) => {
   });
   const form = useForm({
     initialValues: {
-      name: course?.name,
-      teacherId: course.teacher.id.toString(),
-      nameCertificate: course.nameCertificate,
+      name: "",
+      teacherId: "",
+      nameCertificate: "",
     } as INewCourse,
     validate: createCourseValidation,
   });
+  useEffect(() => {
+    if (data) {
+      form.setValues({
+        name: data?.name || "",
+        teacherId: data?.teacherId?.toString() || "",
+        nameCertificate: data?.nameCertificate || "",
+      });
+    }
+  }, [data]);
   const handleSubmit = async (course: INewCourse) => {
     idNotification.current = createNotification(isPending);
     mutateAsync(course);

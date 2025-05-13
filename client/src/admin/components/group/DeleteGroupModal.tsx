@@ -27,7 +27,7 @@ const DeleteGroupModal = ({
       Server<IMessageResponse>(`group/delete/${id}`, {
         method: "DELETE",
         headers: {
-          authorization: `Bearer ${admin?.token || ""}`,
+          authorization: `Bearer ${admin?.token}`,
         },
       }),
     onSuccess: (success) => {

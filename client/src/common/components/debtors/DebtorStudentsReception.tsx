@@ -12,11 +12,11 @@ import { useAppSelector } from "@/hooks/redux";
 import { selectUser } from "@/lib/redux/reducer/admin";
 import { Check, LoaderCircle, RefreshCw, Search } from "lucide-react";
 import { useState } from "react";
-import { getDebtorStudents } from "@/api/api.helper";
 import { formatTime } from "@/utils/helper";
 import PaymentsHistory from "@/common/components/payment/PaymentsHistory";
 import UploadPayment from "@/common/components/payment/UploadPayment";
-const   DebtorStudentsReception = () => {
+import { Server } from "@/api/api";
+const DebtorStudentsReception = () => {
   const user = useAppSelector(selectUser);
   const [query, setQuery] = useState<IDebtorQuery>({
     name: "",
@@ -24,8 +24,20 @@ const   DebtorStudentsReception = () => {
     limit: 16,
     month: (new Date().getMonth() + 1).toString(),
   });
+  const params = new URLSearchParams({
+    name: query.name,
+    page: query.page.toString(),
+    limit: query.limit.toString(),
+    month: query.month,
+  });
   const { data, isPending, refetch } = useQuery<IDebtorsResponse>({
-    queryFn: () => getDebtorStudents(user?.token || "", query),
+    queryFn: () =>
+      Server<IDebtorsResponse>(`debtors?${params}`, {
+        method: "GET",
+        headers: {
+          authorization: `Bearer ${user?.token}`,
+        },
+      }),
     queryKey: ["debtors", query.name, query.page, query.month],
     enabled: !!user?.token,
   });
@@ -58,7 +70,8 @@ const   DebtorStudentsReception = () => {
     <>
       <Group justify="space-between" align="self-start">
         <Text fz={{ sm: "md", md: "20px" }} mb="10">
-          {data?.currentMonth} oy qarzdor o'quvchilar ro'yxati. Soni: {data?.count}
+          {data?.currentMonth} oy qarzdor o'quvchilar ro'yxati. Soni:{" "}
+          {data?.count}
         </Text>
         <Group>
           <TextInput

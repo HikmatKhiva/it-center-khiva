@@ -15,7 +15,6 @@ import { useNavigate } from "react-router-dom";
 import { useRef, useState } from "react";
 import CreateCard from "../../components/news/CreateCard";
 import { useMutation } from "@tanstack/react-query";
-import { createNews } from "@/admin/api/api.news";
 import { useAppSelector } from "@/hooks/redux";
 import { selectUser } from "@/lib/redux/reducer/admin";
 import {
@@ -24,6 +23,7 @@ import {
   showSuccessNotification,
 } from "@/utils/notification";
 import CustomIFrame from "@/admin/extension/CustomIFrame";
+import { Server } from "@/api/api";
 const AdminNewsCreate = () => {
   const admin = useAppSelector(selectUser);
   const [content, setContent] = useState<string>("");
@@ -31,7 +31,13 @@ const AdminNewsCreate = () => {
   const navigate = useNavigate();
   const { mutateAsync, isPending } = useMutation({
     mutationFn: (formData: FormData) =>
-      createNews(formData, admin?.token || ""),
+      Server<IMessageResponse>(`news/create`, {
+        method: "POST",
+        headers: {
+          authorization: `Bearer ${admin?.token}`,
+        },
+        data: formData,
+      }),
     mutationKey: ["news", "create"],
     onSuccess: (success) => {
       showSuccessNotification(idNotification.current, success.message);

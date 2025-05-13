@@ -42,7 +42,7 @@ const ReceptionCreateModal = () => {
         method: "POST",
         body: JSON.stringify(data),
         headers: {
-          authorization: `Bearer ${admin?.token || ""}`,
+          authorization: `Bearer ${admin?.token}`,
         },
       }),
     mutationKey: ["reception", "profile", "create"],
@@ -64,7 +64,7 @@ const ReceptionCreateModal = () => {
     const response = await Server<string>(`generate-secret`, {
       method: "GET",
       headers: {
-        authorization: `Bearer ${admin?.token || ""}`,
+        authorization: `Bearer ${admin?.token}`,
       },
     });
     form.setFieldValue("secret", response);

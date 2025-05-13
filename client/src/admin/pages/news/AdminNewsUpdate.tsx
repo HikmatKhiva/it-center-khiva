@@ -12,9 +12,8 @@ import { Button, Divider, Group, Text } from "@mantine/core";
 import { ArrowLeft, Save, Youtube } from "lucide-react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useEffect, useRef, useState } from "react";
-import CreateCard from "../../components/news/CreateCard";
+import CreateCard from "@/admin/components/news/CreateCard";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { getNews, updateNews } from "@/admin/api/api.news";
 import { useAppSelector } from "@/hooks/redux";
 import { selectUser } from "@/lib/redux/reducer/admin";
 import { DateInput } from "@mantine/dates";
@@ -24,20 +23,30 @@ import {
   showSuccessNotification,
 } from "@/utils/notification";
 import CustomIFrame from "@/admin/extension/CustomIFrame";
+import { Server } from "@/api/api";
 const AdminNewsUpdate = () => {
   const admin = useAppSelector(selectUser);
   const idNotification = useRef<string>("");
   const client = useQueryClient();
   const { slug } = useParams();
   const navigate = useNavigate();
-  const { data, isFetching, isLoading } = useQuery({
-    queryFn: () => getNews(slug || ""),
+  const { data, isFetching, isLoading } = useQuery<INews>({
+    queryFn: () =>
+      Server<INews>(`news/${slug}`, {
+        method: "GET",
+      }),
     queryKey: ["news", slug],
   });
   const [content, setContent] = useState<string>(data?.content || "");
   const { mutateAsync, isPending } = useMutation({
     mutationFn: (formData: FormData) =>
-      updateNews(formData, admin?.token || "", slug || ""),
+      Server<IMessageResponse>(`news/update/${slug}`, {
+        method: "PUT",
+        headers: {
+          authorization: `Bearer ${admin?.token}`,
+        },
+        data: formData,
+      }),
     mutationKey: ["news", "create"],
     onSuccess: (success) => {
       client.invalidateQueries({ queryKey: ["news", slug] });
@@ -254,5 +263,4 @@ const AdminNewsUpdate = () => {
     </>
   );
 };
-
 export default AdminNewsUpdate;

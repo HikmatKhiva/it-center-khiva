@@ -7,12 +7,12 @@ import { navLinks } from "../config";
 import LogoSVG from "../motions_components/LogoSVG";
 import NewOpenedGroup from "../components/announcement/NewOpenedGroup";
 import { useQuery } from "@tanstack/react-query";
-import { getNewGroupList } from "../api/api.helper";
+import { Server } from "@/api/api";
 const Header = () => {
-  const [opened, { toggle,close }] = useDisclosure(false);
+  const [opened, { toggle, close }] = useDisclosure(false);
   const { data } = useQuery({
     queryKey: ["openedGroups"],
-    queryFn:()=> getNewGroupList<IOpenedGroup>(),
+    queryFn: () => Server<IOpenedGroup>(`opened/group`, { method: "GET" }),
   });
   return (
     <AppShell
@@ -41,7 +41,7 @@ const Header = () => {
               >
                 {navLinks?.map((link: ILinks) => (
                   <NavLink
-                  onClick={close}
+                    onClick={close}
                     className={({ isActive }) =>
                       isActive
                         ? "text-[#93CE03]"

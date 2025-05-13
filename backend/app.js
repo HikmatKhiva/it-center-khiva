@@ -5,7 +5,6 @@ import morgan from "morgan";
 import path from "path";
 import helmet from "helmet";
 import { PrismaClient } from "@prisma/client";
-
 import { rateLimiterMiddleware } from "./middleware/rateLimiter.js";
 import { findCertificate } from "./v1/certificates/certificates.controller.js";
 const __dirname = path.resolve();
@@ -25,7 +24,6 @@ app.use(
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(helmet());
-
 // routes
 app.use("/api/v1", V1Routes);
 app.get("/site/certificate", findCertificate);

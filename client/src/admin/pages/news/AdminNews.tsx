@@ -10,16 +10,24 @@ import { Newspaper, Pencil, Search } from "lucide-react";
 import AdminNewsCard from "@/admin/components/news/AdminNewsCard";
 import { Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
-import { getAllNews } from "@/admin/api/api.news";
 import { useState } from "react";
+import { Server } from "@/api/api";
 const AdminNews = () => {
   const [query, setQuery] = useState({
     name: "",
     page: 1,
     limit: 10,
   });
-  const { data, isPending } = useQuery({
-    queryFn: () => getAllNews(query),
+  const params = new URLSearchParams({
+    name: query.name,
+    page: query.page.toString(),
+    limit: query.limit.toString(),
+  });
+  const { data, isPending } = useQuery<INewsResponse>({
+    queryFn: () =>
+      Server<INewsResponse>(`news?${params}`, {
+        method: "GET",
+      }),
     queryKey: ["news", query.name, query.page],
   });
   return (

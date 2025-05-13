@@ -1,4 +1,3 @@
-import { v2 as cloudinary } from "cloudinary";
 import bcrypt from "bcrypt";
 import { TOTP } from "otpauth";
 import jwt from "jsonwebtoken";
@@ -7,6 +6,7 @@ import fs from "fs";
 import { promisify } from "util";
 import { prisma } from "../../app.js";
 import { generateBase32Secret } from "./admin.helper.js";
+import cloudinary from "../../db/db.js";
 dotenv.config();
 const unlinkAsync = promisify(fs.unlink); // Promisify fs.unlink for async/await
 const { JWT_SECRET } = process.env;
@@ -250,6 +250,22 @@ const getReceptionAccounts = async (req, res) => {
     return res.status(500).json({ error });
   }
 };
+const getReceptionAccount = async (req, res) => {
+  try {
+    const username = req.params.username;
+    const reception = await prisma.admin.findUnique({
+      where: {
+        username,
+        role: "RECEPTION",
+      },
+    });
+    return res.status(200).json(reception);
+  } catch (error) {
+    console.log(error);
+
+    return res.status(500).json({ error });
+  }
+};
 const deleteReceptionAccount = async (req, res) => {
   try {
     const { id } = req.params;
@@ -304,4 +320,5 @@ export {
   getReceptionAccounts,
   deleteReceptionAccount,
   updateReceptionStatus,
+  getReceptionAccount,
 };

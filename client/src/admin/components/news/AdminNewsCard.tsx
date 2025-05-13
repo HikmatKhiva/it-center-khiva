@@ -9,7 +9,7 @@ const AdminNewsCard = ({ news }: { news: INews }) => {
     <Card w="300" shadow="sm" padding="0" radius="md" withBorder pos="relative">
       <CoolMode>
         <ActionIcon
-          onClick={() => navigate(`/admin/news/${news?.id}`)}
+          onClick={() => navigate(`/admin/news/${news?.slug}`)}
           size="md"
           top="0px"
           p="2"

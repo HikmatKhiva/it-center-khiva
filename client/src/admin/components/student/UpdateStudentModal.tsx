@@ -23,7 +23,7 @@ const UpdateStudentModal = ({ student }: { student: IStudent }) => {
         method: "PUT",
         body: JSON.stringify(data),
         headers: {
-          authorization: `Bearer ${admin?.token || ""}`,
+          authorization: `Bearer ${admin?.token}`,
         },
       }),
     onSuccess: (success) => {

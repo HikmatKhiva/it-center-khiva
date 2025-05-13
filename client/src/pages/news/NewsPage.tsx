@@ -3,15 +3,22 @@ import NewsCard from "@/components/news/NewsCard";
 import { TextAnimate } from "@/animation/text-animation";
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { getNews } from "@/api/api.helper";
 import EmptyPage from "@/components/EmptyPage";
+import { Server } from "@/api/api";
 const NewsPage = () => {
   const [query, setQuery] = useState({
     page: 1,
     limit: 10,
   });
-  const { data: newsData, isPending } = useQuery({
-    queryFn: () => getNews(query),
+  const params = new URLSearchParams({
+    page: query.page.toString(),
+    limit: query.limit.toString(),
+  });
+  const { data: newsData, isPending } = useQuery<INewsResponse>({
+    queryFn: () =>
+      Server<INewsResponse>(`news?${params}`, {
+        method: "GET",
+      }),
     queryKey: ["news"],
   });
   return (

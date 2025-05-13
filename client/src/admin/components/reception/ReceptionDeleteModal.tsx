@@ -21,7 +21,7 @@ const ReceptionDeleteModal = ({ id }: { id: number }) => {
       Server<IMessageResponse>(`admin/reception/delete/${id}`, {
         method: "DELETE",
         headers: {
-          authorization: `Bearer ${admin?.token || ""}`,
+          authorization: `Bearer ${admin?.token}`,
         },
       }),
     onSuccess: (success) => {

@@ -73,6 +73,7 @@ const uploadPayment = async (req, res) => {
         .status(400)
         .json({ message: "To'lov miqdori qarz miqdoridan yuqori!" });
     }
+    
     await prisma.student.update({
       where: {
         id: parseInt(studentId),

@@ -34,7 +34,7 @@ const CreateCourseModal = () => {
         method: "POST",
         body: JSON.stringify(course),
         headers: {
-          authorization: `Bearer ${admin?.token || ""}`,
+          authorization: `Bearer ${admin?.token}`,
         },
       }),
     onSuccess: (success) => {

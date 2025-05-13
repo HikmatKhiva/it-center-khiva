@@ -31,7 +31,7 @@ const UploadPayment = ({ studentId }: { studentId: number }) => {
         method: "POST",
         body: JSON.stringify(data),
         headers: {
-          authorization: `Bearer ${admin?.token || ""}`,
+          authorization: `Bearer ${admin?.token}`,
         },
       }),
     mutationKey: ["payments"],

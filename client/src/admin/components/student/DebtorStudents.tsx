@@ -12,8 +12,8 @@ import { useAppSelector } from "@/hooks/redux";
 import { selectUser } from "@/lib/redux/reducer/admin";
 import { LoaderCircle, RefreshCw, Search } from "lucide-react";
 import { useState } from "react";
-import { getDebtorStudents } from "@/api/api.helper";
 import { formatTime } from "@/utils/helper";
+import { Server } from "@/api/api";
 const DebtorStudents = () => {
   const admin = useAppSelector(selectUser);
   const [query, setQuery] = useState<IDebtorQuery>({
@@ -22,8 +22,20 @@ const DebtorStudents = () => {
     limit: 10,
     month: (new Date().getMonth() + 1).toString(),
   });
+  const params = new URLSearchParams({
+    name: query.name,
+    page: query.page.toString(),
+    limit: query.limit.toString(),
+    month: query.month,
+  });
   const { data, isPending, refetch } = useQuery<IDebtorsResponse>({
-    queryFn: () => getDebtorStudents(admin?.token || "", query),
+    queryFn: () =>
+      Server<IDebtorsResponse>(`debtors?${params}`, {
+        method: "GET",
+        headers: {
+          authorization: `Bearer ${admin?.token}`,
+        },
+      }),
     queryKey: ["debtors", query.name, query.page, query.month],
     enabled: !!admin?.token,
   });

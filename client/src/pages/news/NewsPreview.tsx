@@ -8,14 +8,17 @@ import {
 } from "@mantine/core";
 import { useQuery } from "@tanstack/react-query";
 import { useNavigate, useParams } from "react-router-dom";
-import { getNews } from "@/admin/api/api.news";
 import { Calendar, ArrowLeft } from "@/assets";
 import { formatTime } from "@/utils/helper";
+import { Server } from "@/api/api";
 const NewsPreview = () => {
   const navigate = useNavigate();
   const { slug } = useParams();
-  const { data: news } = useQuery({
-    queryFn: () => getNews(slug || ""),
+  const { data: news } = useQuery<INews>({
+    queryFn: () =>
+      Server<INews>(`news/${slug}`, {
+        method: "GET",
+      }),
     queryKey: ["news", slug],
     enabled: !!slug,
   });
@@ -36,7 +39,9 @@ const NewsPreview = () => {
           </Group>
           <Group>
             <Image w={20} src={Calendar} />
-            <Text>{formatTime.DateTime(new Date(news?.createdAt || Date.now()))}</Text>
+            <Text>
+              {formatTime.DateTime(new Date(news?.createdAt || Date.now()))}
+            </Text>
           </Group>
         </Group>
         <Divider mt="10" mb="30" />

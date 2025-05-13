@@ -41,7 +41,7 @@ const CreateGroupModal = () => {
         method: "POST",
         body: JSON.stringify(group),
         headers: {
-          authorization: `Bearer ${admin?.token || ""}`,
+          authorization: `Bearer ${admin?.token}`,
         },
       }),
     onSuccess: (success) => {

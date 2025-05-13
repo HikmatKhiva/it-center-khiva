@@ -2,7 +2,7 @@ import { Stack, Table } from "@mantine/core";
 import ImageModal from "../ImageModal";
 import ReceptionUpdateModal from "./ReceptionUpdateModal";
 import ReceptionDeleteModal from "./ReceptionDeleteModal";
-import ProfileQrCode from "../../../common/components/profile/ProfileQrCode";
+import ProfileQrCode from "@/common/components/profile/ProfileQrCode";
 import ReceptionStatusUpdate from "./ReceptionStatusUpdate";
 const ReceptionTable = ({ profiles }: { profiles: IUserProfile[] }) => {
   const rows =
@@ -21,7 +21,7 @@ const ReceptionTable = ({ profiles }: { profiles: IUserProfile[] }) => {
           <ReceptionStatusUpdate profile={profile} />
         </Table.Td>
         <Table.Td>
-          <ReceptionUpdateModal profile={profile} />
+          <ReceptionUpdateModal id={profile.id} username={profile.username} />
         </Table.Td>
         <Table.Td>
           <ReceptionDeleteModal id={profile.id} />

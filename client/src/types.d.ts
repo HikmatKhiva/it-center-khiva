@@ -106,7 +106,7 @@ interface INewStudentCreate {
   courseTime: string;
 }
 interface IAddStudents {
-  id:number;
+  id: number;
   full_name: string;
   phone: string;
   course_time: string;
@@ -148,7 +148,7 @@ interface INews {
   description: string;
   content: string;
   created_at: string;
-  created_time:string | null
+  created_time: string | null;
   createdAt: Date;
 }
 
@@ -205,6 +205,11 @@ interface ICourse extends IDefault {
   name: string;
   teacher: ITeacher;
   nameCertificate: string;
+}
+interface ICourseResponse extends IDefault {
+  name: string;
+  nameCertificate: string;
+  teacherId: number;
 }
 interface ITeacher extends IDefault {
   firstName: string;

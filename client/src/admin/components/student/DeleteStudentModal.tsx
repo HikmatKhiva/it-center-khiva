@@ -13,7 +13,7 @@ const DeleteStudentModal = ({ id }: { id: number }) => {
       Server(`students/delete/${id}`, {
         method: "DELETE",
         headers: {
-          authorization: `Bearer ${admin?.token || ""}`,
+          authorization: `Bearer ${admin?.token}`,
         },
       }),
     onSuccess: () => {

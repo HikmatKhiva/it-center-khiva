@@ -1,14 +1,18 @@
 import { useQuery } from "@tanstack/react-query";
-import { formData } from "@/api/api.helper";
+import { Server } from "@/api/api";
+interface IFormDataResponse {
+  teachers: ISelect[];
+  courses: ISelect[];
+}
 const useFormData = () => {
-  const { data, isLoading } = useQuery({
-    queryFn: formData,
+  const { data, isLoading } = useQuery<IFormDataResponse>({
+    queryFn: () => Server<IFormDataResponse>(`form/data`, { method: "GET" }),
     queryKey: ["form", "data"],
   });
   return {
-    teachers: data?.teachers,
+    teachers: data?.teachers || [],
     loading: isLoading,
-    courses: data?.courses,
+    courses: data?.courses || [],
   };
 };
 export default useFormData;

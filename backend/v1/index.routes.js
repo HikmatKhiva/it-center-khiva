@@ -32,7 +32,6 @@ V1Routes.get("/opened/group", getNewGroups);
 V1Routes.get("/form/data", getCourseAndTeachers);
 V1Routes.post("/auth/admin/login", validate(userLoginSchema), adminLogin);
 V1Routes.post("/auth/admin/verify-2fa", validate(userVerifySchema), Verify2FA);
-
 V1Routes.use("/news", newsRoutes);
 // checking admin middleware
 V1Routes.use("/debtors", middlewareAdmin, debtorsRoutes);

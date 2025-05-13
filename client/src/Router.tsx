@@ -1,5 +1,5 @@
 import { createBrowserRouter } from "react-router-dom";
-// Main Pages
+// Main 3
 import {
   LoadHomePage,
   LoadContactPage,
@@ -96,7 +96,7 @@ export const routes = createBrowserRouter([
             element: <LazyAdminPage Page={LoadAdminNewsCreate} />,
           },
           {
-            path: ":id",
+            path: ":slug",
             element: <LazyAdminPage Page={LoadAdminNewsPreview} />,
           },
           {

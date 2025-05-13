@@ -34,7 +34,7 @@ const UpdateGroupModal = ({ id }: { id: number }) => {
         return Server<IGroup>(`group/${id}`, {
           method: "GET",
           headers: {
-            authorization: `Bearer ${admin?.token || ""}`,
+            authorization: `Bearer ${admin?.token}`,
           },
         });
       }
@@ -60,7 +60,7 @@ const UpdateGroupModal = ({ id }: { id: number }) => {
         method: "PUT",
         body: JSON.stringify(data),
         headers: {
-          authorization: `Bearer ${admin?.token || ""}`,
+          authorization: `Bearer ${admin?.token}`,
         },
       }),
     onSuccess: (success) => {

@@ -21,7 +21,7 @@ const DeleteTeacherModal = ({ id }: { id: number }) => {
       Server<IMessageResponse>(`teachers/delete/${id}`, {
         method: "DELETE",
         headers: {
-          authorization: `Bearer ${admin?.token || ""}`,
+          authorization: `Bearer ${admin?.token}`,
         },
       }),
     mutationKey: ["teacher", "delete", id],

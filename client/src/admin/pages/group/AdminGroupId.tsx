@@ -41,7 +41,7 @@ const AdminGroupId = () => {
         return Server<IGroup>(`group/${id}`, {
           method: "GET",
           headers: {
-            authorization: `Bearer ${admin?.token || ""}`,
+            authorization: `Bearer ${admin?.token}`,
           },
         });
       }
@@ -60,7 +60,7 @@ const AdminGroupId = () => {
       Server<IStudentsResponse>(`students?${params}`, {
         method: "GET",
         headers: {
-          authorization: `Bearer ${admin?.token || ""}`,
+          authorization: `Bearer ${admin?.token}`,
         },
       }),
     enabled: !!admin?.token && !!group?.id,

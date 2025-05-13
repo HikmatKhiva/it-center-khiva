@@ -20,7 +20,7 @@ import {
   showSuccessNotification,
 } from "@/utils/notification";
 import useFormData from "@/hooks/useFormData";
-import { addNewStudent } from "@/api/api.new.student";
+import { Server } from "@/api/api";
 const AddNewStudent = (props: PaperProps) => {
   const idNotification = useRef<string>("");
   const form = useForm({
@@ -34,7 +34,11 @@ const AddNewStudent = (props: PaperProps) => {
   });
   const { courses, loading } = useFormData();
   const { mutateAsync, isPending } = useMutation({
-    mutationFn: addNewStudent,
+    mutationFn: (student: INewStudentCreate) =>
+      Server<IMessageResponse>(`newStudents/add`, {
+        method: "POST",
+        body: JSON.stringify(student),
+      }),
     mutationKey: ["newStudent"],
     onSuccess: (success) => {
       showSuccessNotification(idNotification.current, success?.message);

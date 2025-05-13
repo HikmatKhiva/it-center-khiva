@@ -20,7 +20,7 @@ const MessageDeleteModal = ({ id }: { id: number }) => {
       Server<IMessageResponse>(`admin/messages/${id}`, {
         method: "DELETE",
         headers: {
-          authorization: `Bearer ${admin?.token || ""}`,
+          authorization: `Bearer ${admin?.token}`,
         },
       }),
     onSuccess: (success) => {

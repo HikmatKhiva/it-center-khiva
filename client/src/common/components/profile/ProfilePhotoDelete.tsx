@@ -19,7 +19,7 @@ const ProfilePhotoDelete = ({ photo }: { photo: string | null }) => {
     mutationFn: () => Server<IMessageResponse>(``,{
       method: "DELETE",
       headers: {
-        authorization: `Bearer ${admin?.token || ""}`,
+        authorization: `Bearer ${admin?.token}`,
       },
     }),
     mutationKey: ["admin", "photo", "delete"],

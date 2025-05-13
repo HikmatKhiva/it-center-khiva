@@ -38,7 +38,7 @@ const CourseTable = ({ name }: { name: string }) => {
         <Table.Td>{course?.teacher.firstName}</Table.Td>
         <Table.Td>{formatTime.DateTime(new Date(course.createdAt))}</Table.Td>
         <Table.Td>
-          <UpdatedCourseModal course={course} />
+          <UpdatedCourseModal id={course.id} />
         </Table.Td>
         <Table.Td>
           <DeleteCourseModal id={course?.id} />

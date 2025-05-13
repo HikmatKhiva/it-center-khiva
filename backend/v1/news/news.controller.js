@@ -1,11 +1,11 @@
 import dotenv from "dotenv";
-import { v2 as cloudinary } from "cloudinary";
 import fs from "fs";
 import slugify from "slugify";
 import { prisma } from "../../app.js";
 import Ajv from "ajv";
 import { newsCreateSchema } from "./news.validator.js";
 import { promisify } from "util";
+import cloudinary from "../../db/db.js";
 const ajv = new Ajv({ allErrors: true });
 const unlinkAsync = promisify(fs.unlink); // Promisify fs.unlink for async/await
 dotenv.config();

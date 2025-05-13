@@ -1,7 +1,7 @@
 import { prisma } from "../../app.js";
-import { v2 as cloudinary } from "cloudinary";
 import fs from "fs";
 import { promisify } from "util";
+import cloudinary from "../../db/db.js";
 const unlinkAsync = promisify(fs.unlink); // Promisify fs.unlink for async/await
 // getAll teacher
 const getAllTeacher = async (req, res) => {
@@ -36,6 +36,7 @@ const getAllTeacher = async (req, res) => {
 const createTeacher = async (req, res) => {
   try {
     const { firstName, secondName, phone } = req.body;
+
     let imageUrl;
     if (req.file) {
       const image = req.file;
@@ -85,6 +86,8 @@ const updateTeacher = async (req, res) => {
     });
     return res.status(200).json({ message: "Ustoz muoffaqiyatli yangilandi." });
   } catch (error) {
+    console.log(error);
+
     return res.status(500).json({ error });
   }
 };

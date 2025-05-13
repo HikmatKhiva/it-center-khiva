@@ -12,7 +12,7 @@ const CertificateTable = ({
   const admin = useAppSelector(selectUser);
   const url = `http://${window?.location?.hostname}/site/certificate?code`;
   const handleDownload = async (id: number, name: string) => {
-    await downloadCertificate(id, name, admin?.token || "");
+    await downloadCertificate(id, name, admin?.token);
   };
   const rows =
     Array.isArray(students) &&

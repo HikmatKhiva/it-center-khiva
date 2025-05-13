@@ -47,7 +47,7 @@ const CreateStudent = ({
         method: "POST",
         body: JSON.stringify(student),
         headers: {
-          authorization: `Bearer ${admin?.token || ""}`,
+          authorization: `Bearer ${admin?.token}`,
         },
       }),
     onSuccess: (success) => {

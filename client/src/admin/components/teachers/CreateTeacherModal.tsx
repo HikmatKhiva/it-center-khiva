@@ -10,7 +10,6 @@ import {
 import { useForm } from "@mantine/form";
 import { useDisclosure } from "@mantine/hooks";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { createTeacher } from "@/admin/api/api.teachers";
 import { Pencil, Trash2 } from "lucide-react";
 import { useAppSelector } from "@/hooks/redux";
 import { useRef } from "react";
@@ -22,6 +21,7 @@ import {
 } from "@/utils/notification";
 import { teacherValidate } from "@/validation";
 import { InputMask } from "@react-input/mask";
+import { Server } from "@/api/api";
 const CreateTeacherModal = () => {
   const admin = useAppSelector(selectUser);
   const idNotification = useRef<string>("");
@@ -38,7 +38,13 @@ const CreateTeacherModal = () => {
   });
   const { isPending, mutateAsync } = useMutation({
     mutationFn: (formData: FormData) =>
-      createTeacher(formData, admin?.token || ""),
+      Server<IMessageResponse>(`teachers/create`, {
+        method: "POST",
+        headers: {
+          authorization: `Bearer ${admin?.token}`,
+        },
+        data: formData,
+      }),
     mutationKey: ["teacher", "create"],
     onSuccess: (success) => {
       client.invalidateQueries({ queryKey: ["teachers"] });

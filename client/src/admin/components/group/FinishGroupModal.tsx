@@ -46,7 +46,7 @@ const FinishGroupModal = ({ id }: { id: number }) => {
       Server<IMessageResponse>(`group/finish/${id}`, {
         method: "PATCH",
         headers: {
-          authorization: `Bearer ${admin?.token || ""}`,
+          authorization: `Bearer ${admin?.token}`,
         },
       }),
     onSuccess(success) {

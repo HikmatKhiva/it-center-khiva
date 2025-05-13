@@ -1,6 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
 import NewStudentsTable from "@/common/components/newstudent/NewStudentsTable";
-import { getAllNewStudents } from "@/api/api.new.student";
 import {
   Group,
   Pagination,
@@ -17,6 +16,7 @@ import { useState } from "react";
 import { useAppSelector } from "@/hooks/redux";
 import useFormData from "@/hooks/useFormData";
 import { selectUser } from "@/lib/redux/reducer/admin";
+import { Server } from "@/api/api";
 const NewStudents = () => {
   const user = useAppSelector(selectUser);
   const [query, setQuery] = useState<IQueryStudent>({
@@ -27,8 +27,22 @@ const NewStudents = () => {
     limit: 13,
     page: 1,
   });
-  const { data, isPending } = useQuery({
-    queryFn: () => getAllNewStudents(query, user?.token || ""),
+  const params = new URLSearchParams({
+    isAttend: query.isAttend,
+    month: query.month,
+    courseTime: query.courseTime,
+    courseId: query.courseId,
+    limit: query.limit.toString(),
+    page: query.page.toString(),
+  });
+  const { data, isPending } = useQuery<INewStudentResponse>({
+    queryFn: () =>
+      Server<INewStudentResponse>(`newStudents?${params}`, {
+        method: "GET",
+        headers: {
+          authorization: `Bearer ${user?.token}`,
+        },
+      }),
     queryKey: [
       "newStudents",
       query.courseTime,
