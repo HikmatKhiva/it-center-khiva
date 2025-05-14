@@ -10,7 +10,7 @@ const AdminReception = () => {
   const admin = useAppSelector(selectUser);
   const { data } = useQuery<IReceptionResponse, Error>({
     queryFn: () =>
-      Server<IReceptionResponse>(`admin/reception`, {
+      Server<IReceptionResponse>(`reception`, {
         method: "GET",
         headers: {
           authorization: `Bearer ${admin?.token}`,

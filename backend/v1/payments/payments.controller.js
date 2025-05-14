@@ -58,7 +58,7 @@ const uploadPayment = async (req, res) => {
       return res.status(400).json({ message: "Hisob topilmadi!" });
     }
     if (!find.isActive && find.role === "RECEPTION") {
-      return res.status(400).json({ message: "Sizda Ruxat yo'q!" });
+      return res.status(400).json({ message: "Sizda Ruxsat yo'q!" });
     }
     const student = await prisma.student.findUnique({
       where: {

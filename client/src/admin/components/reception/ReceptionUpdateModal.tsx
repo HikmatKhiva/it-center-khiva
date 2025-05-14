@@ -21,13 +21,7 @@ import { selectUser } from "@/lib/redux/reducer/admin";
 import { Server } from "@/api/api";
 import { useForm } from "@mantine/form";
 import { adminValidate } from "@/validation";
-const ReceptionUpdateModal = ({
-  username,
-  id,
-}: {
-  username: string;
-  id: number;
-}) => {
+const ReceptionUpdateModal = ({ id }: { id: number }) => {
   const [opened, { open, close }] = useDisclosure(false);
   const admin = useAppSelector(selectUser);
   const idNotification = useRef<string>("");
@@ -42,15 +36,15 @@ const ReceptionUpdateModal = ({
     validate: adminValidate,
   });
   const { data } = useQuery({
-    queryKey: ["admin", "profile"],
+    queryKey: ["reception", "profile"],
     queryFn: () =>
-      Server<IUserProfile>(`admin/reception/${username}`, {
+      Server<IUserProfile>(`reception/${id}`, {
         method: "GET",
         headers: {
           authorization: `Bearer ${admin?.token}`,
         },
       }),
-    enabled: !!admin?.token,
+    enabled: !!admin?.token && !!id && opened,
   });
   useEffect(() => {
     if (data) {
@@ -62,14 +56,14 @@ const ReceptionUpdateModal = ({
   }, [data]);
   const { mutateAsync, isPending } = useMutation({
     mutationFn: (data: IUserUpdate) =>
-      Server<I2FAResponse>(`admin/reception/update/${id}`, {
+      Server<I2FAResponse>(`reception/update/${id}`, {
         method: "PUT",
         body: JSON.stringify(data),
         headers: {
           authorization: `Bearer ${admin?.token}`,
         },
       }),
-    mutationKey: ["admin", "profile", "update"],
+    mutationKey: ["reception", "profile", "update"],
     onSuccess: (success) => {
       showSuccessNotification(idNotification.current, success?.message);
       client.invalidateQueries({ queryKey: ["receptions"] });
@@ -80,7 +74,6 @@ const ReceptionUpdateModal = ({
       showErrorNotification(idNotification.current, error.message);
     },
   });
-
   const handleSubmit = async (data: IUserUpdate) => {
     idNotification.current = createNotification(isPending);
     await mutateAsync(data);

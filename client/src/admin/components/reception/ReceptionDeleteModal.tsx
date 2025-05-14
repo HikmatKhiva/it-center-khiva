@@ -17,8 +17,9 @@ const ReceptionDeleteModal = ({ id }: { id: number }) => {
   const idNotification = useRef<string>("");
   const client = useQueryClient();
   const { mutateAsync, isPending } = useMutation({
+    mutationKey: ["reception", "delete", id],
     mutationFn: () =>
-      Server<IMessageResponse>(`admin/reception/delete/${id}`, {
+      Server<IMessageResponse>(`reception/delete/${id}`, {
         method: "DELETE",
         headers: {
           authorization: `Bearer ${admin?.token}`,

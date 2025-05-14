@@ -1,8 +1,8 @@
 .container {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    padding-top: 60px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding-top: 60px;
 }
 .list {
   position: relative;
@@ -26,6 +26,7 @@
   font-weight: 500;
   transition: color 100ms ease;
   color: var(--mantine-color-gray-7);
+
   &[data-active] {
     color: var(--mantine-color-black);
   }

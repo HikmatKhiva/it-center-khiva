@@ -16,4 +16,4 @@ RUN npx prisma generate
 COPY . .
 EXPOSE 5000
 # Build the app
-CMD [ "npm", "run", "dev" ]
+CMD [ "npm", "run", "server" ]

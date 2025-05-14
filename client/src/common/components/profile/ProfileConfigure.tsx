@@ -53,7 +53,7 @@ const ProfileConfigure = () => {
         headers: {
           authorization: `Bearer ${profile?.token || ""}`,
         },
-        formData: data,
+        data: data,
       }),
     onSuccess: (success) => {
       showSuccessNotification(idNotification.current, success?.message);

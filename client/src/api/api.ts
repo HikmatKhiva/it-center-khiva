@@ -1,6 +1,7 @@
 import { saveAs } from "file-saver";
-const API_URL = `${import.meta.env.VITE_BACKEND_URL}api/v1`;
-const API_URL_ADMIN = `${import.meta.env.VITE_BACKEND_URL}api/v1/admin`;
+const SERVER_URL = import.meta.env.VITE_BACKEND_URL || '/';
+const API_URL = `${SERVER_URL}api/v1`;
+const API_URL_ADMIN = `${SERVER_URL}api/v1/admin`;
 interface IOptionAPI {
   method: string;
   body?: string | null | FormData | any;
@@ -72,6 +73,30 @@ export async function downloadGroupCertificate(
     }
     saveAs(blob, filename); // Trigger the download
     return { success: true }; // Indicate successful download (optional)
+  } catch (error: unknown) {
+    const errorMessage =
+      error instanceof Error ? error.message : "An unexpected error occurred.";
+    throw new Error(errorMessage);
+  }
+}
+export async function downloadCertificate(
+  id: number,
+  fullName: string,
+  token: string
+) {
+  try {
+    const response = await fetch(`${API_URL}/certificate/download/${id}`, {
+      method: "GET",
+      headers: {
+        authorization: `Bearer ${token}`,
+      },
+    });
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.message);
+    }
+    const blob = await response.blob();
+    saveAs(blob, fullName);
   } catch (error: unknown) {
     const errorMessage =
       error instanceof Error ? error.message : "An unexpected error occurred.";

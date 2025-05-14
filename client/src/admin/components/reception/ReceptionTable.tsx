@@ -8,7 +8,8 @@ const ReceptionTable = ({ profiles }: { profiles: IUserProfile[] }) => {
   const rows =
     Array.isArray(profiles) &&
     profiles.map((profile: IUserProfile, index: number) => (
-      <Table.Tr key={index}>
+      <Table.Tr key={profile.id}>
+        <Table.Td> {index + 1}</Table.Td>
         <Table.Td> {profile.username}</Table.Td>
         <Table.Td>
           <ImageModal
@@ -21,7 +22,7 @@ const ReceptionTable = ({ profiles }: { profiles: IUserProfile[] }) => {
           <ReceptionStatusUpdate profile={profile} />
         </Table.Td>
         <Table.Td>
-          <ReceptionUpdateModal id={profile.id} username={profile.username} />
+          <ReceptionUpdateModal id={profile.id} />
         </Table.Td>
         <Table.Td>
           <ReceptionDeleteModal id={profile.id} />
@@ -34,6 +35,7 @@ const ReceptionTable = ({ profiles }: { profiles: IUserProfile[] }) => {
         <Table withTableBorder highlightOnHover>
           <Table.Thead>
             <Table.Tr>
+              <Table.Th>N</Table.Th>
               <Table.Th>Username</Table.Th>
               <Table.Th>Rasm</Table.Th>
               <Table.Th>Auth</Table.Th>

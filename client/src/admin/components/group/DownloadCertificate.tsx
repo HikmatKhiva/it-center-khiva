@@ -8,7 +8,7 @@ const DownloadCertificate = ({ id, name }: { id: number; name: string }) => {
   const admin = useAppSelector(selectUser);
   const { mutateAsync, isPending } = useMutation({
     mutationFn: (id: number) =>
-      downloadGroupCertificate(id, admin?.token, name),
+      downloadGroupCertificate(id, admin?.token || "", name),
     mutationKey: ["download", "certificate"],
   });
   const handleClickDownload = async () => {

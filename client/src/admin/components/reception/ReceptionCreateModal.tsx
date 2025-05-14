@@ -38,7 +38,7 @@ const ReceptionCreateModal = () => {
   });
   const { mutateAsync, isPending } = useMutation({
     mutationFn: (data: IUserRegister) =>
-      Server<IMessageResponse>(`admin/reception/register`, {
+      Server<IMessageResponse>(`reception/register`, {
         method: "POST",
         body: JSON.stringify(data),
         headers: {

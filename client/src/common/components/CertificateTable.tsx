@@ -1,4 +1,4 @@
-import { downloadCertificate } from "@/api/api.helper";
+import { downloadCertificate } from "@/api/api";
 import { useAppSelector } from "@/hooks/redux";
 import { selectUser } from "@/lib/redux/reducer/admin";
 import { formatTime } from "@/utils/helper";
@@ -12,7 +12,7 @@ const CertificateTable = ({
   const admin = useAppSelector(selectUser);
   const url = `http://${window?.location?.hostname}/site/certificate?code`;
   const handleDownload = async (id: number, name: string) => {
-    await downloadCertificate(id, name, admin?.token);
+    await downloadCertificate(id, name, admin?.token || "");
   };
   const rows =
     Array.isArray(students) &&

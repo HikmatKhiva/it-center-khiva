@@ -5,7 +5,7 @@
   "type": "module",
   "main": "app.js",
   "scripts": {
-    "server": "nodemon app.js",
+    "server": "nodemon app.js NODE_ENV=production",
     "dev": "npm run server ",
     "lint": "npx eslint"
   },

@@ -16,8 +16,8 @@ const ReceptionStatusUpdate = ({ profile }: { profile: IUserProfile }) => {
   const client = useQueryClient();
   const { mutateAsync, isPending } = useMutation({
     mutationFn: (value: { username: string; isActive: boolean }) =>
-      Server<IMessageResponse>(`admin/reception/status`, {
-        method: "PUT",
+      Server<IMessageResponse>(`reception/status`, {
+        method: "PATCH",
         body: JSON.stringify(value),
         headers: {
           authorization: `Bearer ${admin?.token}`,

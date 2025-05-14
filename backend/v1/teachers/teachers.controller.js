@@ -86,7 +86,6 @@ const updateTeacher = async (req, res) => {
     });
     return res.status(200).json({ message: "Ustoz muoffaqiyatli yangilandi." });
   } catch (error) {
-    console.log(error);
 
     return res.status(500).json({ error });
   }
