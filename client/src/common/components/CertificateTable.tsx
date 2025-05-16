@@ -17,9 +17,10 @@ const CertificateTable = ({
   const rows =
     Array.isArray(students) &&
     students?.map((student: ICertificateStudents, index: number) => (
-      <Table.Tr key={index}>
-        <Table.Td>{student.id}</Table.Td>
+      <Table.Tr key={student.id}>
+        <Table.Td>{index + 1}</Table.Td>
         <Table.Td>{`${student.firstName} ${student.secondName}`}</Table.Td>
+        <Table.Td>{student.code}</Table.Td>
         <Table.Td>
           {student.passportId ? student.passportId : "Passport id berilmagan!"}
         </Table.Td>
@@ -61,6 +62,7 @@ const CertificateTable = ({
           <Table.Tr>
             <Table.Th>Id</Table.Th>
             <Table.Th>O'quvchi</Table.Th>
+            <Table.Th>Code</Table.Th>
             <Table.Th>PassportId</Table.Th>
             <Table.Th>O'qituvchi</Table.Th>
             <Table.Th>Kurs</Table.Th>

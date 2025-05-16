@@ -222,6 +222,7 @@ interface ICertificateStudents {
   firstName: string;
   secondName: string;
   passportId: string;
+  code:string;
   Certificate: {
     id: number;
     certificateUrl: string;

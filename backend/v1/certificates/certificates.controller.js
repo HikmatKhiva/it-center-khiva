@@ -72,6 +72,7 @@ const getAllCertificates = async (req, res) => {
         firstName: true,
         secondName: true,
         passportId: true,
+        code: true,
         Certificate: {
           select: {
             id: true,
@@ -95,6 +96,9 @@ const getAllCertificates = async (req, res) => {
             finishedDate: true,
           },
         },
+      },
+      orderBy: {
+        createdAt: "desc",
       },
       skip: (page - 1) * limit,
       take: parseInt(limit),
