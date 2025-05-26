@@ -1,4 +1,11 @@
 import { lazy, Suspense } from "react";
+<<<<<<< HEAD
+import { TextAnimate } from "@/animation/text-animation";
+// import TeacherSection from "../section/TeacherSection";
+import FaqSection from "@/section/FaqSection";
+// import CourseSection from "../section/CourseSection";
+=======
+>>>>>>> 7a0bcf3f091205cce6167587304d7f03d3c1de0e
 const Spline = lazy(() => import("@splinetool/react-spline"));
 import { Container } from "@mantine/core";
 import { TextAnimate } from "../animation/text-animation";

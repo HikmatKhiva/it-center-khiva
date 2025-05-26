@@ -1,9 +1,7 @@
 export const navLinks: ILinks[] = [
   { id: 1, link: "/news", label: "Yangiliklar" },
   { id: 2, link: "/contact", label: "Bog'lanish" },
-  // { id: 3, link: "/vacancy", label: "Vacancy" },
 ];
-
 export const selectMonths: { label: string; value: string }[] = [
   { label: "January", value: "1" },
   { label: "February", value: "2" },
@@ -18,12 +16,30 @@ export const selectMonths: { label: string; value: string }[] = [
   { label: "November", value: "11" },
   { label: "December", value: "12" },
 ];
-
-export const course_times: { label: string; value: string }[] = [
+export const courseTimes: { label: string; value: string }[] = [
   { value: "Ertalab 9:00", label: "Ertalab 9:00" },
   {
     value: "Tushlikdan keyin 13:00",
     label: "Tushlikdan keyin 13:00",
   },
   { value: "Muhim emas", label: "Muhim emas" },
+];
+export const attends = [
+  { label: "Kelmaydigan O'quvchilar", value: "reject" },
+  { label: "Keladigan O'quvchilar", value: "success" },
+  { label: "Telefon qilinmagan", value: "pending" },
+];
+export const weeks = [
+  "Dushanba",
+  "Seshanba",
+  "Chorshanba",
+  "Payshanba",
+  "Juma",
+  "Shanba",
+];
+export const workHours = ["9:00", "11:00", "14:00", "16:00", "18:00"];
+export const discounts = [
+  { value: "0", label: "0%" },
+  { value: "5", label: "5%" },
+  { value: "10", label: "10%" },
 ];

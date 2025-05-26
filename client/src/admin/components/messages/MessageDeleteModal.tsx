@@ -1,61 +1,47 @@
 import { useDisclosure } from "@mantine/hooks";
 import { ActionIcon, Button, Group, Modal, Text } from "@mantine/core";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { Check, Trash2, X } from "lucide-react";
-import { deleteMessage } from "../../api/api.message";
-import { notifications } from "@mantine/notifications";
+import { Trash2 } from "lucide-react";
 import { useRef } from "react";
-import { useAppSelector } from "../../../hooks/redux";
+import { useAppSelector } from "@/hooks/redux";
+import {
+  createNotification,
+  showErrorNotification,
+  showSuccessNotification,
+} from "@/utils/notification";
+import { Server } from "@/api/api";
 const MessageDeleteModal = ({ id }: { id: number }) => {
   const [opened, { open, close }] = useDisclosure(false);
   const { admin } = useAppSelector((state) => state.admin);
   const client = useQueryClient();
-  const _id: any = useRef();
+  const idNotification = useRef<string>("");
   const { mutateAsync, isPending } = useMutation({
     mutationFn: () =>
-      admin?.token ? deleteMessage(id, admin.token || "") : Promise.reject(),
-    onSuccess: () => {
+      Server<IMessageResponse>(`admin/messages/${id}`, {
+        method: "DELETE",
+        headers: {
+          authorization: `Bearer ${admin?.token}`,
+        },
+      }),
+    onSuccess: (success) => {
       client.invalidateQueries({ queryKey: ["message"] });
-      notifications.update({
-        id: _id.current,
-        title: "Ma'lumotlar o'chirildi",
-        message: "",
-        color: "white",
-        autoClose: 3000,
-        position: "top-right",
-        icon: <Check color="#93CE03" />,
-      });
+      showSuccessNotification(idNotification.current, success?.message);
       close();
     },
     onError: (error) => {
-      notifications.update({
-        id: _id.current,
-        title: "Ma'lumotlar o'chirishda xato bo'ldi.",
-        message: error?.message,
-        color: "red",
-        autoClose: 3000,
-        position: "top-right",
-        icon: <X color="white" />,
-      });
+      showErrorNotification(idNotification.current, error.message);
     },
   });
   const handleDelete = () => {
-    _id.current = notifications.show({
-      loading: isPending,
-      title: "Ma'lumotlar o'chirilyapti.",
-      message: "Iltimos ma'lumot o'chirilguncha kutib turing!",
-      color: "blue",
-      position: "top-right",
-      withCloseButton: true,
-    });
+    idNotification.current = createNotification(isPending);
     mutateAsync();
   };
   return (
     <>
       <ActionIcon
         onClick={open}
-        bottom="0px"
-        right="0px"
+        bottom="5px"
+        right="5px"
         color="red"
         pos="absolute"
         p="3"
@@ -66,12 +52,11 @@ const MessageDeleteModal = ({ id }: { id: number }) => {
         centered
         opened={opened}
         onClose={close}
-        title="Xabarni o'chirish." // Optional title for clarity
+        title="Xabarni o'chirish."
       >
         <Text size="md" className="text-center">
           Siz ushbu Xabarni o'chirishni xohlaysizmi?
         </Text>
-        {/* Confirmation message */}
         <Group mt={20} justify="end" gap="10">
           <Button color="green" onClick={handleDelete}>
             Ha
@@ -84,5 +69,4 @@ const MessageDeleteModal = ({ id }: { id: number }) => {
     </>
   );
 };
-
 export default MessageDeleteModal;

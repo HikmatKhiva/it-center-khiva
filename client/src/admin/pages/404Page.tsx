@@ -1,5 +1,5 @@
 import { Button, Container, Title } from "@mantine/core";
-import { TextAnimate } from "../../animation/text-animation";
+import { TextAnimate } from "@/animation/text-animation";
 import { useNavigate } from "react-router-dom";
 function NotFoundPage() {
   const navigate = useNavigate();

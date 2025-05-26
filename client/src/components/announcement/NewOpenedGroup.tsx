@@ -9,16 +9,16 @@ import {
   Text,
 } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
-import { Bell, Call, Telegram } from "../../assets";
-import { TextAnimate } from "../../animation/text-animation";
+import { Bell, Call, Telegram } from "@/assets";
+import { TextAnimate } from "@/animation/text-animation";
 const NewOpenedGroup = ({ groupList }: { groupList: IOpenedGroup[] }) => {
   const [opened, { open, close }] = useDisclosure(false);
   const rows = groupList?.map((group: IOpenedGroup) => (
-    <Table.Tr key={group.admission_end}>
-      <Table.Td>{group.course_name}</Table.Td>
-      <Table.Td>{group.group_time}</Table.Td>
+    <Table.Tr key={group.admissionEnd}>
+      <Table.Td>{group.courseName}</Table.Td>
+      <Table.Td>{group.groupTime}</Table.Td>
       <Table.Td>{group.teacher}</Table.Td>
-      <Table.Td>{group.admission_end}</Table.Td>
+      <Table.Td>{group.admissionEnd}</Table.Td>
     </Table.Tr>
   ));
   return (
@@ -32,7 +32,7 @@ const NewOpenedGroup = ({ groupList }: { groupList: IOpenedGroup[] }) => {
         <Table>
           <Table.Thead>
             <Table.Tr>
-              <Table.Th>Course Nomi</Table.Th>
+              <Table.Th>Kurs Nomi</Table.Th>
               <Table.Th>Dars Kunlari</Table.Th>
               <Table.Th>O'qituvchi</Table.Th>
               <Table.Th>Qabul gacha</Table.Th>
@@ -42,7 +42,7 @@ const NewOpenedGroup = ({ groupList }: { groupList: IOpenedGroup[] }) => {
         </Table>
         <Divider my={10} />
         <Text className="text-center" mb="10">
-          <TextAnimate animation="slideUp">Qo'shilish uchun aloqa</TextAnimate>
+          <TextAnimate animation="slideUp">Qo'shilish uchun aloqa.</TextAnimate>
         </Text>
         <Group justify="center" gap="10">
           <ActionIcon
@@ -79,5 +79,4 @@ const NewOpenedGroup = ({ groupList }: { groupList: IOpenedGroup[] }) => {
     </>
   );
 };
-
 export default NewOpenedGroup;

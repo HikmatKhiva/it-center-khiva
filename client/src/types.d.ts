@@ -3,36 +3,44 @@ interface ILinks {
   link: string;
   label: string;
 }
-interface INewStudent {
-  name: string;
-  phone: string;
-  course: string;
-  time: string;
-}
+
 interface INewGroup {
   name: string;
-  course_id: string;
-  teacher_id: string;
+  courseId: string;
+  teacherId: string;
   price: number;
-  duration: number | string;
-  group_time: string;
+  duration: number;
+  groupTime: string;
+  // groupTime: {
+  //   day: string;
+  //   hour: string;
+  // };
 }
-interface INewStudent {
-  first_name: string;
-  second_name: string;
-  passport_id: string;
+interface IStudentCreate {
+  firstName: string;
+  secondName: string;
+  passportId: string;
   gender: string;
-  course_id: string;
-  group_id: string;
+  courseId: number;
+  groupId: number;
+  phone: string;
 }
-interface IStudent {
-  id: number;
-  first_name: string;
-  second_name: string;
-  passport_id: string;
+interface IStudent extends IDefault {
+  firstName: string;
+  secondName: string;
+  passportId: string;
   gender: string;
-  debt: number;
+  courseId: number;
+  code: string;
+  groupId: number;
   certificate_url?: string;
+  phone: null | string;
+  debt: string;
+  discount: string;
+  Certificate: {
+    id: number;
+    certificateUrl: string;
+  };
 }
 interface ISelect {
   value: string;
@@ -41,37 +49,30 @@ interface ISelect {
 interface IGroup {
   id: number;
   name: string;
-  code: string;
-  is_group_finished: boolean;
-  teacher_name: string;
-  course_name: string;
-  created_at: string;
-  students: [];
-}
-
-interface ICourse {
-  id: number;
-  name: string;
-  teacher: {
-    id: number;
-    first_name: string;
-  };
-  // teacher_name: string;
-  created_at?: string;
-  price?: number;
+  isGroupFinished: boolean;
+  teacher: ITeacher;
+  course: ICourse;
+  Students: [];
+  price: number;
+  duration: number;
+  finishedDate: Date;
+  groupTime: string;
+  createdAt: Date;
 }
 
 interface INewCourse {
-  id?: number;
   name: string;
-  price?: number;
-  teacher_id: string | number;
+  teacherId: string;
+  nameCertificate: string;
 }
 
-interface ITeacher {
+interface ITeacherForm {
   id: string;
-  first_name: string;
-  second_name: string;
+  firstName: string;
+  secondName: string;
+  photo_url?: string;
+  image: null | File;
+  phone: string;
 }
 
 interface CreateCardProps {
@@ -89,20 +90,20 @@ interface INewsCard {
 }
 
 interface INewPayment {
+  studentId: number;
   amount: number;
-  student_id: number;
-  group_id: string;
 }
-interface IPayments {
-  amount: number;
-  date: string;
+interface IPayments extends IDefault {
+  paymentDate: Date;
+  amount: string;
   status: string;
+  studentId: number;
 }
-interface IAddStudent {
-  full_name: string;
+interface INewStudentCreate {
+  fullName: string;
   phone: string;
-  course_id: string;
-  course_time: string;
+  courseId: string;
+  courseTime: string;
 }
 interface IAddStudents {
   id: number;
@@ -113,31 +114,23 @@ interface IAddStudents {
   created_at: string;
   is_attend: string;
 }
-
+interface INewStudent extends INewStudentCreate, IDefault {
+  course: ICourse;
+  isAttend: string;
+}
 interface IQueryStudent {
-  is_attend: string;
-  course_id?: string;
+  isAttend: string;
+  courseId: string;
   month: string;
-  course_time: string;
+  courseTime: string;
+  limit: number;
+  page: number;
 }
-
 interface IOpenedGroup {
-  course_name: string;
-  course_time: string;
+  courseName: string;
   teacher: string;
-  group_time: string;
-  admission_end: string;
-}
-
-interface IDebtors {
-  student_id: number;
-  student_full_name: string;
-  group_price: string;
-  group_name: string;
-  teacher_name: string;
-  last_payment_date: string;
-  passport_id: string;
-  total_paid_this_month: string;
+  groupTime: string;
+  admissionEnd: string;
 }
 
 interface IStats {
@@ -148,46 +141,193 @@ interface IStats {
 }
 
 interface INews {
-  id?: number;
+  id: number;
+  slug: string;
   photo_url: string;
-  news_title: string;
-  news_description: string;
+  title: string;
+  description: string;
   content: string;
   created_at: string;
   created_time: string | null;
+  createdAt: Date;
 }
 
 interface IAnonymMessage {
-  full_name: string;
+  fullName: string;
   message: string;
 }
 
 interface IMessage {
   id: number;
-  full_name: string;
+  fullName: string;
   message: string;
-  created_at: string;
+  createdAt: Date;
 }
-interface IAdminLogin {
-  email: string;
+interface IUserLogin {
+  username: string;
   password: string;
 }
 interface I2FAData {
   token: string;
-  email?: string;
+  username: string;
 }
 
 interface InitialStateAdmin {
   admin: null | IAdmin;
 }
 interface IAdmin {
-  email: string;
-  username: string;
+  id: number;
   token: string;
-  photo_url: string;
-  expirationTime?: number;
+  role: string;
+  expirationTime: number;
 }
-interface IAdminProfile {
-  email: string;
+interface IUserProfile {
+  id: number;
   username: string;
+  photo_url: null | string;
+  role: string;
+  secret: string;
+  username: string;
+  isActive: boolean;
+}
+interface IUserUpdate {
+  id: number;
+  username: string;
+  secret: string;
+  password: string;
+}
+interface IDefault {
+  id: number;
+  createdAt: Date;
+  updatedAt: Date;
+}
+interface ICourse extends IDefault {
+  name: string;
+  teacher: ITeacher;
+  nameCertificate: string;
+}
+interface ICourseResponse extends IDefault {
+  name: string;
+  nameCertificate: string;
+  teacherId: number;
+}
+interface ITeacher extends IDefault {
+  firstName: string;
+  secondName: string;
+  photo_url: string;
+  phone: null | string;
+}
+interface ICertificateStudents {
+  id: number;
+  firstName: string;
+  secondName: string;
+  passportId: string;
+  code:string;
+  Certificate: {
+    id: number;
+    certificateUrl: string;
+  };
+  course: {
+    id: number;
+    name: string;
+    teacher: {
+      firstName: string;
+      secondName: string;
+    };
+  };
+  Group: {
+    finishedDate: Date;
+  };
+}
+
+interface IDebtor {
+  id: number;
+  fullName: string;
+  passportId: string;
+  groupPrice: string;
+  groupName: string;
+  courseName: string;
+  teacherName: string;
+  debt: string;
+  lastPaymentDate: string;
+  totalPaidThisMonth: number;
+  createdAt: Date;
+}
+
+interface IUserRegister {
+  username: string;
+  password: string;
+  secret: string;
+  role: string;
+}
+interface IGroupQuery {
+  name: string;
+  page: number;
+  limit: number;
+  isGroupFinished: boolean;
+}
+interface GroupQueryResponse {
+  groups: IGroup[];
+  totalPages: number;
+}
+interface IDefaultQuery {
+  name: string;
+  page: number;
+  limit: number;
+}
+interface IDefaultResponse {
+  totalPages: number;
+}
+interface ITeacherResponse extends IDefaultResponse {
+  teachers: ITeacher[];
+}
+interface ICoursesResponse extends IDefaultResponse {
+  courses: ICourse[];
+}
+interface IMessagesResponse extends IDefaultResponse {
+  messages: IMessage[];
+}
+interface INewStudentResponse extends IDefaultResponse {
+  students: INewStudent[];
+  countNewStudents: number;
+}
+interface IMessageResponse {
+  message: string;
+}
+interface I2FAResponse {
+  message: string;
+  user: IAdmin;
+}
+interface ILoginResponse {
+  message: string;
+  username: string;
+}
+interface IStudentsResponse extends IDefaultResponse {
+  students: IStudent[];
+}
+
+interface IPaymentsResponse {
+  payments: IPayments[];
+  student: IStudent;
+  percentagePaid: number;
+}
+
+interface IDebtorsResponse extends IDefaultResponse {
+  debtors: IDebtor[];
+  currentMonth: string;
+  count: number;
+}
+
+interface IDebtorQuery extends IDefaultQuery {
+  month: string;
+}
+
+interface ICertificateResponse extends IDefaultResponse {
+  students: ICertificateStudents[];
+}
+interface IReceptionResponse {
+  receptions: IUserProfile[];
+}
+interface INewsResponse extends IDefaultResponse {
+  news: INews[];
 }

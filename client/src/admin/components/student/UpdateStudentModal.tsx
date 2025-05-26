@@ -1,46 +1,70 @@
 import { useDisclosure } from "@mantine/hooks";
 import { Button, Modal, Select, Stack, TextInput } from "@mantine/core";
 import { useForm } from "@mantine/form";
-import { updateStudent } from "../../api/api.student";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { useAppSelector } from "../../../hooks/redux";
+import { useAppSelector } from "@/hooks/redux";
+import { selectUser } from "@/lib/redux/reducer/admin";
+import { InputMask } from "@react-input/mask";
+import { useRef } from "react";
+import {
+  createNotification,
+  showSuccessNotification,
+} from "@/utils/notification";
+import { Pencil } from "lucide-react";
+import { Server } from "@/api/api";
 const UpdateStudentModal = ({ student }: { student: IStudent }) => {
   const client = useQueryClient();
-  const { admin } = useAppSelector((state) => state.admin);
+  const admin = useAppSelector(selectUser);
+  const idNotification = useRef<string>("");
   const [opened, { open, close }] = useDisclosure(false);
-  const { mutateAsync } = useMutation({
-    mutationFn:(data: IStudent)=> updateStudent(data,admin?.token || ""),
-    onSuccess: () => {
+  const { mutateAsync, isPending } = useMutation({
+    mutationFn: (data: IStudent) =>
+      Server<IMessageResponse>(`students/update/${student.id}`, {
+        method: "PUT",
+        body: JSON.stringify(data),
+        headers: {
+          authorization: `Bearer ${admin?.token}`,
+        },
+      }),
+    onSuccess: (success) => {
       client.invalidateQueries({ queryKey: ["students"] });
+      showSuccessNotification(idNotification.current, success?.message);
       close();
     },
   });
   const form = useForm({
     initialValues: {
-      id: student?.id,
-      first_name: student?.first_name,
-      second_name: student?.second_name,
-      passport_id: student?.passport_id,
-      gender: student?.gender,
+      firstName: student?.firstName,
+      secondName: student?.secondName,
+      passportId: student?.passportId,
+      gender: student?.gender.toLowerCase(),
+      phone: student?.phone,
     } as IStudent,
   });
   const handleSubmit = async (data: IStudent) => {
     mutateAsync(data);
+    idNotification.current = createNotification(isPending);
   };
   return (
     <>
-      <Button onClick={open} color="green" size="xs" variant="outline">
-        O'zgartirish ✏️
+      <Button
+        onClick={open}
+        rightSection={<Pencil size="16" />}
+        color="green"
+        size="xs"
+        variant="outline"
+      >
+        O'zgartirish
       </Button>
       <Modal opened={opened} onClose={close} title="O'quvchini o'zgartirish">
         <form onSubmit={form.onSubmit(handleSubmit)}>
           <Stack>
             <TextInput
               onChange={(e) =>
-                form.setFieldValue("first_name", e.currentTarget.value.trim())
+                form.setFieldValue("firstName", e.currentTarget.value.trim())
               }
-              value={form.values.first_name}
-              required
+              value={form.values.firstName}
+              error={form.errors.firstName}
               label="Ismini kiriting!"
               placeholder="Xudayshukur"
               size="md"
@@ -48,14 +72,28 @@ const UpdateStudentModal = ({ student }: { student: IStudent }) => {
             />
             <TextInput
               onChange={(e) =>
-                form.setFieldValue("second_name", e.currentTarget.value.trim())
+                form.setFieldValue("secondName", e.currentTarget.value.trim())
               }
-              value={form.values.second_name}
+              value={form.values.secondName}
+              error={form.errors.secondName}
               required
               label="Familiyasini kiriting!"
               placeholder="Polvonov"
               size="md"
               radius="md"
+            />
+            <InputMask
+              mask="+99 (8__) ___-__-__"
+              replacement={{ _: /\d/ }}
+              autoComplete="off"
+              placeholder="+99 (8__) ___-__-__"
+              label="Telefon raqamini kiriting!"
+              component={TextInput}
+              error={form.errors.phone}
+              value={form.values.phone || ""}
+              onChange={(event) => {
+                form.setFieldValue("phone", event.target.value);
+              }}
             />
             <TextInput
               required
@@ -67,11 +105,11 @@ const UpdateStudentModal = ({ student }: { student: IStudent }) => {
                   e.currentTarget.value.trim().toUpperCase()
                 )
               }
-              value={form.values.passport_id}
+              value={form.values.passportId}
+              error={form.errors.passportId}
               size="md"
               radius="md"
             />
-
             <Select
               label="Jinsni Tanlang"
               placeholder="Erkak"
@@ -83,8 +121,8 @@ const UpdateStudentModal = ({ student }: { student: IStudent }) => {
             />
           </Stack>
           <Button
-            aria-labelledby="create new student button"
-            aria-label="create new student"
+            loading={isPending}
+            disabled={isPending}
             size="md"
             mt="15"
             color="green"

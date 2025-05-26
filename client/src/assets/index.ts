@@ -1,14 +1,10 @@
 export { default as Mail } from "./3D/mail.png";
-export { default as House } from "./3D/3d-house.png";
 export { default as AdminIcon } from "./3D/admin.png";
 export { default as Sun } from "./3D/3dsun.png";
 export { default as Moon } from "./3D/3dMoon.png";
-export { default as Groups } from "./3D/groups.png";
 export { default as News } from "./3D/news.png";
-export { default as Plus } from "./3D/plus.png";
 export { default as NoteBook } from "./3D/notebook.png";
 export { default as Pencil } from "./3D/pencil.png";
-export { default as Boy } from "./3D/boy.png";
 export { default as Bell } from "./3D/3d-bell.png";
 export { default as Megaphone } from "./3D/3d-megaphone.png";
 export { default as Manager } from "./3D/manager.png";

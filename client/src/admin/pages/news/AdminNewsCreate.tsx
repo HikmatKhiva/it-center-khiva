@@ -8,23 +8,43 @@ import Superscript from "@tiptap/extension-superscript";
 import SubScript from "@tiptap/extension-subscript";
 import ImageResize from "tiptap-extension-resize-image";
 import "@mantine/tiptap/styles.css";
-import { ActionIcon, Button, Divider, Group, Text } from "@mantine/core";
-import { ArrowLeft, Save } from "lucide-react";
+import { Button, Divider, Group, Text } from "@mantine/core";
+import { ArrowLeft, Save, Youtube } from "lucide-react";
+import { DateInput } from "@mantine/dates";
 import { useNavigate } from "react-router-dom";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import CreateCard from "../../components/news/CreateCard";
 import { useMutation } from "@tanstack/react-query";
-import { createNews } from "../../api/api.news";
-import { useAppSelector } from "../../../hooks/redux";
+import { useAppSelector } from "@/hooks/redux";
+import { selectUser } from "@/lib/redux/reducer/admin";
+import {
+  createNotification,
+  showErrorNotification,
+  showSuccessNotification,
+} from "@/utils/notification";
+import CustomIFrame from "@/admin/extension/CustomIFrame";
+import { Server } from "@/api/api";
 const AdminNewsCreate = () => {
-  const { admin } = useAppSelector((state) => state.admin);
+  const admin = useAppSelector(selectUser);
   const [content, setContent] = useState<string>("");
+  const idNotification = useRef<string>("");
   const navigate = useNavigate();
-  const { mutateAsync ,isPending} = useMutation({
-    mutationFn: (formData: FormData) => createNews(formData, admin?.token || ""),
+  const { mutateAsync, isPending } = useMutation({
+    mutationFn: (formData: FormData) =>
+      Server<IMessageResponse>(`news/create`, {
+        method: "POST",
+        headers: {
+          authorization: `Bearer ${admin?.token}`,
+        },
+        data: formData,
+      }),
     mutationKey: ["news", "create"],
-    onSuccess: () => {
+    onSuccess: (success) => {
+      showSuccessNotification(idNotification.current, success.message);
       navigate("/admin/news");
+    },
+    onError: (error) => {
+      showErrorNotification(idNotification.current, error.message);
     },
   });
   const [newsCard, setNewsCard] = useState<INewsCard>({
@@ -39,7 +59,6 @@ const AdminNewsCreate = () => {
     const { name, value } = e.target;
     setNewsCard((prevState) => ({
       ...prevState,
-
       [name]: value,
     }));
   };
@@ -50,9 +69,7 @@ const AdminNewsCreate = () => {
       image: file,
     }));
   };
-  const [date, setDate] = useState<string>(
-    new Date().toISOString().split("T")[0]
-  );
+  const [createdAt, setCreatedAt] = useState<Date>(new Date());
   const editor = useEditor({
     extensions: [
       StarterKit,
@@ -64,12 +81,14 @@ const AdminNewsCreate = () => {
       TextAlign.configure({ types: ["heading", "paragraph"] }),
       // Image.configure({ allowBase64: true }),
       ImageResize.configure({ allowBase64: true }), // Use ImageResize here
+      CustomIFrame,
     ],
     content,
     onUpdate: ({ editor }) => {
       setContent(editor.getHTML());
     },
   });
+  // editor?.commands.
   const handleSubmit = () => {
     const formData = new FormData();
     if (newsCard.image) {
@@ -78,8 +97,9 @@ const AdminNewsCreate = () => {
     formData.append("title", newsCard.title);
     formData.append("description", newsCard.description);
     formData.append("content", content);
-    formData.append("date", date);
+    formData.append("createdAt", createdAt.toISOString());
     mutateAsync(formData);
+    idNotification.current = createNotification(isPending);
   };
   const handleImageUpload = (file: File): Promise<string> => {
     return new Promise((resolve) => {
@@ -87,6 +107,11 @@ const AdminNewsCreate = () => {
       reader.onload = () => resolve(reader.result as string); // Convert file to base64 string
       reader.readAsDataURL(file);
     });
+  };
+  const handleUploadIframeData = (url: string) => {
+    if (editor) {
+      editor.commands?.setIframe({ src: url });
+    }
   };
   return (
     <>
@@ -96,23 +121,20 @@ const AdminNewsCreate = () => {
             onClick={() => navigate(-1)}
             color="red"
             variant="outline"
-            size="sm"
+            size="xs"
           >
             <ArrowLeft size={16} />
           </Button>
           <Text size="lg" fw="bold">
-            Yangilik Yaratish bo'limi
+            Yangilik Yaratish bo'limi.
           </Text>
         </Group>
         <Group>
-          <ActionIcon size="lg" variant="default" w={150}>
-            <input
-              type="date"
-              value={date}
-              onChange={(event) => setDate(event.target.value)}
-              className=" outline-none p-1 rounded  "
-            />
-          </ActionIcon>
+          <DateInput
+            value={createdAt}
+            onChange={(value) => setCreatedAt(value || new Date())}
+            placeholder="Date input"
+          />
           <Button
             onClick={handleSubmit}
             loading={isPending}
@@ -123,7 +145,7 @@ const AdminNewsCreate = () => {
             fz={"sm"}
             rightSection={<Save size="16" />}
           >
-            Saqlash
+            Saqlash.
           </Button>
         </Group>
       </Group>
@@ -138,6 +160,16 @@ const AdminNewsCreate = () => {
         >
           <RichTextEditor.Toolbar sticky stickyOffset={60}>
             <RichTextEditor.ControlsGroup>
+              <RichTextEditor.Control
+                onClick={() => {
+                  const url = prompt("Enter iframe URL");
+                  if (url) {
+                    handleUploadIframeData(url);
+                  }
+                }}
+              >
+                <Youtube size="16" />
+              </RichTextEditor.Control>
               <RichTextEditor.Bold />
               <RichTextEditor.Italic />
               <RichTextEditor.Underline />
@@ -196,7 +228,6 @@ const AdminNewsCreate = () => {
               <RichTextEditor.Undo />
               <RichTextEditor.Redo />
             </RichTextEditor.ControlsGroup>
-            
           </RichTextEditor.Toolbar>
 
           <RichTextEditor.Content />

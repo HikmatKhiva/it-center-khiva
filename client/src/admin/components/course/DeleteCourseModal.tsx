@@ -1,58 +1,52 @@
 import { useDisclosure } from "@mantine/hooks";
 import { Button, Group, Modal, Text } from "@mantine/core";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { deleteCourse } from "../../api/api.course";
 import { useRef, MutableRefObject } from "react";
-import { notifications } from "@mantine/notifications";
-import { Check, X } from "lucide-react";
-import { useAppSelector } from "../../../hooks/redux";
+import { Trash } from "lucide-react";
+import { useAppSelector } from "@/hooks/redux";
+import {
+  createNotification,
+  showErrorNotification,
+  showSuccessNotification,
+} from "@/utils/notification";
+import { selectUser } from "@/lib/redux/reducer/admin";
+import { Server } from "@/api/api";
 const DeleteCourseModal = ({ id }: { id: number }) => {
-  const { admin } = useAppSelector((state) => state.admin);
+  const admin = useAppSelector(selectUser);
   const [opened, { open, close }] = useDisclosure(false);
-  const _id: MutableRefObject<string | undefined> = useRef();
+  const idNotification: MutableRefObject<string> = useRef("");
   const client = useQueryClient();
   const { mutateAsync, isPending } = useMutation({
-    mutationFn: () => deleteCourse(id, admin?.token || ""),
-    onSuccess: (response) => {
+    mutationFn: () =>
+      Server<IMessageResponse>(`course/delete/${id}`, {
+        method: "DELETE",
+        headers: {
+          authorization: `Bearer ${admin?.token}`,
+        },
+      }),
+    onSuccess: (success) => {
+      showSuccessNotification(idNotification.current, success?.message);
       client.invalidateQueries({ queryKey: ["courses"] });
       close();
-      notifications.update({
-        id: _id.current,
-        title: "Course o'chirish.",
-        message: response?.message,
-        color: "white",
-        autoClose: 3000,
-        position: "top-right",
-        icon: <Check color="#93CE03" />,
-      });
     },
     onError: (error) => {
-      notifications.update({
-        id: _id.current,
-        title: "Course o'chirishda xato bo'ldi.",
-        message: error?.message,
-        color: "red",
-        autoClose: 3000,
-        position: "top-right",
-        icon: <X color="white" />,
-      });
+      showErrorNotification(idNotification.current, error.message);
     },
   });
   const handleClick = async () => {
-    _id.current = notifications.show({
-      loading: isPending,
-      title: "Ma'lumotlar o'chirilyapti.",
-      message: "Iltimos ma'lumot o'chirilguncha kutib turing!",
-      color: "blue",
-      position: "top-right",
-      withCloseButton: true,
-    });
+    idNotification.current = createNotification(isPending);
     await mutateAsync();
   };
   return (
     <>
-      <Button onClick={open} color="red" size="xs" variant="outline">
-        O'chirish 🗑️
+      <Button
+        onClick={open}
+        rightSection={<Trash size="16" />}
+        color="red"
+        size="xs"
+        variant="outline"
+      >
+        O'chirish
       </Button>
       <Modal
         centered
@@ -61,7 +55,7 @@ const DeleteCourseModal = ({ id }: { id: number }) => {
         title="O'qituvchini o'chirish"
       >
         <Text size="md" className="text-center">
-          Siz ushbu Kurni o'chirishni xohlaysizmi?
+          Siz ushbu Kursni o'chirishni xohlaysizmi?
         </Text>
         <Group mt={20} justify="end" gap="10">
           <Button

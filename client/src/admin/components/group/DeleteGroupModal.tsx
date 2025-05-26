@@ -1,8 +1,16 @@
 import { useDisclosure } from "@mantine/hooks";
 import { Button, Group, Modal, Text } from "@mantine/core";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { deleteGroup } from "../../api/api.group";
-import { useAppSelector } from "../../../hooks/redux";
+import { useAppSelector } from "@/hooks/redux";
+import {
+  createNotification,
+  showErrorNotification,
+  showSuccessNotification,
+} from "@/utils/notification";
+import { useRef } from "react";
+import { selectUser } from "@/lib/redux/reducer/admin";
+import { Trash2 } from "lucide-react";
+import { Server } from "@/api/api";
 const DeleteGroupModal = ({
   id,
   disabled,
@@ -10,18 +18,30 @@ const DeleteGroupModal = ({
   id: number;
   disabled: boolean;
 }) => {
-  const { admin } = useAppSelector((state) => state.admin);
+  const admin = useAppSelector(selectUser);
   const [opened, { open, close }] = useDisclosure(false);
+  const idNotification = useRef<string>("");
   const client = useQueryClient();
-  const { mutateAsync } = useMutation({
-    mutationFn: (id: number) => deleteGroup(id, admin?.token || ""),
-    onSuccess: () => {
+  const { mutateAsync, isPending } = useMutation({
+    mutationFn: (id: number) =>
+      Server<IMessageResponse>(`group/delete/${id}`, {
+        method: "DELETE",
+        headers: {
+          authorization: `Bearer ${admin?.token}`,
+        },
+      }),
+    onSuccess: (success) => {
+      showSuccessNotification(idNotification.current, success?.message);
       client.invalidateQueries({ queryKey: ["groups"] });
       close();
+    },
+    onError: (error) => {
+      showErrorNotification(idNotification.current, error.message);
     },
   });
   const handleDelete = async () => {
     await mutateAsync(id);
+    idNotification.current = createNotification(isPending);
   };
   return (
     <>
@@ -29,10 +49,11 @@ const DeleteGroupModal = ({
         disabled={disabled}
         onClick={open}
         color="red"
+        rightSection={<Trash2 size="16" />}
         size="xs"
         variant="outline"
       >
-        O'chirish 🗑️
+        O'chirish.
       </Button>
       <Modal
         centered

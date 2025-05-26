@@ -2,9 +2,9 @@ import { Container, FloatingIndicator, Group, Image } from "@mantine/core";
 import { Tabs } from "@mantine/core";
 import { useState } from "react";
 import classes from "./contact.module.css";
-import AddNewStudent from "../../components/contact/AddNewStudent";
-import AnonymMessage from "../../components/contact/AnonymMessage";
-import { Manager, Pencil, Mail } from "../../assets";
+import AddNewStudent from "@/components/contact/AddNewStudent";
+import AnonymMessage from "@/components/contact/AnonymMessage";
+import { Manager, Pencil, Mail } from "@/assets";
 const ContactPage = () => {
   const [rootRef, setRootRef] = useState<HTMLDivElement | null>(null);
   const [value, setValue] = useState<string | null>("1");

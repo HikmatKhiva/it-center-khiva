@@ -1,16 +1,21 @@
 import { useDisclosure } from "@mantine/hooks";
 import { Button, Group, Modal, Text } from "@mantine/core";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { generateGroupCertificate } from "../../api/api.group";
-import { Check, X } from "lucide-react";
+import { Check } from "lucide-react";
 import confetti from "canvas-confetti";
-import { useAppSelector } from "../../../hooks/redux";
-import { MutableRefObject, useRef } from "react";
-import { notifications } from "@mantine/notifications";
-const FinishGroupModal = ({ id }: { id: string }) => {
-  const idNotification: MutableRefObject<string | undefined> = useRef();
-  const { admin } = useAppSelector((state) => state.admin);
+import { useAppSelector } from "@/hooks/redux";
+import { useRef } from "react";
+import { selectUser } from "@/lib/redux/reducer/admin";
+import {
+  createNotification,
+  showErrorNotification,
+  showSuccessNotification,
+} from "@/utils/notification";
+import { Server } from "@/api/api";
+const FinishGroupModal = ({ id }: { id: number }) => {
+  const admin = useAppSelector(selectUser);
   const [opened, { open, close }] = useDisclosure(false);
+  const idNotification = useRef<string>("");
   const client = useQueryClient();
   const frame = () => {
     const duration = 5 * 1000;
@@ -20,11 +25,9 @@ const FinishGroupModal = ({ id }: { id: string }) => {
       Math.random() * (max - min) + min;
     const interval = window.setInterval(() => {
       const timeLeft = animationEnd - Date.now();
-
       if (timeLeft <= 0) {
         return clearInterval(interval);
       }
-
       const particleCount = 50 * (timeLeft / duration);
       confetti({
         ...defaults,
@@ -39,35 +42,26 @@ const FinishGroupModal = ({ id }: { id: string }) => {
     }, 250);
   };
   const { mutateAsync, isPending } = useMutation({
-    mutationFn: () => generateGroupCertificate(id, admin?.token || ""),
-    onSuccess(response) {
-      client.invalidateQueries({ queryKey: ["students", id] });
+    mutationFn: () =>
+      Server<IMessageResponse>(`group/finish/${id}`, {
+        method: "PATCH",
+        headers: {
+          authorization: `Bearer ${admin?.token}`,
+        },
+      }),
+    onSuccess(success) {
+      client.invalidateQueries({ queryKey: ["group", id] });
       frame();
-      notifications.update({
-        id: idNotification.current,
-        title: "Certificatelar muoffaqriyatli yaratildi.",
-        message: response?.message,
-        color: "white",
-        autoClose: 3000,
-        position: "top-right",
-        icon: <Check color="#93CE03" />,
-      });
+      showSuccessNotification(idNotification.current, success?.message);
       close();
     },
     onError: (error) => {
-      notifications.update({
-        id: idNotification.current,
-        title: "Certificate yaratishda xato bo'ldi.",
-        message: error?.message,
-        color: "red",
-        autoClose: 3000,
-        position: "top-right",
-        icon: <X color="white" />,
-      });
+      showErrorNotification(idNotification.current, error.message);
       close();
     },
   });
   const handleSubmit = async () => {
+    idNotification.current = createNotification(isPending);
     idNotification.current = notifications.show({
       loading: isPending,
       title: "Ma'lumotlar uzatilyapti.",
@@ -89,7 +83,7 @@ const FinishGroupModal = ({ id }: { id: string }) => {
         fz={"xs"}
         rightSection={<Check size={16} />}
       >
-        Guruhni yakunlash
+        Guruhni yakunlash.
       </Button>
       <Modal centered opened={opened} onClose={close} title="Guruhni yakunlash">
         <Text size="md" className="text-center">

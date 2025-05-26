@@ -1,175 +1,158 @@
 import {
-  Button,
+  Pagination,
+  Stack,
   Table,
-  Group,
-  Divider,
-  TextInput,
-  Text,
   ActionIcon,
-  Tooltip,
+  Group,
+  LoadingOverlay,
 } from "@mantine/core";
-import {
-  ArrowLeft,
-  CalendarOff,
-  CalendarPlus,
-  DownloadIcon,
-  Eye,
-  Search,
-} from "lucide-react";
-import { Link, useNavigate, useParams } from "react-router-dom";
-import CreateStudent from "../../components/student/CreateStudentModal";
-import { downloadGroupCertificate, getGroup } from "../../api/api.group";
-import { useMutation, useQuery } from "@tanstack/react-query";
-import DeleteStudentModal from "../../components/student/DeleteStudentModal";
-import UpdateStudentModal from "../../components/student/UpdateStudentModal";
-import FinishGroupModal from "../../components/group/FinishGroupModal";
-import PaymentsHistory from "../../components/student/PaymentsHistory";
-import UploadPayment from "../../components/student/UploadPayment";
-import { useAppSelector } from "../../../hooks/redux";
-import { useState } from "react";
+import { useParams } from "react-router-dom";
+import { useQuery } from "@tanstack/react-query";
+import DeleteStudentModal from "@/admin/components/student/DeleteStudentModal";
+import UpdateStudentModal from "@/admin/components/student/UpdateStudentModal";
+import PaymentsHistory from "@/common/components/payment/PaymentsHistory";
+import UploadPayment from "@/common/components/payment/UploadPayment";
+import { useAppSelector } from "@/hooks/redux";
+import { ChangeEvent, useCallback, useState } from "react";
+import { selectUser } from "@/lib/redux/reducer/admin";
+import GroupIdHeader from "@/admin/components/group/GroupIdHeader";
+import { Check, Eye, RefreshCw } from "lucide-react";
+import { Server } from "@/api/api";
 const AdminGroupId = () => {
-  const navigate = useNavigate();
-  const { admin } = useAppSelector((state) => state.admin);
-  const [search, setSearch] = useState<string>("");
-  const URL = import.meta.env.VITE_BACKEND_URL;
+  const url = `/site/certificate?code`;
+  const admin = useAppSelector(selectUser);
+  const [query, setQuery] = useState<IDefaultQuery>({
+    name: "",
+    limit: 12,
+    page: 1,
+  });
+  const handleChangeInput = useCallback(
+    (event: ChangeEvent<HTMLInputElement>): void => {
+      setQuery((prev) => ({ ...prev, name: event.target.value }));
+    },
+    []
+  );
   const { id } = useParams();
-  const { data } = useQuery({
-    queryKey: ["students", id],
+  const { data: group } = useQuery({
+    queryKey: ["group", id],
     queryFn: () => {
       if (id) {
-        return getGroup(id, admin?.token || "");
+        return Server<IGroup>(`group/${id}`, {
+          method: "GET",
+          headers: {
+            authorization: `Bearer ${admin?.token}`,
+          },
+        });
       }
     },
     enabled: !!id && !!admin?.token,
   });
-  const { mutateAsync } = useMutation({
-    mutationFn: (id: number) =>
-      downloadGroupCertificate(id, admin?.token || ""),
-    mutationKey: ["download", "certificate"],
+  const params = new URLSearchParams({
+    name: query.name,
+    page: query.page.toString(),
+    limit: query.limit.toString(),
+    ...(id !== undefined && { groupId: id.toString() }),
   });
-  const rows = data?.students
-    ?.filter((student: IStudent) =>
-      student.first_name.includes(search.trim().toLowerCase())
-    )
-    .map((student: IStudent) => (
-      <Table.Tr key={student.id}>
-        <Table.Td>{student.id}</Table.Td>
-        <Table.Td>{student.first_name}</Table.Td>
-        <Table.Td>{student.second_name}</Table.Td>
-        <Table.Td>{student.passport_id}</Table.Td>
-        <Table.Td>{student?.gender === "male" ? "Erkak" : "Ayol"}</Table.Td>
-        {!data?.is_group_finished && (
-          <Table.Td>
-            <UpdateStudentModal student={student} />
-          </Table.Td>
+  const { data, isPending, refetch } = useQuery<IStudentsResponse>({
+    queryKey: ["students", query.name, query.page],
+    queryFn: () =>
+      Server<IStudentsResponse>(`students?${params}`, {
+        method: "GET",
+        headers: {
+          authorization: `Bearer ${admin?.token}`,
+        },
+      }),
+    enabled: !!admin?.token && !!group?.id,
+  });
+  const rows = data?.students?.map((student: IStudent, index: number) => (
+    <Table.Tr key={student.id}>
+      <Table.Td>{index + 1}</Table.Td>
+      <Table.Td>{student.firstName}</Table.Td>
+      <Table.Td>{student.secondName}</Table.Td>
+      <Table.Td>{student.passportId}</Table.Td>
+      <Table.Td>
+        {student?.phone !== null ? (
+          <a href={`tel:${student.phone}`}>{student?.phone}</a>
+        ) : (
+          "Raqam ko'rsatilmagan"
         )}
-        {!data?.is_group_finished && (
-          <Table.Td>
-            <DeleteStudentModal id={student?.id} />
-          </Table.Td>
-        )}
-        {data?.is_group_finished && (
-          <Table.Td>
-            <Link
-              to={`${URL}certificate?code=${student?.certificate_url}`}
-              target="__blank"
-            >
-              <Button
-                variant="outline"
-                color="green"
-                size="xs"
-                aria-label="see certificate URL"
-              >
-                <Eye />
-              </Button>
-            </Link>
-          </Table.Td>
-        )}
+      </Table.Td>
+      <Table.Td>{student?.gender === "MALE" ? "Erkak" : "Ayol"}</Table.Td>
+      {/* {!group?.isGroupFinished && ( */}
+      <Table.Td>{id && <UpdateStudentModal student={student} />}</Table.Td>
+      {/* )} */}
+      {!group?.isGroupFinished && (
         <Table.Td>
-          <PaymentsHistory total_cost={data?.total_cost} student={student} />
+          <DeleteStudentModal id={student?.id} />
         </Table.Td>
-        <Table.Td>
-          <UploadPayment
-            data={{ group_id: id || "", student_id: student.id, amount: 0 }}
-          />
-        </Table.Td>
-      </Table.Tr>
-    ));
-  const handleClickDownload = async (id: number) => {
-    await mutateAsync(id);
-  };
+      )}
+      <Table.Td hidden={!group?.isGroupFinished}>
+        <ActionIcon
+          component="a"
+          target="_blank"
+          href={`${url}=${student?.code}`}
+          size="lg"
+        >
+          <Eye />
+        </ActionIcon>
+      </Table.Td>
+      <Table.Td>
+        <PaymentsHistory id={student.id} />
+      </Table.Td>
+      <Table.Td>
+        {parseInt(student.debt) === 0 ? (
+          <ActionIcon color="teal" variant="light" radius="xl" size="lg">
+            <Check size={22} />
+          </ActionIcon>
+        ) : (
+          <UploadPayment studentId={student.id} />
+        )}
+      </Table.Td>
+    </Table.Tr>
+  ));
   return (
     <section>
-      <Group pb="20" justify="space-between">
-        <Group gap="20">
-          <ActionIcon
-            onClick={() => navigate(-1)}
-            color="red"
-            variant="outline"
-            size="md"
-          >
-            <ArrowLeft size={16} />
+      {group && (
+        <GroupIdHeader
+          group={group}
+          name={query.name}
+          handleChangeInput={handleChangeInput}
+        />
+      )}
+      <Stack className="h-[calc(100vh_-_150px)]" justify="space-between ">
+        <Table withTableBorder highlightOnHover>
+          <Table.Thead>
+            <Table.Tr>
+              <Table.Th>N</Table.Th>
+              <Table.Th>Ism</Table.Th>
+              <Table.Th>Familiyasi</Table.Th>
+              <Table.Th>Passport</Table.Th>
+              <Table.Th>Telefon</Table.Th>
+              <Table.Th>Jins</Table.Th>
+              <Table.Th>O'zgartirish</Table.Th>
+              {group?.isGroupFinished && <Table.Th>Certificate URL</Table.Th>}
+              {!group?.isGroupFinished && <Table.Th>O'chirish</Table.Th>}
+              <Table.Th>To'lov tarixi</Table.Th>
+              <Table.Th>To'lov qo'shish</Table.Th>
+            </Table.Tr>
+          </Table.Thead>
+          <Table.Tbody>{rows}</Table.Tbody>
+        </Table>
+        <LoadingOverlay visible={isPending} />
+        <Group justify="space-between">
+          <ActionIcon onClick={() => refetch()} size="lg" color="indigo">
+            <RefreshCw size="18" />
           </ActionIcon>
-          <Text fz="14">
-            Guruh code: <b>{data?.code}</b>
-          </Text>
-          <Tooltip label="Boshlangan sana!">
-            <Text className="flex gap-1 items-center" fz="14">
-              <CalendarPlus size="16" />
-              <b>{data?.created_at}</b>
-            </Text>
-          </Tooltip>
-          <Tooltip
-            label={`${
-              data?.is_group_finished ? "Yakunlangan sana!" : "Yakunlash sanasi!"
-            }`}
-          >
-            <Text className="flex gap-1 items-center" fz="14">
-              <CalendarOff size="16" />
-              <b>{data?.finished_date ? data?.finished_date : data?.end_date}</b>
-            </Text>
-          </Tooltip>
-        </Group>
-        <Group>
-          <TextInput
-            rightSection={<Search />}
-            placeholder="O'quvchi qidirish."
-            onChange={(event) => setSearch(event.target.value)}
-            value={search}
+          <Pagination
+            value={query.page}
+            className="self-end"
+            color="indigo"
+            hidden={(data?.totalPages ?? 0) <= 1 || isPending}
+            onChange={(pageNumber) => setQuery({ ...query, page: pageNumber })}
+            total={data?.totalPages || 1}
           />
-          {data?.course_id && data?.id && !data?.is_group_finished && (
-            <CreateStudent course_id={data?.course_id} group_id={data?.id} />
-          )}
-          {!data?.is_group_finished && <FinishGroupModal id={id || "1"} />}
-          {data?.is_group_finished && (
-            <Button
-              onClick={() => handleClickDownload(data?.id)}
-              color="green"
-              rightSection={<DownloadIcon />}
-            >
-              Download zip
-            </Button>
-          )}
         </Group>
-      </Group>
-      <Divider py={10} />
-      <Table verticalSpacing="md" highlightOnHover>
-        <Table.Thead>
-          <Table.Tr>
-            <Table.Th>id</Table.Th>
-            <Table.Th>Ism</Table.Th>
-            <Table.Th>Familiyasi</Table.Th>
-            <Table.Th>Passport</Table.Th>
-            <Table.Th>Jins</Table.Th>
-            {data?.is_group_finished && <Table.Th>Certificate URL</Table.Th>}
-            {!data?.is_group_finished && <Table.Th>O'zgartirish</Table.Th>}
-            {!data?.is_group_finished && <Table.Th>O'chirish</Table.Th>}
-            <Table.Th>To'lov tarixi</Table.Th>
-            <Table.Th>To'lov qo'shish</Table.Th>
-          </Table.Tr>
-        </Table.Thead>
-        <Table.Tbody>{rows}</Table.Tbody>
-      </Table>
+      </Stack>
     </section>
   );
 };

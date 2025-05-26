@@ -11,68 +11,45 @@ import {
 import { InputMask } from "@react-input/mask";
 import { useForm } from "@mantine/form";
 import { addNewStudentValidation } from "../../validation";
-import { useMutation, useQuery } from "@tanstack/react-query";
-import { addNewStudent } from "../../api/api.newStudent";
-import { selectData } from "../../utils/helper";
-import { notifications } from "@mantine/notifications";
-import { course_times } from "../../config";
-import { Check, X } from "lucide-react";
+import { useMutation } from "@tanstack/react-query";
+import { courseTimes } from "@/config";
 import { useRef } from "react";
-import { getCourseList } from "../../api/api.helper";
+import {
+  createNotification,
+  showErrorNotification,
+  showSuccessNotification,
+} from "@/utils/notification";
+import useFormData from "@/hooks/useFormData";
+import { Server } from "@/api/api";
 const AddNewStudent = (props: PaperProps) => {
-  const id: any = useRef();
+  const idNotification = useRef<string>("");
   const form = useForm({
     initialValues: {
-      full_name: "",
+      fullName: "",
       phone: "+99 (8",
-      course_id: "",
-      course_time: "Muhim emas",
-    } as IAddStudent,
+      courseId: "",
+      courseTime: "Muhim emas",
+    } as INewStudentCreate,
     validate: addNewStudentValidation,
   });
-  const { data, isLoading } = useQuery({
-    queryFn: getCourseList,
-    queryKey: ["courses"],
-  });
-  const courses = Array.isArray(data)
-    ? data?.map((course: ICourse) => selectData(course?.id, course?.name))
-    : [];
+  const { courses, loading } = useFormData();
   const { mutateAsync, isPending } = useMutation({
-    mutationFn: addNewStudent,
+    mutationFn: (student: INewStudentCreate) =>
+      Server<IMessageResponse>(`newStudents/add`, {
+        method: "POST",
+        body: JSON.stringify(student),
+      }),
     mutationKey: ["newStudent"],
-    onSuccess: () => {
-      notifications.update({
-        id: id.current,
-        title: "Ma'lumotlar yuklandi.",
-        message: "Biz siz bilan aloqaga chiqamiz!",
-        color: "white",
-        autoClose: 3000,
-        position: "top-right",
-        icon: <Check color="#93CE03" />,
-      });
+    onSuccess: (success) => {
+      showSuccessNotification(idNotification.current, success?.message);
       form.reset();
     },
-    onError: () => {
-      notifications.update({
-        id: id.current,
-        title: "Ma'lumotlar yuklanishda xato bo'ldi.",
-        message: "Iltimos ma'lumot tekshirib qayta yuklang!",
-        color: "red",
-        autoClose: 3000,
-        position: "top-right",
-        icon: <X color="white" />,
-      });
+    onError: (error) => {
+      showErrorNotification(idNotification.current, error.message);
     },
   });
-  const handleSubmit = (student: IAddStudent) => {
-    id.current = notifications.show({
-      loading: isPending,
-      title: "Ma'lumotlar yuklanyapti.",
-      message: "Iltimos ma'lumot yuklanguncha kutib turing!",
-      color: "blue",
-      position: "top-right",
-      withCloseButton: true,
-    });
+  const handleSubmit = (student: INewStudentCreate) => {
+    idNotification.current = createNotification(isPending);
     mutateAsync(student);
   };
   return (
@@ -99,12 +76,12 @@ const AddNewStudent = (props: PaperProps) => {
           <TextInput
             label="Ismingizni kiriting!"
             placeholder="Hikmat "
-            value={form.values.full_name}
+            value={form.values.fullName}
             size="sm"
             onChange={(event) =>
-              form.setFieldValue("full_name", event.currentTarget.value.trim())
+              form.setFieldValue("fullName", event.currentTarget.value.trim())
             }
-            error={form.errors.full_name && "Ism bo'lishi shart"}
+            error={form.errors.fullName}
             radius="md"
           />
           <InputMask
@@ -121,32 +98,31 @@ const AddNewStudent = (props: PaperProps) => {
             }}
           />
           <Select
-            disabled={isLoading}
-            label="Kurs turini tanlang"
-            onChange={(event) => form.setFieldValue("course_id", event || "")}
-            value={form.values.course_id}
-            error={form.errors.course_id}
+            disabled={loading}
+            label="Kurs turini tanlang."
+            onChange={(event) => form.setFieldValue("courseId", event || "")}
+            value={form.values.courseId}
+            error={form.errors.courseId}
             data={courses}
           />
           <Select
-            label="Qaysi vaqt siz uchun qulay"
-            value={form.values.course_time}
-            onChange={(event) => form.setFieldValue("course_time", event || "")}
-            error={form.errors.course_time}
-            data={course_times}
+            label="Qaysi vaqt siz uchun qulay."
+            value={form.values.courseTime}
+            onChange={(event) => form.setFieldValue("courseTime", event || "")}
+            error={form.errors.courseTime}
+            data={courseTimes}
           />
         </Stack>
         <Button
           disabled={isPending}
-          aria-label="login admin page"
-          aria-labelledby="login button"
+          loading={isPending}
           size="sm"
           mt="15"
           color="green"
           type="submit"
           radius="sm"
         >
-          Kursga yozilish
+          Kursga yozilish.
         </Button>
       </form>
     </Paper>

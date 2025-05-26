@@ -1,47 +1,73 @@
-import TeachersTable from "../../components/teachers/TeachersTable";
-import { Divider, TextInput, Group, Text } from "@mantine/core";
+import TeachersTable from "@/admin/components/teachers/TeachersTable";
+import { TextInput, Group, Text, Pagination, Stack } from "@mantine/core";
 import { LoaderCircle, Search, User } from "lucide-react";
-import CreateTeacherModal from "../../components/teachers/CreateTeacherModal";
+import CreateTeacherModal from "@/admin/components/teachers/CreateTeacherModal";
 import { useQuery } from "@tanstack/react-query";
-import { getAllTeachers } from "../../api/api.teachers";
 import { useState } from "react";
-import { useAppSelector } from "../../../hooks/redux";
+import { useAppSelector } from "@/hooks/redux";
+import { selectUser } from "@/lib/redux/reducer/admin";
+import { Server } from "@/api/api";
 const AdminTeachers = () => {
-  const { admin } = useAppSelector((state) => state.admin);
-  const [name, setName] = useState<string>("");
-  const { data, isLoading } = useQuery<ITeacher[]>({
-    queryKey: ["teachers", name],
-    queryFn: () => getAllTeachers(name,admin?.token || ""),
+  const admin = useAppSelector(selectUser);
+  const [query, setQuery] = useState({
+    name: "",
+    page: 1,
+    limit: 10,
+  });
+  const params = new URLSearchParams({
+    name: query.name,
+    page: query.page.toString(),
+    limit: query.limit.toString(),
+  });
+  const { data, isPending } = useQuery<ITeacherResponse>({
+    queryKey: ["teachers", query.name, query.page],
+    queryFn: () =>
+      Server<ITeacherResponse>(`teachers?${params}`, {
+        method: "GET",
+        headers: {
+          authorization: `Bearer ${admin?.token}`,
+        },
+      }),
+    enabled: !!admin?.token,
   });
   return (
     <section>
-      <Group pb="20" justify="space-between">
+      <Group pb="10" justify="space-between">
         <Group>
           <Text size="lg" fw="bold">
-            O'qituvchi boshqaruv bo'limi
+            O'qituvchilar boshqaruv bo'limi.
           </Text>
           <User />
         </Group>
         <Group>
           <TextInput
             fz="sm"
-            value={name}
+            value={query.name}
             rightSection={
-              isLoading ? (
+              isPending ? (
                 <LoaderCircle size={16} className="animate-spin" />
               ) : (
                 <Search size={16} />
               )
             }
-            onChange={(event) => setName(event.target.value.trim())}
+            onChange={(event) =>
+              setQuery({ ...query, name: event.currentTarget.value })
+            }
             className=""
             placeholder="O'qituvchi qidirish"
           />
           <CreateTeacherModal />
         </Group>
       </Group>
-      <Divider py={10} />
-      <TeachersTable teachers={data || []} isLoading={isLoading} />
+      <Stack className="h-[calc(100vh_-_140px)] " justify="space-between">
+        <TeachersTable teachers={data?.teachers || []} />
+        <Pagination
+          value={query.page}
+          hidden={(data?.totalPages ?? 0) <= 1 || isPending}
+          onChange={(pageNumber) => setQuery({ ...query, page: pageNumber })}
+          total={data?.totalPages || 1}
+        />
+      </Stack>
     </section>
   );
 };

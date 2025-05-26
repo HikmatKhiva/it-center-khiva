@@ -2,78 +2,74 @@ import { Button, Modal, Stack, TextInput, Select } from "@mantine/core";
 import { useForm } from "@mantine/form";
 import { useDisclosure } from "@mantine/hooks";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { createStudent } from "../../api/api.student";
-import { Check, Pencil, X } from "lucide-react";
-import { studentValidation } from "../../../validation";
-import { useAppSelector } from "../../../hooks/redux";
-import { MutableRefObject, useRef } from "react";
-import { notifications } from "@mantine/notifications";
+import { Pencil } from "lucide-react";
+import { studentValidation } from "@/validation";
+import { useAppSelector } from "@/hooks/redux";
+import { useRef } from "react";
+import {
+  createNotification,
+  showErrorNotification,
+  showSuccessNotification,
+} from "@/utils/notification";
+import { selectUser } from "@/lib/redux/reducer/admin";
+import { discounts } from "@/config";
+import { InputMask } from "@react-input/mask";
+import { Server } from "@/api/api";
 const CreateStudent = ({
-  course_id,
-  group_id,
+  courseId,
+  groupId,
+  isGroupFinished,
 }: {
-  course_id: string;
-  group_id: string;
+  courseId: number;
+  groupId: number;
+  isGroupFinished: boolean;
 }) => {
-  const { admin } = useAppSelector((state) => state.admin);
-  const idNotification: MutableRefObject<string | undefined> = useRef();
+  const admin = useAppSelector(selectUser);
+  const idNotification = useRef<string>("");
   const [opened, { open, close }] = useDisclosure(false);
   const client = useQueryClient();
-  const { mutateAsync, isPending } = useMutation({
-    mutationFn: (student: INewStudent) =>
-      createStudent(student, admin?.token || ""),
-    onSuccess: (response) => {
-      client.invalidateQueries({ queryKey: ["students"] });
-      notifications.update({
-        id: idNotification.current,
-        title: "O'quvchi qo'shish.",
-        message: response?.message,
-        color: "white",
-        autoClose: 3000,
-        position: "top-right",
-        icon: <Check color="#93CE03" />,
-      });
-      close();
-    },
-    onError: (error: any) => {
-      notifications.update({
-        id: idNotification.current,
-        title: "O'quvchi yaratishda xato bo'ldi.",
-        message: error?.detail,
-        color: "red",
-        autoClose: 3000,
-        position: "top-right",
-        icon: <X color="white" />,
-      });
-    },
-  });
   const form = useForm({
     initialValues: {
-      first_name: "",
-      second_name: "",
-      passport_id: "",
+      firstName: "",
+      secondName: "",
+      passportId: "",
       gender: "",
-      course_id,
-      group_id,
-    } as INewStudent,
+      courseId: courseId,
+      groupId: groupId,
+      phone: "",
+      discount: "0",
+    } as IStudentCreate,
     validate: studentValidation,
   });
-  const handleSubmit = async (student: INewStudent) => {
-    idNotification.current = notifications.show({
-      loading: isPending,
-      title: "Ma'lumotlar uzatilyapti.",
-      message: "Iltimos ma'lumot o'uzatilguncha kutib turing!",
-      color: "blue",
-      position: "top-right",
-      withCloseButton: true,
-    });
+  const { mutateAsync, isPending } = useMutation({
+    mutationFn: (student: IStudentCreate) =>
+      Server<IMessageResponse>(`students/create`, {
+        method: "POST",
+        body: JSON.stringify(student),
+        headers: {
+          authorization: `Bearer ${admin?.token}`,
+        },
+      }),
+    onSuccess: (success) => {
+      client.invalidateQueries({ queryKey: ["students"] });
+      showSuccessNotification(idNotification.current, success?.message);
+      close();
+      form.reset();
+    },
+    onError: (error) => {
+      showErrorNotification(idNotification.current, error.message);
+    },
+  });
+  const handleSubmit = async (student: IStudentCreate) => {
+    idNotification.current = createNotification(isPending);
     mutateAsync(student);
   };
   return (
     <>
       <Button
         onClick={open}
-        fz={"xs"}
+        hidden={isGroupFinished}
+        fz="xs"
         rightSection={<Pencil size={14} />}
         color="green"
       >
@@ -84,10 +80,10 @@ const CreateStudent = ({
           <Stack>
             <TextInput
               onChange={(e) =>
-                form.setFieldValue("first_name", e.currentTarget.value.trim())
+                form.setFieldValue("firstName", e.currentTarget.value.trim())
               }
-              value={form.values.first_name}
-              error={form.errors.first_name}
+              value={form.values.firstName}
+              error={form.errors.firstName}
               label="Ismini kiriting!"
               placeholder="Xudayshukur"
               size="md"
@@ -95,14 +91,27 @@ const CreateStudent = ({
             />
             <TextInput
               onChange={(e) =>
-                form.setFieldValue("second_name", e.currentTarget.value.trim())
+                form.setFieldValue("secondName", e.currentTarget.value.trim())
               }
-              value={form.values.second_name}
-              error={form.errors.second_name}
+              value={form.values.secondName}
+              error={form.errors.secondName}
               label="Familiyasini kiriting!"
               placeholder="Polvonov"
               size="md"
               radius="md"
+            />
+            <InputMask
+              mask="+99 (8__) ___-__-__"
+              replacement={{ _: /\d/ }}
+              autoComplete="off"
+              placeholder="+99 (8__) ___-__-__"
+              label="Telefon raqamini kiriting!"
+              component={TextInput}
+              error={form.errors.phone}
+              value={form.values.phone}
+              onChange={(event) => {
+                form.setFieldValue("phone", event.target.value);
+              }}
             />
             <TextInput
               label="Passport seriyasini kiriting!"
@@ -110,18 +119,18 @@ const CreateStudent = ({
               maxLength={9}
               onChange={(e) =>
                 form.setFieldValue(
-                  "passport_id",
+                  "passportId",
                   e.currentTarget.value.trim().toUpperCase()
                 )
               }
-              error={form.errors.passport_id}
-              value={form.values.passport_id}
+              error={form.errors.passportId}
+              value={form.values.passportId}
               size="md"
               radius="md"
             />
 
             <Select
-              label="Jinsni Tanlang"
+              label="Jinsni Tanlang!"
               placeholder="Erkak"
               error={form.errors.gender}
               {...form.getInputProps("gender")}
@@ -130,10 +139,17 @@ const CreateStudent = ({
                 { value: "female", label: "Ayol" },
               ]}
             />
+            <Select
+              label="Chegirmani belgilang!"
+              placeholder="10%"
+              error={form.errors.discount}
+              {...form.getInputProps("discount")}
+              data={discounts}
+            />
           </Stack>
           <Button
-            aria-labelledby="create new student button"
-            aria-label="create new student"
+            loading={isPending}
+            disabled={isPending}
             size="md"
             mt="15"
             color="green"
@@ -147,5 +163,4 @@ const CreateStudent = ({
     </>
   );
 };
-
 export default CreateStudent;

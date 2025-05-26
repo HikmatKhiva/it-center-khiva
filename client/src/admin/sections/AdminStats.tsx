@@ -4,20 +4,25 @@ import {
   GroupSVG,
   StudentSVG,
   TeacherSVG,
-} from "../../motions_components";
+} from "@/motions_components";
 import { useQuery } from "@tanstack/react-query";
-import { getAdminStats } from "../api/api.group";
-import { NumberTicker } from "../../animation/number-ticker";
-import StatsCardSkeleton from "../loading/StatsCardSkeleton";
-import { useAppSelector } from "../../hooks/redux";
+import { NumberTicker } from "@/animation/number-ticker";
+import StatsCardSkeleton from "@/admin/loading/StatsCardSkeleton";
+import { useAppSelector } from "@/hooks/redux";
+import { Server } from "@/api/api";
 const AdminStats = () => {
   const { admin } = useAppSelector((state) => state.admin);
-  const { data, isLoading } = useQuery({
-    queryFn: () => getAdminStats(admin?.token || ""),
+  const { data, isLoading } = useQuery<IStats>({
+    queryFn: () =>
+      Server<IStats>(`admin/stats`, {
+        method: "GET",
+        headers: {
+          authorization: `Bearer ${admin?.token}`,
+        },
+      }),
     queryKey: ["stats"],
     enabled: !!admin?.token,
   });
-  const stats: IStats = Array.isArray(data) && data[0];
   return (
     <>
       {!isLoading ? (
@@ -30,7 +35,7 @@ const AdminStats = () => {
               </Group>
               <NumberTicker
                 className="text-2xl"
-                value={parseInt(stats?.active_students_count)}
+                value={parseInt(data?.active_students_count || "0")}
               />
             </Stack>
           </Card>
@@ -42,7 +47,7 @@ const AdminStats = () => {
               </Group>
               <NumberTicker
                 className="text-2xl"
-                value={parseInt(stats?.active_groups_count)}
+                value={parseInt(data?.active_groups_count || "0")}
               />
             </Stack>
           </Card>
@@ -54,7 +59,7 @@ const AdminStats = () => {
               </Group>
               <NumberTicker
                 className="text-2xl"
-                value={parseInt(stats?.total_teachers_count)}
+                value={parseInt(data?.total_teachers_count || "0")}
               />
             </Stack>
           </Card>
@@ -67,7 +72,7 @@ const AdminStats = () => {
               <Text>
                 <NumberTicker
                   className="text-2xl"
-                  value={parseInt(stats?.total_courses_count)}
+                  value={parseInt(data?.total_courses_count || "0")}
                 />
               </Text>
             </Stack>

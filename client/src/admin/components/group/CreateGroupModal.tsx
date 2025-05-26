@@ -1,41 +1,61 @@
 import { Button, Modal, Stack, TextInput, Select } from "@mantine/core";
 import { useForm } from "@mantine/form";
 import { useDisclosure } from "@mantine/hooks";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { createGroup } from "../../api/api.group";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Pencil } from "lucide-react";
-import { createCourseValidation } from "../../../validation";
-import { adminFormData } from "../../api/api.admin";
-import { useAppSelector } from "../../../hooks/redux";
-const CreateGroup = () => {
-  const { admin } = useAppSelector((state) => state.admin);
+import { createGroupValidation } from "@/validation";
+import { useAppSelector } from "@/hooks/redux";
+import useFormData from "@/hooks/useFormData";
+import { selectUser } from "@/lib/redux/reducer/admin";
+import { useRef } from "react";
+import {
+  createNotification,
+  showErrorNotification,
+  showSuccessNotification,
+} from "@/utils/notification";
+import { Server } from "@/api/api";
+const CreateGroupModal = () => {
+  const admin = useAppSelector(selectUser);
+  const idNotification = useRef<string>("");
   const [opened, { open, close }] = useDisclosure(false);
+  const { courses, loading, teachers } = useFormData();
   const client = useQueryClient();
   const form = useForm({
     initialValues: {
       name: "",
-      course_id: "",
-      teacher_id: "",
+      courseId: "",
+      teacherId: "",
       duration: 6,
       price: 100000,
-      group_time: "",
+      groupTime: "",
+      // groupTime: {
+      //   day: "",
+      //   hour: "",
+      // },
     } as INewGroup,
-    validate: createCourseValidation,
-  });
-  const { data, isLoading } = useQuery({
-    queryKey: ["admin", "form", "data"],
-    queryFn: () => (admin?.token ? adminFormData(admin.token || "") : null),
-    enabled: !!admin?.token,
+    validate: createGroupValidation,
   });
   const { isPending, mutateAsync } = useMutation({
-    mutationFn: (group: INewGroup) => createGroup(group, admin?.token || ""),
-    onSuccess: () => {
+    mutationFn: (group: INewGroup) =>
+      Server<IMessageResponse>(`group/create`, {
+        method: "POST",
+        body: JSON.stringify(group),
+        headers: {
+          authorization: `Bearer ${admin?.token}`,
+        },
+      }),
+    onSuccess: (success) => {
       client.invalidateQueries({ queryKey: ["groups"] });
+      showSuccessNotification(idNotification.current, success?.message);
       form.reset();
       close();
     },
+    onError: (error) => {
+      showErrorNotification(idNotification.current, error.message);
+    },
   });
   const handleSubmit = async (group: INewGroup) => {
+    idNotification.current = createNotification(isPending);
     mutateAsync(group);
   };
   return (
@@ -70,6 +90,9 @@ const CreateGroup = () => {
               label="Qancha oy davom etishi belgilang!"
               placeholder="6"
               size="sm"
+              min={1}
+              max={13}
+              maxLength={2}
               value={form.values.duration}
               onChange={(event) => {
                 const value = event.target.value;
@@ -82,7 +105,7 @@ const CreateGroup = () => {
             />
             <TextInput
               label="Oylik To'lov summasini kiriting!"
-              placeholder="6"
+              placeholder="100000"
               size="sm"
               value={form.values.price}
               onChange={(event) => {
@@ -94,37 +117,49 @@ const CreateGroup = () => {
               error={form.errors.price}
               radius="md"
             />
+            {/* <Group>
+              <Select
+                label="Dars kunlari"
+                placeholder="Dushanba"
+                data={weeks}
+                {...form.getInputProps("groupTime.day")}
+              />
+              <Select
+                label="Dars vaqtlari"
+                {...form.getInputProps("groupTime.hour")}
+                placeholder="9:00"
+                data={workHours}
+              />
+            </Group> */}
             <TextInput
               label="Guruh vaqtini kiriting"
               placeholder="Juft 14:00"
               size="sm"
-              value={form.values.group_time}
+              value={form.values.groupTime}
               onChange={(event) =>
-                form.setFieldValue("group_time", event.target.value)
+                form.setFieldValue("groupTime", event.target.value)
               }
-              error={form.errors?.group_time}
+              error={form.errors?.groupTime}
               radius="md"
             />
             <Select
               label="Kursni tanlang..."
-              disabled={isLoading}
+              disabled={loading}
               placeholder="Kursni tanlang..."
-              {...form.getInputProps("course_id")}
-              data={data?.courses}
+              {...form.getInputProps("courseId")}
+              data={courses}
             />
             <Select
-              disabled={isLoading}
+              disabled={loading}
               label="O'qituvchini tanlang..."
               placeholder="O''qituvchini tanlang..."
-              {...form.getInputProps("teacher_id")}
-              data={data?.teachers}
+              {...form.getInputProps("teacherId")}
+              data={teachers}
             />
           </Stack>
           <Button
             loading={isPending}
             disabled={isPending}
-            aria-labelledby="create new group button"
-            aria-label="create new group"
             size="sm"
             mt="15"
             color="green"
@@ -138,4 +173,4 @@ const CreateGroup = () => {
     </>
   );
 };
-export default CreateGroup;
+export default CreateGroupModal;

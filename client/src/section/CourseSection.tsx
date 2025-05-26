@@ -1,6 +1,6 @@
 import { Card, Container, Group, Text, Title } from "@mantine/core";
 import { motion } from "motion/react";
-import { Calendar, HTML, NoteBook } from "../assets";
+import { Calendar, HTML, NoteBook } from "@/assets";
 const CourseSection = () => {
   return (
     <motion.section

@@ -1,22 +1,41 @@
 import { useDisclosure } from "@mantine/hooks";
 import { ActionIcon, Button, Group, Modal, Text } from "@mantine/core";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { deleteNews } from "../../api/api.news";
 import { Trash2 } from "lucide-react";
-import { useAppSelector } from "../../../hooks/redux";
+import { useAppSelector } from "@/hooks/redux";
+import { useRef } from "react";
+import { selectUser } from "@/lib/redux/reducer/admin";
+import {
+  createNotification,
+  showErrorNotification,
+  showSuccessNotification,
+} from "@/utils/notification";
+import { Server } from "@/api/api";
 const NewsDeleteModal = ({ id }: { id: number }) => {
-  const { admin } = useAppSelector((state) => state.admin);
+  const admin = useAppSelector(selectUser);
+  const idNotification = useRef<string>("");
   const [opened, { open, close }] = useDisclosure(false);
   const client = useQueryClient();
-  const { mutateAsync } = useMutation({
-    mutationFn: () => deleteNews(id, admin?.token || ""),
-    onSuccess: () => {
+  const { mutateAsync, isPending } = useMutation({
+    mutationFn: () =>
+      Server<IMessageResponse>(`news/delete/${id}`, {
+        method: "DELETE",
+        headers: {
+          authorization: `Bearer ${admin?.token}`,
+        },
+      }),
+    onSuccess: (success) => {
       client.invalidateQueries({ queryKey: ["news"] });
+      showSuccessNotification(idNotification.current, success?.message);
       close();
+    },
+    onError: (error) => {
+      showErrorNotification(idNotification.current, error.message);
     },
   });
   const handleDelete = async () => {
     mutateAsync();
+    idNotification.current = createNotification(isPending);
   };
   return (
     <>
