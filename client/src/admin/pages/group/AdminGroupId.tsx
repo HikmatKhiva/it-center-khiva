@@ -15,12 +15,11 @@ import UploadPayment from "@/common/components/payment/UploadPayment";
 import { useAppSelector } from "@/hooks/redux";
 import { ChangeEvent, useCallback, useState } from "react";
 import { selectUser } from "@/lib/redux/reducer/admin";
-import NavigateCertificate from "@/admin/components/group/NavigateCertificate";
 import GroupIdHeader from "@/admin/components/group/GroupIdHeader";
 import { Check, Eye, RefreshCw } from "lucide-react";
 import { Server } from "@/api/api";
 const AdminGroupId = () => {
-  const url = `http://${window?.location?.hostname}/site/certificate?code`;
+  const url = `/site/certificate?code`;
   const admin = useAppSelector(selectUser);
   const [query, setQuery] = useState<IDefaultQuery>({
     name: "",
@@ -79,31 +78,19 @@ const AdminGroupId = () => {
         )}
       </Table.Td>
       <Table.Td>{student?.gender === "MALE" ? "Erkak" : "Ayol"}</Table.Td>
-      {!group?.isGroupFinished && (
-        <Table.Td>{id && <UpdateStudentModal student={student} />}</Table.Td>
-      )}
+      {/* {!group?.isGroupFinished && ( */}
+      <Table.Td>{id && <UpdateStudentModal student={student} />}</Table.Td>
+      {/* )} */}
       {!group?.isGroupFinished && (
         <Table.Td>
           <DeleteStudentModal id={student?.id} />
         </Table.Td>
       )}
-      {group?.isGroupFinished && student?.certificate_url && (
-        <Table.Td>
-          <NavigateCertificate url={student?.certificate_url} />
-        </Table.Td>
-      )}
-      <Table.Td
-        hidden={
-          !student?.Certificate?.certificateUrl || !group?.isGroupFinished
-        }
-      >
+      <Table.Td hidden={!group?.isGroupFinished}>
         <ActionIcon
-          disabled={!student?.Certificate?.certificateUrl}
-          component={`${
-            !student?.Certificate?.certificateUrl ? "button" : "a"
-          }`}
-          target={`${!student?.Certificate?.certificateUrl ? "" : "_blank"}`}
-          href={`${url}=${student?.Certificate?.certificateUrl}`}
+          component="a"
+          target="_blank"
+          href={`${url}=${student?.code}`}
           size="lg"
         >
           <Eye />
@@ -112,7 +99,6 @@ const AdminGroupId = () => {
       <Table.Td>
         <PaymentsHistory id={student.id} />
       </Table.Td>
-
       <Table.Td>
         {parseInt(student.debt) === 0 ? (
           <ActionIcon color="teal" variant="light" radius="xl" size="lg">
@@ -143,8 +129,8 @@ const AdminGroupId = () => {
               <Table.Th>Passport</Table.Th>
               <Table.Th>Telefon</Table.Th>
               <Table.Th>Jins</Table.Th>
+              <Table.Th>O'zgartirish</Table.Th>
               {group?.isGroupFinished && <Table.Th>Certificate URL</Table.Th>}
-              {!group?.isGroupFinished && <Table.Th>O'zgartirish</Table.Th>}
               {!group?.isGroupFinished && <Table.Th>O'chirish</Table.Th>}
               <Table.Th>To'lov tarixi</Table.Th>
               <Table.Th>To'lov qo'shish</Table.Th>

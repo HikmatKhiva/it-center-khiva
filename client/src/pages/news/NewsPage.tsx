@@ -24,7 +24,7 @@ const NewsPage = () => {
   return (
     <section>
       <Container>
-        <Text mt={30} fz={{ base: "xl", md: "30px" }} className="text-center">
+        <Text hidden={(newsData?.news?.length ?? 0) > 0} mt={30} fz={{ base: "xl", md: "30px" }} className="text-center">
           <TextAnimate animation="fadeIn" className="text-[#93CE03]">
             Yangiliklar
           </TextAnimate>

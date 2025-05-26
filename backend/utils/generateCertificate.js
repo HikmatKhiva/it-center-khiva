@@ -3,48 +3,39 @@ import fs from "fs";
 import path from "path";
 import generateQR_code from "./generateQR_code.js";
 import fontKit from "@pdf-lib/fontkit";
-import { createCertificateUrl } from "../v1/certificates/certificates.helper.js";
+import dotenv from "dotenv";
 const __dirname = path.resolve();
 const existingPdfBytes = fs.readFileSync(
   path.join(__dirname, "template", "template.pdf")
 );
-const uploadsPath = path.join(__dirname, "public", "certificates");
-const date = new Date();
-
+dotenv.config();
 // color
 // Original RGB values
 const red = 151;
 const green = 193;
 const blue = 25;
-
 // Normalize RGB values for pdf-lib
 const normalizedRed = red / 255;
 const normalizedGreen = green / 255;
 const normalizedBlue = blue / 255;
-
-async function createPdf(student, group, courseName, url) {
+async function createPdf(student, courseName) {
+  const date = new Date();
+  const url = `${process.env.CORS_ORIGIN}/site/certificate?code=${student.code}`;
   try {
-    const currentYear = new Date().getFullYear().toString().slice(2, 4);
-
     const pdfDoc = await PDFDocument.load(existingPdfBytes);
     const poppins = fs.readFileSync(
       path.join(__dirname, "assets", "font", "Poppins", "Poppins-Regular.ttf")
     );
-
     // Register fontkit with the PDF document
     pdfDoc.registerFontkit(fontKit);
-
     const poppinsFont = await pdfDoc.embedFont(poppins);
-
     const qrCodeData = await generateQR_code(url);
     const qrCodeImageBytes = await fetch(qrCodeData).then((res) =>
       res.arrayBuffer()
     );
     // Embed the QR code image in the PDF
     const qrCodeImage = await pdfDoc.embedPng(qrCodeImageBytes);
-
     const { width: qrWidth, height: qrHeight } = qrCodeImage.scale(1); // Scale down the image
-
     const page = pdfDoc.getPage(0);
     const fontSize = 40;
     page.drawText(`${student.firstName} ${student.secondName}`, {
@@ -69,7 +60,7 @@ async function createPdf(student, group, courseName, url) {
     });
 
     // write id
-    page.drawText(`${currentYear}/${student.code}`, {
+    page.drawText(`${student.code}`, {
       x: 635,
       y: 130,
       font: poppinsFont,
@@ -88,18 +79,7 @@ async function createPdf(student, group, courseName, url) {
       size: 16,
       color: rgb(0, 0, 0),
     });
-    const newFolder = `${uploadsPath}/${currentYear}/${group?.name}`;
-
-    if (!fs.existsSync(newFolder)) {
-      fs.mkdirSync(newFolder, { recursive: true });
-    }
-    const fileURL = `${student.code}.${student.firstName} ${student.secondName}.pdf`;
-    const filePath = path.join(newFolder, fileURL);
-    const saveURL = `${currentYear}/${group?.name}/${fileURL}`;
     const pdfByte = await pdfDoc.save();
-    fs.writeFileSync(filePath, pdfByte);
-    // create url certificate
-    await createCertificateUrl(student, group, saveURL);
     return pdfByte;
   } catch (error) {
     throw error;

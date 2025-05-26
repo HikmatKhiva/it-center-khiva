@@ -1,5 +1,4 @@
 import { prisma } from "../../app.js";
-import { createCertificate } from "../certificates/certificates.helper.js";
 import { calculateTotalPaid, calculateTotalPrice } from "./payment.helper.js";
 // get all payments
 const getPayments = async (req, res) => {
@@ -73,7 +72,6 @@ const uploadPayment = async (req, res) => {
         .status(400)
         .json({ message: "To'lov miqdori qarz miqdoridan yuqori!" });
     }
-    
     await prisma.student.update({
       where: {
         id: parseInt(studentId),
@@ -88,24 +86,6 @@ const uploadPayment = async (req, res) => {
         studentId: parseInt(studentId),
       },
     });
-    const _student = await prisma.student.findUnique({
-      where: {
-        id: parseInt(studentId),
-        debt: 0,
-      },
-      include: {
-        Group: true,
-        course: true,
-      },
-    });
-    if (_student) {
-      await createCertificate(
-        _student,
-        _student.Group,
-        _student.course.nameCertificate,
-        origin
-      );
-    }
     return res.status(201).json({ message: "To'lov muoffaqiyatli yuklandi." });
   } catch (error) {
     return res.status(500).json({ error });

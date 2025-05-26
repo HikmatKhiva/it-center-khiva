@@ -1,4 +1,4 @@
-export const newsCreateSchema = {
+export const newsSchema = {
   type: "object",
   properties: {
     title: { type: "string", minLength: 3 },

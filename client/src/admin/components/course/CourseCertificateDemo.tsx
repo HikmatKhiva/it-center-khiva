@@ -10,7 +10,7 @@ import { useQuery } from "@tanstack/react-query";
 import { selectUser } from "@/lib/redux/reducer/admin";
 import { useAppSelector } from "@/hooks/redux";
 import { Server } from "@/api/api";
-const CourseCertificateDemo = ({ id }: { id: number }) => {
+const CourseCertificateDemo = ({ id,teacherFullName }: { id: number,teacherFullName:string }) => {
   const admin = useAppSelector(selectUser);
   const [opened, { open, close }] = useDisclosure(false);
   //color Original RGB values
@@ -44,7 +44,7 @@ const CourseCertificateDemo = ({ id }: { id: number }) => {
       const fontArrayBuffer = await fontResponse.arrayBuffer();
       const poppinsFont = await pdfDoc.embedFont(fontArrayBuffer);
       const page = pdfDoc.getPage(0);
-      page.drawText(`Xudayshukur Polvonov`, {
+      page.drawText(teacherFullName, {
         x: 60,
         y: 310,
         size: 40,
@@ -60,7 +60,7 @@ const CourseCertificateDemo = ({ id }: { id: number }) => {
       });
       const currentYear = new Date().getFullYear().toString().slice(2, 4);
       // write id
-      page.drawText(`${currentYear}/100-001`, {
+      page.drawText(`${currentYear}/100-***`, {
         x: 635,
         y: 130,
         font: poppinsFont,

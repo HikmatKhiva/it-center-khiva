@@ -5,52 +5,43 @@ import { zipFolder } from "../../utils/zipFolder.js";
 import { promisify } from "util";
 const __dirname = path.resolve();
 const unlinkAsync = promisify(fs.unlink); // Promisify fs.unlink for async/await
+import validator from "validator";
+import createPdf from "../../utils/generateCertificate.js";
 // find certificate using QR-code
 const findCertificate = async (req, res) => {
   try {
     const { code } = req.query;
+    const isValidCode = validator.matches(code, /^\d{2}\/\d{3}-\d{3}$/);
     if (code.length === 0) {
       return res.status(400).json({ message: "code required!" });
     }
-    if (typeof code !== "string") {
+    if (!isValidCode) {
       return res.status(400).json({ error: "Manzil xato" });
     }
-    let [yearCode, studentCode] = code.split("/");
-    yearCode = yearCode.split(".")[0];
-    const studentIdRegex = /^[0-9]+$/; // If studentId should be numeric
-    const groupCodeRegex = /^[a-zA-Z0-9_-]+$/; // If groupCode should be alphanumeric with underscores or dashes
-
-    if (!studentIdRegex.test(yearCode)) {
-      return res.status(400).json({ error: "O'quvchi id xato!" });
-    }
-    if (!groupCodeRegex.test(studentCode)) {
-      return res.status(400).json({ error: "Guruh code xato!" });
-    }
-    // Validate input types
-    if (!yearCode || !studentCode) {
-      return res.status(400).json({ error: "Manzil xato" });
-    }
-    const certificateUrl = `${yearCode}/${studentCode}`;
-    const certificate = await prisma.certificate.findUnique({
+    const student = await prisma.student.findUnique({
       where: {
-        certificateUrl,
+        code,
+      },
+      include: {
+        course: true,
       },
     });
-    if (!certificate) {
-      return res.status(404).json({ message: "Sertifiqat topilmadi!" });
+    if (student.debt > 0) {
+      return res
+        .status(400)
+        .json({ message: "O'quvchi qarzli!", debt: student?.debt });
     }
-
-    const filePath = path.join(
-      __dirname,
-      "public",
-      "certificates",
-      `${certificate.filePath}`
+    if (!student) {
+      return res.status(404).json({ message: "O'quvchi topilmadi!" });
+    }
+    const pdfBytes = await createPdf(student, student.course.nameCertificate);
+    res.setHeader("Content-Type", "application/pdf");
+    res.setHeader(
+      "Content-Disposition",
+      `inline; filename="${student.code}-${student.firstName}-${student.secondName}.pdf"`
     );
-    if (!fs.existsSync(filePath)) {
-      return res.status(404).json({ message: "certificate mavjud emas." });
-    }
-    fs.accessSync(filePath, fs.constants.F_OK);
-    res.sendFile(filePath);
+    // Send the PDF bytes directly in the response
+    return res.send(Buffer.from(pdfBytes));
   } catch (error) {
     return res.status(500).json({ error });
   }
@@ -63,9 +54,7 @@ const getAllCertificates = async (req, res) => {
         passportId: {
           contains: passport,
         },
-        Certificate: {
-          isNot: null,
-        },
+        debt: 0,
       },
       select: {
         id: true,
@@ -73,12 +62,6 @@ const getAllCertificates = async (req, res) => {
         secondName: true,
         passportId: true,
         code: true,
-        Certificate: {
-          select: {
-            id: true,
-            certificateUrl: true,
-          },
-        },
         course: {
           select: {
             id: true,
@@ -108,9 +91,7 @@ const getAllCertificates = async (req, res) => {
         passportId: {
           contains: passport,
         },
-        Certificate: {
-          isNot: null,
-        },
+        debt: 0,
       },
     });
     const totalPages = Math.ceil(totalCount / limit);
@@ -125,29 +106,56 @@ const getAllCertificates = async (req, res) => {
 const downloadGroupCertificateZip = async (req, res) => {
   try {
     const { id } = req.params;
-    const group = await prisma.group.findUnique({
+    // Use findFirst instead of findUnique to filter by multiple fields
+    const group = await prisma.group.findFirst({
       where: {
         id: parseInt(id),
-        isGroupFinished: true,
+        isGroupFinished: true, // Filter condition, not part of unique key
       },
       select: {
-        name: true,
+        name: true, // You use group.name later, so select it here
+        Students: {
+          where: {
+            debt: 0,
+          },
+          select: {
+            id: true,
+            firstName: true,
+            secondName: true,
+            code: true,
+            course: {
+              select: {
+                nameCertificate: true,
+                name: true,
+              },
+            },
+          },
+        },
       },
     });
     if (!group) {
-      res.status(404).json({ message: "Guruh topilmadi." });
+      return res.status(404).json({ message: "Guruh topilmadi." });
     }
-    const year = "25";
-    const folderPath = path.join(
-      __dirname,
-      "public",
-      "certificates",
-      `${year}/${group.name}`
-    );
-    if (!fs.existsSync(folderPath)) {
-      res.status(404).json({ message: "Sertificatlar topilmadi." });
+    if (group.Students.length === 0) {
+      return res.status(404).json({ message: "O'quvchilar barchasi qarzdor!" });
     }
-    await zipFolder(folderPath, group.name);
+    const tempPath = path.join(__dirname, "temp");
+    if (!fs.existsSync(tempPath)) {
+      fs.mkdirSync(tempPath, { recursive: true });
+    }
+    const certificatesDir = path.join(tempPath, group.name);
+    if (!fs.existsSync(certificatesDir)) {
+      fs.mkdirSync(certificatesDir, { recursive: true });
+    }
+    for (const student of group.Students) {
+      const certPath = path.join(
+        certificatesDir,
+        `${student.firstName}_${student.secondName}_certificate.pdf`
+      );
+      const pdfBytes = await createPdf(student, student.course.nameCertificate);
+      fs.writeFileSync(certPath, pdfBytes);
+    }
+    await zipFolder(certificatesDir, group.name);
     const zipFilePath = path.join(__dirname, "temp", `${group.name}.zip`);
     // 2. Stream the zip file to the response
     const fileStream = fs.createReadStream(zipFilePath);
@@ -159,9 +167,12 @@ const downloadGroupCertificateZip = async (req, res) => {
     fileStream.on("end", async () => {
       try {
         await unlinkAsync(zipFilePath); // Use await with promisified unlink
+        fs.rmSync(certificatesDir, { recursive: true, force: true });
+        console.log("Temporary files deleted.");
         console.log(`Successfully deleted ${zipFilePath}`);
       } catch (unlinkError) {
-        console.error(`Error deleting ${zipFilePath}:`, unlinkError);
+        const sanitizedPath = validator.escape(zipFilePath);
+        console.error(`Error deleting ${sanitizedPath}:`, unlinkError);
         // Log the error but don't throw, as the response has already been sent.
       }
     });
@@ -187,50 +198,34 @@ const downloadCertificate = async (req, res) => {
     }
 
     // Fetch certificate information from database
-    const find = await prisma.student.findUnique({
+    const student = await prisma.student.findFirst({
       where: {
         id: parseInt(id),
-        Certificate: {
-          is: {}, // Ensures at least one related Certificate exists
-        },
+        debt: 0,
       },
-      select: {
-        Certificate: true,
-        firstName: true,
-        secondName: true,
+      include: {
+        course: true,
       },
     });
 
-    if (!find) {
+    if (!student) {
       return res.status(404).json({ message: "Certificate not found" });
     }
-    const certificate = find.Certificate;
-    const fullName = `${find.firstName} ${find.secondName}`;
 
-    // Get the file path (adjust based on your storage system)
-    const filePath = path.join(
-      __dirname,
-      "public",
-      "certificates",
-      `${certificate.filePath}`
+    // Generate PDF
+    const pdfBytes = await createPdf(
+      student,
+      student.course,
+      student.course.nameCertificate
     );
-    // Check if file exists
-    if (!fs.existsSync(filePath)) {
-      return res.status(404).json({ message: "Certificate file not found" });
-    }
 
-    // Set appropriate headers
     res.setHeader("Content-Type", "application/pdf");
     res.setHeader(
       "Content-Disposition",
-      `attachment; filename=${fullName}_certificate.pdf`
+      `inline; filename="${student.code}-${student.firstName}-${student.secondName}.pdf"`
     );
-
-    // Stream the file
-    const fileStream = fs.createReadStream(filePath);
-    fileStream.pipe(res);
+    return res.send(Buffer.from(pdfBytes));
   } catch (error) {
-    console.error("Error serving certificate:", error);
     return res
       .status(500)
       .json({ message: "An error occurred while downloading the certificate" });

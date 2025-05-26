@@ -23,7 +23,6 @@ const getAllStudents = async (req, res) => {
           contains: name,
         },
         ...(groupId && { groupId: parseInt(groupId) }),
-
       },
     });
     const totalPages = Math.ceil(totalCount / limit);

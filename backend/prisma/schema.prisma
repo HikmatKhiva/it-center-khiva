@@ -77,10 +77,10 @@ model Group {
   course          Course     @relation(fields: [courseId], references: [id])
   schedules       Schedule[]
 
-  Students    Student[]
-  courseId    Int // course_id (nullable)
-  teacherId   Int // teacher_id (nullable)
-  Certificate Certificate[]
+  Students  Student[]
+  courseId  Int // course_id (nullable)
+  teacherId Int // teacher_id (nullable)
+  // Certificate Certificate[]
 }
 
 model Room {
@@ -112,24 +112,24 @@ enum DayOfWeek {
 }
 
 model Student {
-  id          Int          @id @default(autoincrement())
-  firstName   String       @db.VarChar(50)
-  secondName  String       @db.VarChar(50)
-  passportId  String?      @unique @db.VarChar(9)
-  gender      gender
-  debt        Decimal      @default(0.00)
-  code        String       @unique
-  Certificate Certificate?
-  Group       Group        @relation(fields: [groupId], references: [id], onDelete: Cascade)
-  course      Course       @relation(fields: [courseId], references: [id])
-  discount    Decimal      @default(0.00)
-  createdAt   DateTime     @default(now())
-  updatedAt   DateTime     @updatedAt
-  phone       String?      @db.VarChar(50)
+  id           Int       @id @default(autoincrement())
+  firstName    String    @db.VarChar(50)
+  secondName   String    @db.VarChar(50)
+  passportId   String?   @unique @db.VarChar(9)
+  gender       gender
+  debt         Decimal   @default(0.00)
+  code         String    @unique
+  Group        Group     @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  course       Course    @relation(fields: [courseId], references: [id])
+  discount     Decimal   @default(0.00)
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+  phone        String?   @db.VarChar(50)
+  finishedDate DateTime?
   // Foreign key relationships
-  Payments    Payment[]
-  courseId    Int
-  groupId     Int
+  Payments     Payment[]
+  courseId     Int
+  groupId      Int
 }
 
 model Payment {
@@ -142,18 +142,6 @@ model Payment {
   // Foreign key relationships
   Student     Student  @relation(fields: [studentId], references: [id], onDelete: Cascade)
   studentId   Int
-}
-
-model Certificate {
-  id             Int      @id @default(autoincrement())
-  certificateUrl String   @unique @db.Text
-  filePath       String   @unique
-  createdAt      DateTime @default(now())
-  // Foreign key relationships
-  student        Student  @relation(fields: [studentId], references: [id], onDelete: Cascade)
-  group          Group    @relation(fields: [groupId], references: [id], onDelete: Cascade)
-  studentId      Int      @unique
-  groupId        Int
 }
 
 model Messages {

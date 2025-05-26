@@ -6,4 +6,3 @@ export const calculateTotalPaid = (payments) => {
     return accumulator + parseInt(payment.amount);
   }, 0);
 };
-

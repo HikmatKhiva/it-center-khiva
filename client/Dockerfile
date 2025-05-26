@@ -1,3 +1,4 @@
+# development
 # FROM node:lts-alpine
 
 # # Create app directory
@@ -13,8 +14,8 @@
 # EXPOSE 3000
 # # Build the app
 # CMD ["npm", "run", "dev", "--", "--host", "0.0.0.0"]
+# production
 FROM node:20-alpine as build
-
 WORKDIR /usr/src/app
 
 # Copy package files and install dependencies

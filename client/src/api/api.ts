@@ -1,7 +1,7 @@
+import { customErrorNotification } from "@/utils/notification";
 import { saveAs } from "file-saver";
-const SERVER_URL = import.meta.env.VITE_BACKEND_URL || '/';
-const API_URL = `${SERVER_URL}api/v1`;
-const API_URL_ADMIN = `${SERVER_URL}api/v1/admin`;
+const API_URL = `/api/v1`;
+const API_URL_ADMIN = `/api/v1/admin`;
 interface IOptionAPI {
   method: string;
   body?: string | null | FormData | any;
@@ -58,8 +58,8 @@ export async function downloadGroupCertificate(
     );
     if (!response.ok) {
       // Handle non-2xx responses (e.g., 404, 500)
-      const errorText = await response.text(); // Or response.json() if the server sends JSON errors
-      throw new Error(`Download failed: ${response.status} - ${errorText}`);
+      const { message } = await response.json(); // Or response.json() if the server sends JSON errors
+      throw new Error(`${message}`);
     }
     const blob = await response.blob(); // Get the response as a Blob
     const contentDisposition = response.headers.get("content-disposition");
@@ -76,6 +76,7 @@ export async function downloadGroupCertificate(
   } catch (error: unknown) {
     const errorMessage =
       error instanceof Error ? error.message : "An unexpected error occurred.";
+    customErrorNotification(errorMessage || "try again!");
     throw new Error(errorMessage);
   }
 }
@@ -100,6 +101,7 @@ export async function downloadCertificate(
   } catch (error: unknown) {
     const errorMessage =
       error instanceof Error ? error.message : "An unexpected error occurred.";
+    customErrorNotification(errorMessage || "try again! ");
     throw new Error(errorMessage);
   }
 }

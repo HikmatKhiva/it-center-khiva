@@ -6,6 +6,7 @@ import {
   Image,
   ActionIcon,
 } from "@mantine/core";
+import DOMPurify from "dompurify";
 import { useQuery } from "@tanstack/react-query";
 import { useNavigate, useParams } from "react-router-dom";
 import { Calendar, ArrowLeft } from "@/assets";
@@ -22,6 +23,7 @@ const NewsPreview = () => {
     queryKey: ["news", slug],
     enabled: !!slug,
   });
+  const sanitizedContent = DOMPurify.sanitize(news?.content || "");
   return (
     <section className="pt-5">
       <Container>
@@ -45,7 +47,7 @@ const NewsPreview = () => {
           </Group>
         </Group>
         <Divider mt="10" mb="30" />
-        <div dangerouslySetInnerHTML={{ __html: news?.content || "" }}></div>
+        <div dangerouslySetInnerHTML={{ __html: sanitizedContent }}></div>
       </Container>
     </section>
   );

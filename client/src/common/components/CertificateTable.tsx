@@ -10,7 +10,7 @@ const CertificateTable = ({
   students: ICertificateStudents[];
 }) => {
   const admin = useAppSelector(selectUser);
-  const url = `http://${window?.location?.hostname}/site/certificate?code`;
+  const url = `/site/certificate?code`;
   const handleDownload = async (id: number, name: string) => {
     await downloadCertificate(id, name, admin?.token || "");
   };
@@ -29,10 +29,9 @@ const CertificateTable = ({
         <Table.Td>{formatTime.DateTime(student?.Group?.finishedDate)}</Table.Td>
         <Table.Td>
           <ActionIcon
-            hidden={!student.Certificate?.certificateUrl}
             component="a"
             target="_blank"
-            href={`${url}=${student?.Certificate?.certificateUrl}`}
+            href={`${url}=${student?.code}`}
             size="lg"
           >
             <Eye size="18" />
@@ -40,7 +39,6 @@ const CertificateTable = ({
         </Table.Td>
         <Table.Td>
           <ActionIcon
-            hidden={!student.Certificate?.certificateUrl}
             onClick={() =>
               handleDownload(
                 student?.id,

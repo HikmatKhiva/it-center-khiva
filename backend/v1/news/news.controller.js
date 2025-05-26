@@ -3,7 +3,7 @@ import fs from "fs";
 import slugify from "slugify";
 import { prisma } from "../../app.js";
 import Ajv from "ajv";
-import { newsCreateSchema } from "./news.validator.js";
+import {  newsSchema } from "./news.validator.js";
 import { promisify } from "util";
 import cloudinary from "../../db/db.js";
 const ajv = new Ajv({ allErrors: true });
@@ -15,7 +15,7 @@ const createNews = async (req, res) => {
   try {
     const image = req.file;
     const { title, description, content, createdAt } = req.body;
-    const validate = ajv.compile(newsCreateSchema);
+    const validate = ajv.compile(newsSchema);
     const valid = validate(req.body);
     const error = validate.errors ? validate.errors : "Validation failed";
     if (!valid) {
@@ -116,7 +116,7 @@ const updateNews = async (req, res) => {
   try {
     const { slug } = req.params;
     const { title, description, content, createdAt } = req.body;
-    const validate = ajv.compile(newsCreateSchema);
+    const validate = ajv.compile(newsSchema);
     const valid = validate(req.body);
     const error = validate.errors ? validate.errors : "Validation failed";
     if (!valid) {

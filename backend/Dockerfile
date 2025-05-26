@@ -1,4 +1,4 @@
-FROM node:lts-alpine
+FROM node:23-alpine
 
 # Create app directory
 WORKDIR /usr/src/app
@@ -9,7 +9,7 @@ RUN npm install
 
 # Copy Prisma schema and generate client
 COPY prisma ./prisma
-RUN npx prisma generate
+RUN npx prisma generate 
 # RUN npx prisma init --output ../generated/prisma
 # RUN npm install -g nodemon
 

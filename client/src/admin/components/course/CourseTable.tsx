@@ -30,6 +30,7 @@ const CourseTable = ({ name }: { name: string }) => {
       }),
     enabled: !!admin?.token,
   });
+
   const rows =
     Array.isArray(data?.courses) &&
     data?.courses.map((course: ICourse) => (
@@ -44,7 +45,7 @@ const CourseTable = ({ name }: { name: string }) => {
           <DeleteCourseModal id={course?.id} />
         </Table.Td>
         <Table.Td>
-          <CourseCertificateDemo id={course.id} />
+          <CourseCertificateDemo teacherFullName={`${course?.teacher?.firstName } ${course?.teacher?.secondName}`} id={course.id} />
         </Table.Td>
       </Table.Tr>
     ));

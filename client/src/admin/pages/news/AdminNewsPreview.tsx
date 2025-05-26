@@ -1,3 +1,4 @@
+import DOMPurify from "dompurify";
 import { useQuery } from "@tanstack/react-query";
 import { useNavigate, useParams } from "react-router-dom";
 import { Button, Divider, Group, Image, Text } from "@mantine/core";
@@ -12,6 +13,7 @@ const AdminNewsPreview = () => {
     queryFn: () => Server<INews>(`news/${slug}`, { method: "GET" }),
     queryKey: ["news", slug],
   });
+  const sanitizedContent = DOMPurify.sanitize(data?.content || "");
   return (
     <section>
       <Group>
@@ -34,7 +36,7 @@ const AdminNewsPreview = () => {
         </Group>
       </Group>
       <Divider mt="10" mb="30" />
-      <div dangerouslySetInnerHTML={{ __html: data?.content || "" }}></div>
+      <div dangerouslySetInnerHTML={{ __html: sanitizedContent }}></div>
     </section>
   );
 };
