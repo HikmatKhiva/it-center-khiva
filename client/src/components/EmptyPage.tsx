@@ -18,5 +18,4 @@ const EmptyPage = () => {
     </div>
   );
 };
-
 export default EmptyPage;

@@ -101,4 +101,4 @@ export const teacherValidate = {
     value?.trim().length > 0 ? null : "Ismingizni to'ldiring!",
   secondName: (value: string) =>
     value?.trim().length > 0 ? null : "Familiyangizni to'ldiring!",
-};
+};  

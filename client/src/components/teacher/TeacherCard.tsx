@@ -15,5 +15,4 @@ const TeacherCard = () => {
     </Card>
   );
 };
-
 export default TeacherCard;

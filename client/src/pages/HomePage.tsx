@@ -1,12 +1,17 @@
-import { Container } from "@mantine/core";
 import { lazy, Suspense } from "react";
+<<<<<<< HEAD
 import { TextAnimate } from "@/animation/text-animation";
 // import TeacherSection from "../section/TeacherSection";
 import FaqSection from "@/section/FaqSection";
 // import CourseSection from "../section/CourseSection";
+=======
+>>>>>>> 7a0bcf3f091205cce6167587304d7f03d3c1de0e
 const Spline = lazy(() => import("@splinetool/react-spline"));
-const urlCube = "https://prod.spline.design/xqVtEciHtU0-h29j/scene.splinecode"
+import { Container } from "@mantine/core";
+import { TextAnimate } from "../animation/text-animation";
+import FaqSection from "../section/FaqSection";
 const HomePage = () => {
+  const urlCube = "https://prod.spline.design/xqVtEciHtU0-h29j/scene.splinecode";
   return (
     <>
       <section className="h-[calc(100vh-60px)] flex items-center justify-center">
@@ -29,8 +34,6 @@ const HomePage = () => {
           </div>
         </Container>
       </section>
-      {/* <TeacherSection /> */}
-      {/* <CourseSection /> */}
       <FaqSection />
     </>
   );

@@ -62,6 +62,14 @@ const FinishGroupModal = ({ id }: { id: number }) => {
   });
   const handleSubmit = async () => {
     idNotification.current = createNotification(isPending);
+    idNotification.current = notifications.show({
+      loading: isPending,
+      title: "Ma'lumotlar uzatilyapti.",
+      message: "Iltimos ma'lumot uzatilguncha kutib turing!",
+      color: "blue",
+      position: "top-right",
+      withCloseButton: true,
+    });
     await mutateAsync();
   };
   return (

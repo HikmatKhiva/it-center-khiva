@@ -7,6 +7,7 @@
   "scripts": {
     "server": "nodemon app.js",
     "dev": "npm run server ",
+    "client": "npm run dev --prefix client",
     "lint": "npx eslint"
   },
   "repository": {

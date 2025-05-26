@@ -1,3 +1,4 @@
+import { Divider, Group } from "@mantine/core";
 import {
   BookOpenText,
   ConciergeBell,
@@ -13,6 +14,10 @@ import { NavLink } from "react-router-dom";
 const AdminNavbar = ({ close }: { close: () => void }) => {
   return (
     <div className="flex flex-col admin-navbar">
+      <Group align="center" gap="5" className="pt-5 pb-3">
+        <h3 className="text-xl px-4 ">Boshqaruv Paneli </h3>
+      </Group>
+      <Divider />
       <NavLink
         onClick={close}
         className="w-full py-2 px-4 flex items-center gap-2  text-lg"

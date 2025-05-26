@@ -15,3 +15,4 @@ export const LoadAdminRoomId = lazy(() => import("./rooms/AdminRoomId"));
 export const LoadAdminReception = lazy(() => import("./reception/AdminReception"));
 export const LoadAdminHome = lazy(() => import("./AdminHome"));
 export const LoadNotFoundPage = lazy(() => import("./404Page"));
+export const LoadNotPage = lazy(() => import("./404Page"));
