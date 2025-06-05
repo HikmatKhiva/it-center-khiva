@@ -123,6 +123,7 @@ const downloadGroupCertificateZip = async (req, res) => {
             firstName: true,
             secondName: true,
             code: true,
+            finishedDate: true,
             course: {
               select: {
                 nameCertificate: true,

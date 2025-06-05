@@ -19,7 +19,9 @@ const normalizedRed = red / 255;
 const normalizedGreen = green / 255;
 const normalizedBlue = blue / 255;
 async function createPdf(student, courseName) {
-  const date = new Date();
+  console.log(student, "student ");
+
+  const date = new Date(student?.finishedDate) || new Date();
   const url = `${process.env.CORS_ORIGIN}/site/certificate?code=${student.code}`;
   try {
     const pdfDoc = await PDFDocument.load(existingPdfBytes);
@@ -68,9 +70,9 @@ async function createPdf(student, courseName) {
       color: rgb(0, 0, 0),
     });
     // date time
-    const day = String(date.getDate()).padStart(2, "0"); // Get day of the month (1-31) and pad with zero if needed
-    const month = String(date.getMonth() + 1).padStart(2, "0"); // Get month (0-11, so add 1) and pad with zero
-    const year = date.getFullYear();
+    const day = String(date?.getDate()).padStart(2, "0"); // Get day of the month (1-31) and pad with zero if needed
+    const month = String(date?.getMonth() + 1).padStart(2, "0"); // Get month (0-11, so add 1) and pad with zero
+    const year = date?.getFullYear();
     // date time
     page.drawText(`${day}.${month}.${year}`, {
       x: 620,

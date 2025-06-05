@@ -44,21 +44,19 @@ const getPayments = async (req, res) => {
 // upload payment a student
 const uploadPayment = async (req, res) => {
   try {
-    // const { origin } = new URL(req.url, `${req.protocol}://${req.get("host")}`);
-    const origin = "https://it-khiva.uz"
     const { studentId, amount } = req.body;
     const username = req.admin.username;
-    const find = await prisma.admin.findUnique({
-      where: {
-        username,
-      },
-    });
-    if (!find) {
-      return res.status(400).json({ message: "Hisob topilmadi!" });
-    }
-    if (!find.isActive && find.role === "RECEPTION") {
-      return res.status(400).json({ message: "Sizda Ruxsat yo'q!" });
-    }
+    // const find = await prisma.admin.findUnique({
+    //   where: {
+    //     username,
+    //   },
+    // });
+    // if (!find) {
+    //   return res.status(400).json({ message: "Hisob topilmadi!" });
+    // }
+    // if (!find.isActive && find.role === "RECEPTION") {
+    //   return res.status(400).json({ message: "Sizda Ruxsat yo'q!" });
+    // }
     const student = await prisma.student.findUnique({
       where: {
         id: parseInt(studentId),
@@ -78,6 +76,7 @@ const uploadPayment = async (req, res) => {
       },
       data: {
         debt: parseInt(student.debt) - parseInt(amount),
+        finishedDate: new Date(),
       },
     });
     await prisma.payment.create({

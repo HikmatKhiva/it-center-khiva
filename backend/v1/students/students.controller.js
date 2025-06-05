@@ -11,9 +11,6 @@ const getAllStudents = async (req, res) => {
         },
         ...(groupId && { groupId: parseInt(groupId) }),
       },
-      include: {
-        Certificate: true,
-      },
       skip: (page - 1) * limit,
       take: parseInt(limit),
     });
@@ -28,6 +25,8 @@ const getAllStudents = async (req, res) => {
     const totalPages = Math.ceil(totalCount / limit);
     return res.status(200).json({ students, totalPages });
   } catch (error) {
+    console.log(error);
+    
     return res.status(500).json({ error });
   }
 };
