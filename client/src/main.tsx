@@ -6,14 +6,15 @@ import { createTheme, MantineProvider } from "@mantine/core";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Notifications } from "@mantine/notifications";
 import { Provider } from "react-redux";
-import { store } from "@/lib/redux/app.ts";
+import { persistor, store } from "@/lib/redux/app.ts";
 // devtool
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 // css imports
 import "@/css/index.css";
 import "@mantine/core/styles.css";
 import "@mantine/notifications/styles.css";
-import '@mantine/dates/styles.css';
+import "@mantine/dates/styles.css";
+import { PersistGate } from "redux-persist/integration/react";
 // import NavigationProgressComponent from "./loading/NavigationProgressComponent.tsx";
 // Create a client
 const queryClient = new QueryClient();
@@ -32,8 +33,10 @@ createRoot(document.getElementById("root")!).render(
       <MantineProvider theme={theme}>
         {/* redux wrapper */}
         <Provider store={store}>
-          {/* react-router */}
-          <RouterProvider router={routes} />
+          <PersistGate loading={null} persistor={persistor}>
+            {/* react-router */}
+            <RouterProvider router={routes} />
+          </PersistGate>
         </Provider>
         {/* mantine notification component */}
         <Notifications />

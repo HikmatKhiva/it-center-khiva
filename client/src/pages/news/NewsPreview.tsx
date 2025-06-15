@@ -23,7 +23,10 @@ const NewsPreview = () => {
     queryKey: ["news", slug],
     enabled: !!slug,
   });
-  const sanitizedContent = DOMPurify.sanitize(news?.content || "");
+  const sanitizedContent = DOMPurify.sanitize(news?.content || "", {
+    ADD_TAGS: ["iframe"],
+    ADD_ATTR: ["allow", "allowfullscreen", "frameborder", "scrolling"],
+  });
   return (
     <section className="pt-5">
       <Container>

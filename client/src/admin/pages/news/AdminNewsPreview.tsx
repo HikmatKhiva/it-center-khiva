@@ -13,7 +13,10 @@ const AdminNewsPreview = () => {
     queryFn: () => Server<INews>(`news/${slug}`, { method: "GET" }),
     queryKey: ["news", slug],
   });
-  const sanitizedContent = DOMPurify.sanitize(data?.content || "");
+  const sanitizedContent = DOMPurify.sanitize(data?.content || "", {
+    ADD_TAGS: ["iframe"],
+    ADD_ATTR: ["allow", "allowfullscreen", "frameborder", "scrolling"],
+  });
   return (
     <section>
       <Group>

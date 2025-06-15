@@ -6,7 +6,7 @@ const EmptyPage = () => {
   return (
     <div className="flex justify-center w-full items-center">
       <Title className="text-[#53519D]" fz={{base:"15px",md:"26px"}}>
-        <TextAnimate>Ma'kumotlar hali yuklanmagan.</TextAnimate>
+        <TextAnimate>Ma'lumotlar hali yuklanmagan.</TextAnimate>
       </Title>
       <motion.img
         whileInView={{ scale: [0.5, 1] }}

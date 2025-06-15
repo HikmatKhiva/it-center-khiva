@@ -1,4 +1,4 @@
-import { Container, Group, Pagination, Text, Loader } from "@mantine/core";
+import { Container, Group, Pagination, Loader, Stack } from "@mantine/core";
 import NewsCard from "@/components/news/NewsCard";
 import { TextAnimate } from "@/animation/text-animation";
 import { useState } from "react";
@@ -24,11 +24,16 @@ const NewsPage = () => {
   return (
     <section>
       <Container>
-        <Text hidden={(newsData?.news?.length ?? 0) > 0} mt={30} fz={{ base: "xl", md: "30px" }} className="text-center">
+        <Stack
+          hidden={(newsData?.news?.length ?? 0) > 0}
+          mt={30}
+          fz={{ base: "xl", md: "30px" }}
+          className="text-center"
+        >
           <TextAnimate animation="fadeIn" className="text-[#93CE03]">
             Yangiliklar
           </TextAnimate>
-        </Text>
+        </Stack>
         <Group mt={30}>
           {isPending ? (
             <Loader
