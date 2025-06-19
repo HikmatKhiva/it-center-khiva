@@ -8,14 +8,14 @@ import {
 } from "@mantine/core";
 import { useParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
-import DeleteStudentModal from "@/admin/components/student/DeleteStudentModal";
-import UpdateStudentModal from "@/admin/components/student/UpdateStudentModal";
+import DeleteStudentModal from "@/common/components/student/DeleteStudentModal";
+import UpdateStudentModal from "@/common/components/student/UpdateStudentModal";
 import PaymentsHistory from "@/common/components/payment/PaymentsHistory";
 import UploadPayment from "@/common/components/payment/UploadPayment";
 import { useAppSelector } from "@/hooks/redux";
 import { ChangeEvent, useCallback, useState } from "react";
 import { selectUser } from "@/lib/redux/reducer/admin";
-import GroupIdHeader from "@/admin/components/group/GroupIdHeader";
+import GroupIdHeader from "@/common/components/group/GroupIdHeader";
 import { Check, Eye, RefreshCw } from "lucide-react";
 import { Server } from "@/api/api";
 const AdminGroupId = () => {

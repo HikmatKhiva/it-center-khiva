@@ -14,11 +14,11 @@ import LazyLoadPage from "./loading/LazyLoadPage";
 // Admin Pages
 import {
   LoadAdminHome,
-  LoadAdminGroup,
+  // LoadAdminGroup,
   LoadAdminLogin,
   LoadAdminMessages,
   LoadAdminNews,
-  LoadAdminGroupId,
+  // LoadAdminGroupId,
   LoadAdminCourse,
   LoadAdminTeachers,
   LoadAdminNewsCreate,
@@ -34,7 +34,12 @@ import {
 import { LoadAdminLayout } from "./admin/layouts";
 import ReceptionLayout from "./reception/layouts/ReceptionLayout";
 import { LoadReceptionMainPage, LoadReceptionTeachers } from "./reception/page";
-import { LoadCertificatePage, LoadNewStudents } from "./common/pages";
+import {
+  LoadCertificatePage,
+  LoadNewStudents,
+  LoadAdminGroup,
+  LoadAdminGroupId,
+} from "./common/pages";
 export const routes = createBrowserRouter([
   {
     path: "/",
@@ -163,6 +168,19 @@ export const routes = createBrowserRouter([
       {
         path: "certificate",
         element: <LazyAdminPage Page={LoadCertificatePage} />,
+      },
+      {
+        path: "group",
+        children: [
+          {
+            index: true,
+            element: <LazyAdminPage Page={LoadAdminGroup} />,
+          },
+          {
+            path: ":id",
+            element: <LazyAdminPage Page={LoadAdminGroupId} />,
+          },
+        ],
       },
     ],
   },

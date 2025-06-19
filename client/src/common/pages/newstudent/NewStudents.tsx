@@ -9,16 +9,22 @@ import {
   Indicator,
   Avatar,
   Stack,
+  Modal,
+  Button,
 } from "@mantine/core";
-import { BookOpenText, CalendarFold, Clock, Filter } from "lucide-react";
+import { BookOpenText, CalendarFold, Clock, Filter, Plus } from "lucide-react";
 import { attends, courseTimes, selectMonths } from "@/config";
 import { useState } from "react";
 import { useAppSelector } from "@/hooks/redux";
 import useFormData from "@/hooks/useFormData";
 import { selectUser } from "@/lib/redux/reducer/admin";
 import { Server } from "@/api/api";
+import { useDisclosure } from "@mantine/hooks";
+import AddNewStudent from "@/components/contact/AddNewStudent";
 const NewStudents = () => {
   const user = useAppSelector(selectUser);
+  const [opened, { open, close }] = useDisclosure(false);
+
   const [query, setQuery] = useState<IQueryStudent>({
     isAttend: "pending",
     month: (new Date().getMonth() + 1).toString(),
@@ -98,6 +104,15 @@ const NewStudents = () => {
             }
             data={courseTimes}
           />
+          <Button
+            size="xs"
+            color="green"
+            variant="filled"
+            rightSection={<Plus size="14" />}
+            onClick={open}
+          >
+            Qo'shish
+          </Button>
         </Group>
       </Group>
       <Stack className="h-[calc(100vh_-_150px)]" justify="space-between">
@@ -124,6 +139,9 @@ const NewStudents = () => {
           mt="sm"
         />
       </Stack>
+      <Modal opened={opened} onClose={close}>
+        <AddNewStudent />
+      </Modal>
     </section>
   );
 };

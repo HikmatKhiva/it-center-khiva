@@ -9,12 +9,14 @@ import { Provider } from "react-redux";
 import { persistor, store } from "@/lib/redux/app.ts";
 // devtool
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
+// persist
+import { PersistGate } from "redux-persist/integration/react";
 // css imports
 import "@/css/index.css";
 import "@mantine/core/styles.css";
 import "@mantine/notifications/styles.css";
 import "@mantine/dates/styles.css";
-import { PersistGate } from "redux-persist/integration/react";
+import '@mantine/charts/styles.css';
 // import NavigationProgressComponent from "./loading/NavigationProgressComponent.tsx";
 // Create a client
 const queryClient = new QueryClient();

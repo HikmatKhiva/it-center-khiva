@@ -210,33 +210,6 @@ const getNewGroups = async (req, res) => {
     return res.status(500).json({ error });
   }
 };
-// get stats
-const getStats = async (req, res) => {
-  try {
-    const active_groups_count = await prisma.group.count({
-      where: {
-        isGroupFinished: false,
-      },
-    });
-    const total_teachers_count = await prisma.teacher.count();
-    const total_courses_count = await prisma.course.count();
-    const active_students_count = await prisma.student.count({
-      where: {
-        Group: {
-          isGroupFinished: false,
-        },
-      },
-    });
-    res.status(200).json({
-      active_students_count,
-      active_groups_count,
-      total_teachers_count,
-      total_courses_count,
-    });
-  } catch (error) {
-    return res.status(500).json({ error });
-  }
-};
 // finish a group
 const finishGroup = async (req, res) => {
   try {
@@ -270,7 +243,6 @@ export {
   getGroup,
   deleteGroup,
   getNewGroups,
-  getStats,
   updateGroup,
   finishGroup,
 };

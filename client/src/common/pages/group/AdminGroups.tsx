@@ -1,4 +1,4 @@
-import GroupTable from "@/admin/components/group/GroupTable";
+import GroupTable from "@/common/components/group/GroupTable";
 import {
   TextInput,
   Group,
@@ -8,7 +8,7 @@ import {
   Pagination,
 } from "@mantine/core";
 import { Filter, LoaderCircle, Search, Users } from "lucide-react";
-import CreateGroupModal from "@/admin/components/group/CreateGroupModal";
+import CreateGroupModal from "@/common/components/group/CreateGroupModal";
 import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import { useAppSelector } from "@/hooks/redux";

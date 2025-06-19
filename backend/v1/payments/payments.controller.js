@@ -1,5 +1,9 @@
 import { prisma } from "../../app.js";
-import { calculateTotalPaid, calculateTotalPrice } from "./payment.helper.js";
+import {
+  calculateCourseDuration,
+  calculateTotalPaid,
+  calculateTotalPrice,
+} from "./payment.helper.js";
 // get all payments
 const getPayments = async (req, res) => {
   try {
@@ -18,17 +22,20 @@ const getPayments = async (req, res) => {
         secondName: true,
         discount: true,
         debt: true,
+        createdAt: true,
         Group: {
           select: {
             duration: true,
             price: true,
           },
         },
+        Payments: true,
       },
     });
     const { price, duration } = student.Group;
     const totalPrice = calculateTotalPrice(price, duration);
     const totalPaid = calculateTotalPaid(payments);
+    const monthly = await calculateCourseDuration(student);
     const discountAmount = ((price * student.discount) / 100) * duration;
     const percentagePaid =
       ((totalPaid + discountAmount) / parseInt(totalPrice)) * 100;
@@ -36,6 +43,7 @@ const getPayments = async (req, res) => {
       payments,
       student,
       percentagePaid,
+      monthly,
     });
   } catch (error) {
     return res.status(500).json({ error });
@@ -46,17 +54,17 @@ const uploadPayment = async (req, res) => {
   try {
     const { studentId, amount } = req.body;
     const username = req.admin.username;
-    // const find = await prisma.admin.findUnique({
-    //   where: {
-    //     username,
-    //   },
-    // });
-    // if (!find) {
-    //   return res.status(400).json({ message: "Hisob topilmadi!" });
-    // }
-    // if (!find.isActive && find.role === "RECEPTION") {
-    //   return res.status(400).json({ message: "Sizda Ruxsat yo'q!" });
-    // }
+    const find = await prisma.admin.findUnique({
+      where: {
+        username,
+      },
+    });
+    if (!find) {
+      return res.status(400).json({ message: "Hisob topilmadi!" });
+    }
+    if (!find.isActive && find.role === "RECEPTION") {
+      return res.status(400).json({ message: "Sizda Ruxsat yo'q!" });
+    }
     const student = await prisma.student.findUnique({
       where: {
         id: parseInt(studentId),

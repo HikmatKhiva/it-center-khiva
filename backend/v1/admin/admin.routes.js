@@ -1,5 +1,4 @@
 import { Router } from "express";
-import { getStats } from "../groups/groups.controller.js";
 import { getMessages, deleteMessage } from "../messages/messages.controller.js";
 import {
   userProfile,
@@ -11,7 +10,6 @@ import { upload } from "../../lib/multer.js";
 import { checkRole } from "../../middleware/checkRole.js";
 import { downloadGroupCertificateZip } from "../certificates/certificates.controller.js";
 export const adminRoutes = Router();
-adminRoutes.get("/stats", getStats);
 adminRoutes.get("/messages", checkRole, getMessages);
 adminRoutes.delete("/messages/:id", checkRole, deleteMessage);
 adminRoutes.get(

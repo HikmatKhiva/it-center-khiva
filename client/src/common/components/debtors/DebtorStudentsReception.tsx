@@ -43,10 +43,10 @@ const DebtorStudentsReception = () => {
   });
   const rows = data?.debtors?.map((student: IDebtor, index: number) => (
     <Table.Tr key={index}>
-      <Table.Td>{student.id}</Table.Td>
-      <Table.Td>{student.fullName}</Table.Td>
       <Table.Td>{student.teacherName}</Table.Td>
       <Table.Td>{student.courseName}</Table.Td>
+      <Table.Td>{student.fullName}</Table.Td>
+      <Table.Td>{student.groupName}</Table.Td>
       <Table.Td>{student.groupPrice}</Table.Td>
       <Table.Td>{student.passportId}</Table.Td>
       <Table.Td>{student.lastPaymentDate}</Table.Td>
@@ -92,19 +92,19 @@ const DebtorStudentsReception = () => {
           />
         </Group>
       </Group>
-      <Stack className="h-[calc(100vh_-_150px)] " justify="space-between ">
+      <Stack className="min-h-[calc(100vh_-_500px)] " justify="space-between ">
         <Table withTableBorder highlightOnHover title="Qarzdorlar ro'yxati.">
           <Table.Thead>
             <Table.Tr>
-              <Table.Th>ID</Table.Th>
-              <Table.Th>O'quvchi</Table.Th>
               <Table.Th>O'qituvchi</Table.Th>
               <Table.Th>Kurs</Table.Th>
+              <Table.Th>Talaba</Table.Th>
+              <Table.Th>Guruh</Table.Th>
               <Table.Th>Oylik puli</Table.Th>
               <Table.Th>Passport ID</Table.Th>
               <Table.Th>Oxirgi to'lov sanasi</Table.Th>
               <Table.Th>Oxirgi to'lov miqdori</Table.Th>
-              <Table.Th>O'quvchi qo'shilgan sana</Table.Th>
+              <Table.Th>Dars boshlangan sana.</Table.Th>
               <Table.Th>To'lov</Table.Th>
               <Table.Th>To'lov tarixi</Table.Th>
             </Table.Tr>

@@ -41,6 +41,10 @@ interface IStudent extends IDefault {
     id: number;
     certificateUrl: string;
   };
+  Group: {
+    duration: number;
+    price: string;
+  };
 }
 interface ISelect {
   value: string;
@@ -134,12 +138,25 @@ interface IOpenedGroup {
 }
 
 interface IStats {
-  active_students_count: string;
-  active_groups_count: string;
-  total_teachers_count: string;
-  total_courses_count: string;
+  stat: string;
+  activeStudents: number;
+  activeGroups: number;
+  totalTeachers: number;
+  totalCourses: number;
+  totalMaleStudents: number;
+  totalFemaleStudents: number;
+  totalStudents: number;
+  finishedStudents: number;
+  totalFinishedMaleStudents:number;
+  totalFinishedFemaleStudents:number;
+  finishedGroups: number;
 }
-
+interface IYearly {
+  month: string;
+  expectedIncome: number;
+  paidThisMonth: number;
+  percentage: number;
+}
 interface INews {
   id: number;
   slug: string;
@@ -222,7 +239,7 @@ interface ICertificateStudents {
   firstName: string;
   secondName: string;
   passportId: string;
-  code:string;
+  code: string;
   Certificate: {
     id: number;
     certificateUrl: string;
@@ -310,8 +327,23 @@ interface IPaymentsResponse {
   payments: IPayments[];
   student: IStudent;
   percentagePaid: number;
+  monthly: IPaymentMonthly[];
+}
+interface ITeacherChartResponse {
+  teacherName: string;
+  month: number;
+  totalPaid: number;
+  totalSalary: number;
+  expectedSalary: number;
+  totalAmount: number;
 }
 
+interface IPaymentMonthly {
+  month: string;
+  payment: string;
+  paid: number;
+  percentage: number;
+}
 interface IDebtorsResponse extends IDefaultResponse {
   debtors: IDebtor[];
   currentMonth: string;

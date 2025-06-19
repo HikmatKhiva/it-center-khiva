@@ -1,5 +1,6 @@
 import jwt from "jsonwebtoken";
 import dotenv from "dotenv";
+import { prisma } from "../app.js";
 dotenv.config();
 const jwtSecret = process.env.jwtSecret;
 export async function middlewareAdmin(req, res, next) {
@@ -9,6 +10,12 @@ export async function middlewareAdmin(req, res, next) {
     if (!token) return res.status(401).json({ message: "permission denied" });
     const decode = jwt.decode(token, jwtSecret);
     if (!decode) return res.status(401).json({ message: "permission denied" });
+    const user = await prisma.admin.findUnique({
+      where: {
+        username: decode?.username,
+      },
+    });
+    if (!user) return res.status(401).json({ message: "permission denied" });
     req.admin = decode;
     next();
   } catch (error) {

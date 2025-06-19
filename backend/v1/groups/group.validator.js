@@ -18,6 +18,6 @@ export const groupUpdateSchema = {
     name: { type: "string", minLength: 4 },
     groupTime: { type: "string" },
   },
-  required: ["teacherId", "name", "groupTime"],
+  required: ["teacherId", "groupTime"],
   additionalProperties: false,
 };

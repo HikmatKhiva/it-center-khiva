@@ -1,5 +1,5 @@
 import { ActionIcon, Indicator, Table, Text } from "@mantine/core";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import DeleteGroupModal from "./DeleteGroupModal";
 import { formatTime } from "@/utils/helper";
 import { Pencil } from "lucide-react";
@@ -12,6 +12,8 @@ const GroupTable = ({
   isPending: boolean;
   status: boolean;
 }) => {
+  const location = useLocation();
+  const path = location.pathname.split('/')[1];
   const navigate = useNavigate();
   const rows = data?.map((group: IGroup) => (
     <Table.Tr key={group.id}>
@@ -35,7 +37,7 @@ const GroupTable = ({
       </Table.Td>
       <Table.Td>
         <ActionIcon
-          onClick={() => navigate(`/admin/group/${group.id}`)}
+          onClick={() => navigate(`/${path}/group/${group.id}`)}
           variant="outline"
           size="md"
           color="grape"

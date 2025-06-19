@@ -1,4 +1,3 @@
-import { prisma } from "../../app.js";
 export const formatterGroups = (groups) => {
   return groups.map((group) => {
     const admissionEnd = new Date(

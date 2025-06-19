@@ -10,11 +10,12 @@ import { NumberTicker } from "@/animation/number-ticker";
 import StatsCardSkeleton from "@/admin/loading/StatsCardSkeleton";
 import { useAppSelector } from "@/hooks/redux";
 import { Server } from "@/api/api";
+import { selectUser } from "@/lib/redux/reducer/admin";
 const AdminStats = () => {
-  const { admin } = useAppSelector((state) => state.admin);
+  const admin = useAppSelector(selectUser);
   const { data, isLoading } = useQuery<IStats>({
     queryFn: () =>
-      Server<IStats>(`admin/stats`, {
+      Server<IStats>(`stats`, {
         method: "GET",
         headers: {
           authorization: `Bearer ${admin?.token}`,
@@ -35,7 +36,7 @@ const AdminStats = () => {
               </Group>
               <NumberTicker
                 className="text-2xl"
-                value={parseInt(data?.active_students_count || "0")}
+                value={data?.totalStudents ?? 0}
               />
             </Stack>
           </Card>
@@ -47,7 +48,7 @@ const AdminStats = () => {
               </Group>
               <NumberTicker
                 className="text-2xl"
-                value={parseInt(data?.active_groups_count || "0")}
+                value={data?.activeGroups ?? 0}
               />
             </Stack>
           </Card>
@@ -59,7 +60,7 @@ const AdminStats = () => {
               </Group>
               <NumberTicker
                 className="text-2xl"
-                value={parseInt(data?.total_teachers_count || "0")}
+                value={data?.totalTeachers ?? 0}
               />
             </Stack>
           </Card>
@@ -72,7 +73,7 @@ const AdminStats = () => {
               <Text>
                 <NumberTicker
                   className="text-2xl"
-                  value={parseInt(data?.total_courses_count || "0")}
+                  value={data?.totalCourses ?? 0}
                 />
               </Text>
             </Stack>

@@ -26,6 +26,7 @@ import { newsRoutes } from "./news/news.routes.js";
 import { messageSchema } from "./messages/message.validation.js";
 import { newStudentSchema } from "./newStudents/newStudent.validation.js";
 import { receptionRoutes } from "./reception/reception.routes.js";
+import { statsRoutes } from "./stats/stats.routes.js";
 // without admin middleware routes
 V1Routes.post("/newStudents/add", validate(newStudentSchema), addNewStudent);
 V1Routes.post("/message/create", validate(messageSchema), createMessage);
@@ -45,4 +46,5 @@ V1Routes.use("/payment", middlewareAdmin, paymentsRoutes);
 V1Routes.use("/admin", middlewareAdmin, adminRoutes);
 V1Routes.use("/reception", middlewareAdmin, receptionRoutes);
 V1Routes.use("/newStudents", middlewareAdmin, newStudentRoutes);
+V1Routes.use("/stats", middlewareAdmin, statsRoutes);
 V1Routes.get("/generate-secret", middlewareAdmin, generateSecret);
