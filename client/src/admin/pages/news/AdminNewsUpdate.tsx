@@ -150,7 +150,7 @@ const AdminNewsUpdate = () => {
         <Group>
           <DateInput
             value={createdAt}
-            onChange={(value) => setCreatedAt(value || new Date())}
+            onChange={(value) => setCreatedAt((value ?? new Date()) instanceof Date ? value as unknown as Date : new Date())}
             placeholder="Date input"
           />
           <Button
