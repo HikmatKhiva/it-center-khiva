@@ -16,14 +16,34 @@ export const selectMonths: { label: string; value: string }[] = [
   { label: "November", value: "11" },
   { label: "December", value: "12" },
 ];
-export const courseTimes: { label: string; value: string }[] = [
-  { value: "Ertalab 9:00", label: "Ertalab 9:00" },
+// Use this type if you want strong typing (optional)
+export type CourseTimeGroup = {
+  group: string;
+  items: { label: string; value: string }[];
+};
+export const courseTimes: CourseTimeGroup[] = [
   {
-    value: "Tushlikdan keyin 13:00",
-    label: "Tushlikdan keyin 13:00",
+    group: "Toq kunlari",
+    items: [
+      { value: "Toq 9:00", label: "9:00" },
+      { value: "Toq 11:00", label: "11:00" },
+      { value: "Toq 14:00", label: "14:00" },
+      { value: "Toq 16:00", label: "16:00" },
+      { value: "Toq muhim emas", label: "Muhim emas." },
+    ],
   },
-  { value: "Muhim emas", label: "Muhim emas" },
+  {
+    group: "Juft kunlari",
+    items: [
+      { value: "Juft 9:00", label: "9:00" },
+      { value: "Juft 11:00", label: "11:00" },
+      { value: "Juft 14:00", label: "14:00" },
+      { value: "Juft 16:00", label: "16:00" },
+      { value: "Juft muhim emas", label: "Muhim emas." },
+    ],
+  },
 ];
+
 export const attends = [
   { label: "Kelmaydigan O'quvchilar", value: "reject" },
   { label: "Keladigan O'quvchilar", value: "success" },

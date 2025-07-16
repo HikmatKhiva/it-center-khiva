@@ -147,6 +147,7 @@ export async function calculateIncomeForYear() {
   try {
     const results = [];
     const year = new Date().getFullYear();
+
     const activeGroups = await prisma.group.findMany({
       where: { isGroupFinished: false },
       select: {
@@ -161,22 +162,28 @@ export async function calculateIncomeForYear() {
       const startOfMonth = new Date(year, month, 1);
       const endOfMonth = new Date(year, month + 1, 0, 23, 59, 59);
 
-      // Calculate expected income for this month only from groups active in this month
       const expectedIncome = activeGroups.reduce((acc, group) => {
         const groupStart = new Date(group.createdAt);
+        const duration = Number(group.duration);
         const groupEnd = new Date(groupStart);
-        groupEnd.setMonth(groupEnd.getMonth() + group.duration);
+        groupEnd.setMonth(groupEnd.getMonth() + duration);
 
-        // Check if current month overlaps with group's active period
-        if (startOfMonth < groupEnd && endOfMonth >= groupStart) {
-          // Ensure duration is not zero to avoid division by zero
-          const monthlyPrice = Number(group.price);
-          return acc + monthlyPrice * (group.Students.length || 0); // Ensure Students is an array
+        // Check if current month is within group's active duration
+        const groupStartMonth = new Date(groupStart.getFullYear(), groupStart.getMonth(), 1);
+        const groupEndMonth = new Date(groupEnd.getFullYear(), groupEnd.getMonth(), 1);
+        const currentMonth = new Date(year, month, 1);
+
+        const isGroupActiveThisMonth =
+          currentMonth >= groupStartMonth && currentMonth < groupEndMonth;
+
+        if (isGroupActiveThisMonth && duration > 0) {
+          const monthlyPrice = Number(group.price) / duration;
+          return acc + monthlyPrice * (group.Students.length || 0);
         }
+
         return acc;
       }, 0);
 
-      // Sum payments for this month
       const paidAggregate = await prisma.payment.aggregate({
         _sum: { amount: true },
         where: {
@@ -187,7 +194,8 @@ export async function calculateIncomeForYear() {
         },
       });
 
-      const paidThisMonth = Number(paidAggregate._sum.amount) || 0; // Use || to default to 0
+      const paidThisMonth = Number(paidAggregate._sum.amount) || 0;
+
       const percentage =
         expectedIncome > 0
           ? Math.floor((paidThisMonth / expectedIncome) * 100)
@@ -203,6 +211,7 @@ export async function calculateIncomeForYear() {
         percentage,
       });
     }
+
     return results;
   } catch (error) {
     throw error;

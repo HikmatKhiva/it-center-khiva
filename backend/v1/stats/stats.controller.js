@@ -25,17 +25,35 @@ const getStats = async (req, res) => {
         },
       },
     });
+    const totalDebtors = await prisma.student.count({
+      where: {
+        debt: {
+          gt: 0,
+        },
+      },
+    });
     const finishedStudents = await prisma.student.count({
       where: {
         Group: {
           isGroupFinished: true,
         },
+        debt: 0,
       },
     });
-    const totalStudents = await prisma.student.count();
+
+    const totalStudents = await prisma.student.count({
+      where: {
+        Group: {
+          isGroupFinished: false,
+        },
+      },
+    });
     const totalMaleStudents = await prisma.student.count({
       where: {
         gender: "MALE",
+        Group: {
+          isGroupFinished: false,
+        },
       },
     });
     const totalFinishedFemaleStudents = await prisma.student.count({
@@ -44,6 +62,7 @@ const getStats = async (req, res) => {
         Group: {
           isGroupFinished: true,
         },
+        debt: 0,
       },
     });
     const totalFinishedMaleStudents = await prisma.student.count({
@@ -52,11 +71,15 @@ const getStats = async (req, res) => {
         Group: {
           isGroupFinished: true,
         },
+        debt: 0,
       },
     });
     const totalFemaleStudents = await prisma.student.count({
       where: {
         gender: "FEMALE",
+        Group: {
+          isGroupFinished: false,
+        },
       },
     });
     res.status(200).json([
@@ -71,6 +94,7 @@ const getStats = async (req, res) => {
         totalFinishedFemaleStudents,
         totalFinishedMaleStudents,
         totalStudents,
+        totalDebtors,
         finishedStudents,
         finishedGroups,
       },

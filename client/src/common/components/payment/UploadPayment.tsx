@@ -2,7 +2,7 @@ import { Button, Group, Modal, TextInput } from "@mantine/core";
 import { useForm } from "@mantine/form";
 import { useDisclosure } from "@mantine/hooks";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { Wallet } from "lucide-react";
+import { Calendar, Wallet, PoundSterling } from "lucide-react";
 import { createPaymentValidation } from "@/validation";
 import { useRef } from "react";
 import { useAppSelector } from "@/hooks/redux";
@@ -13,6 +13,7 @@ import {
 } from "@/utils/notification";
 import { selectUser } from "@/lib/redux/reducer/admin";
 import { Server } from "@/api/api";
+import { DateTimePicker } from "@mantine/dates";
 const UploadPayment = ({ studentId }: { studentId: number }) => {
   const admin = useAppSelector(selectUser);
   const [opened, { open, close }] = useDisclosure(false);
@@ -22,6 +23,7 @@ const UploadPayment = ({ studentId }: { studentId: number }) => {
     initialValues: {
       studentId,
       amount: 0,
+      paymentDate: new Date(),
     } as INewPayment,
     validate: createPaymentValidation,
   });
@@ -60,10 +62,11 @@ const UploadPayment = ({ studentId }: { studentId: number }) => {
         <form onSubmit={form.onSubmit(handleSubmit)}>
           <Group align="end">
             <TextInput
-              className="flex-grow"
+              flex="1"
               placeholder="10000"
               label="Summani Kiriting!"
               value={form.values.amount}
+              rightSection={<PoundSterling size="16" />}
               error={form.errors.amount}
               onChange={(event) => {
                 const value = event.target.value;
@@ -71,6 +74,17 @@ const UploadPayment = ({ studentId }: { studentId: number }) => {
                   form.setFieldValue("amount", +value);
                 }
               }}
+            />
+            <DateTimePicker
+              flex="1"
+              value={form.values.paymentDate}
+              onChange={(date) => {
+                if (date) form.setFieldValue("paymentDate", new Date(date));
+              }}
+              valueFormat="DD MMM YYYY hh:mm A"
+              label="Enter payment date"
+              placeholder="Select payment date"
+              rightSection={<Calendar size={16} />}
             />
             {/* <FileButton onChange={() => {}} accept="image/png,image/jpeg">
               {(props) => (

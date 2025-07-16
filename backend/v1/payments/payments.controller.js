@@ -52,7 +52,7 @@ const getPayments = async (req, res) => {
 // upload payment a student
 const uploadPayment = async (req, res) => {
   try {
-    const { studentId, amount } = req.body;
+    const { studentId, amount, paymentDate } = req.body;
     const username = req.admin.username;
     const find = await prisma.admin.findUnique({
       where: {
@@ -91,6 +91,7 @@ const uploadPayment = async (req, res) => {
       data: {
         amount: parseInt(amount),
         studentId: parseInt(studentId),
+        createdAt: new Date(paymentDate),
       },
     });
     return res.status(201).json({ message: "To'lov muoffaqiyatli yuklandi." });

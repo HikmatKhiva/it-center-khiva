@@ -96,6 +96,7 @@ interface INewsCard {
 interface INewPayment {
   studentId: number;
   amount: number;
+  paymentDate: Date;
 }
 interface IPayments extends IDefault {
   paymentDate: Date;
@@ -147,9 +148,10 @@ interface IStats {
   totalFemaleStudents: number;
   totalStudents: number;
   finishedStudents: number;
-  totalFinishedMaleStudents:number;
-  totalFinishedFemaleStudents:number;
+  totalFinishedMaleStudents: number;
+  totalFinishedFemaleStudents: number;
   finishedGroups: number;
+  totalDebtors: number;
 }
 interface IYearly {
   month: string;

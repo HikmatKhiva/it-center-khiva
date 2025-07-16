@@ -3,7 +3,8 @@ export const paymentSchema = {
   properties: {
     studentId: { type: "number" },
     amount: { type: "number" },
+    paymentDate: { type: "string" },
   },
-  required: ["studentId", "amount"],
+  required: ["studentId", "amount", "paymentDate"],
   additionalProperties: false,
 };

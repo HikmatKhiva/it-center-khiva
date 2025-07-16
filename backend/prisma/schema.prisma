@@ -130,6 +130,7 @@ model Student {
   Payments     Payment[]
   courseId     Int
   groupId      Int
+  
 }
 
 model Payment {
@@ -157,7 +158,7 @@ model NewStudent {
   phone      String
   courseTime String
   createdAt  DateTime @default(now())
-  isAttend   String   @default("pending") // Allowed values: 'success', 'pending', 'reject' @map("is_attend")
+
   // Foreign key relationship to Course
   course     Course   @relation(fields: [courseId], references: [id])
   courseId   Int

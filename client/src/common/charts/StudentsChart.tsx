@@ -77,6 +77,11 @@ const StudentsChart = ({ isActive }: { isActive?: boolean }) => {
               label: "Yakunlangan guruhlar",
               color: "orange.6",
             },
+            {
+              name: "totalDebtors",
+              label: "Umumiy qarzdor o'quvchilar",
+              color: "red.9",
+            },
           ]}
           tickLine="y"
           gridAxis="x"
