@@ -204,6 +204,8 @@ const getNewGroups = async (req, res) => {
         },
       },
     });
+    console.log(data);
+    
     const groups = await formatterGroups(data);
     return res.status(200).json(groups);
   } catch (error) {

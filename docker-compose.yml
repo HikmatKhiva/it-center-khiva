@@ -92,13 +92,13 @@ services:
     networks:
       it-network:
         ipv4_address: 172.0.0.5
-  certbot:
-    image: certbot/certbot
-    container_name: certbot
-    volumes:
-      - ./certbot/conf:/etc/letsencrypt
-      - ./certbot/www:/var/www/certbot
-    command: certonly --webroot -w /var/www/certbot --force-renewal --email xikmatkiva.4s@gmail.com -d it-khiva.uz --agree-tos
+  # certbot:
+  #   image: certbot/certbot
+  #   container_name: certbot
+  #   volumes:
+  #     - ./certbot/conf:/etc/letsencrypt
+  #     - ./certbot/www:/var/www/certbot
+  #   command: certonly --webroot -w /var/www/certbot --force-renewal --email xikmatkiva.4s@gmail.com -d it-khiva.uz --agree-tos
   pgadmin:
     image: dpage/pgadmin4
     container_name: pgadmin

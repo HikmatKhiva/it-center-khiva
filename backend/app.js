@@ -17,7 +17,7 @@ app.use(rateLimiterMiddleware); // Use the rate limiter middleware
 app.use(morgan("combined"));
 app.use(
   cors({
-    origin: CORS_ORIGIN,
+    origin: [CORS_ORIGIN,'*'],
     methods: ["GET", "POST", "PUT", "DELETE"],
     credentials: true,
   })

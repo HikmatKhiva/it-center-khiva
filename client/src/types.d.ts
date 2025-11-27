@@ -3,6 +3,10 @@ interface ILinks {
   link: string;
   label: string;
 }
+interface IRoom {
+  name: string;
+  capacity: number;
+}
 
 interface INewGroup {
   name: string;

@@ -1,12 +1,12 @@
-import { ActionIcon, Group, Text, TextInput, Tooltip } from "@mantine/core";
-import { ArrowLeft, CalendarOff, CalendarPlus, Search } from "lucide-react";
+import { Group, Text, TextInput, Tooltip } from "@mantine/core";
+import { CalendarOff, CalendarPlus, Search } from "lucide-react";
 import UpdateGroupModal from "./UpdateGroupModal";
 import { formatTime } from "@/utils/helper";
 import CreateStudent from "../student/CreateStudentModal";
 import FinishGroupModal from "./FinishGroupModal";
 import DownloadCertificate from "./DownloadCertificate";
-import { useNavigate } from "react-router-dom";
 import { ChangeEvent } from "react";
+import BackButton from "../BackButton";
 const GroupIdHeader = ({
   group,
   name,
@@ -16,18 +16,10 @@ const GroupIdHeader = ({
   name: string;
   handleChangeInput: (event: ChangeEvent<HTMLInputElement>) => void;
 }) => {
-  const navigate = useNavigate();
   return (
     <Group pb="20" justify="space-between">
       <Group gap="20">
-        <ActionIcon
-          onClick={() => navigate(-1)}
-          color="red"
-          variant="outline"
-          size="md"
-        >
-          <ArrowLeft size={16} />
-        </ActionIcon>
+        <BackButton />
         {group && !group.isGroupFinished && <UpdateGroupModal id={group?.id} />}
         <Text fz="14">
           Guruh nomi: <b>{group?.name}</b>

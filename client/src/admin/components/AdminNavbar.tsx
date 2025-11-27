@@ -2,6 +2,7 @@ import { Divider, Group } from "@mantine/core";
 import {
   BookOpenText,
   ConciergeBell,
+  DoorClosed,
   GraduationCap,
   House,
   Mails,
@@ -91,14 +92,14 @@ const AdminNavbar = ({ close }: { close: () => void }) => {
         <GraduationCap />
         Tayor Sertificatlar
       </NavLink>
-      {/* <NavLink
+      <NavLink
         onClick={close}
         className="w-full py-2 px-4 flex items-center gap-2  text-lg"
         to="/admin/rooms"
       >
         <DoorClosed  />
         Xonalar
-      </NavLink> */}
+      </NavLink>
     </div>
   );
 };

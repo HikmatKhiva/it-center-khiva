@@ -51,7 +51,7 @@ export const createPaymentValidation = {
     number <= 0 ? "Summani to'g'ri kiriting!" : null,
   studentId: (id: number) =>
     typeof id === "undefined" ? "Ma'lumot to'liq emas!" : null,
-  paymentDate: (date: Date) => date ? null : "To'lov sanasini kiriting!",
+  paymentDate: (date: Date) => (date ? null : "To'lov sanasini kiriting!"),
 };
 export const adminValidation = {
   username: (val: string) =>
@@ -102,4 +102,11 @@ export const teacherValidate = {
     value?.trim().length > 0 ? null : "Ismingizni to'ldiring!",
   secondName: (value: string) =>
     value?.trim().length > 0 ? null : "Familiyangizni to'ldiring!",
+};
+
+export const RoomCreateValidate = {
+  name: (value: string) =>
+    value.trim().length >= 3 ? null : "Eng kami 3 belgi bo'lishi kerak!",
+  capacity: (value: number) =>
+    (value >= 5 || value <= 30) ? null : "Eng kami 5 ko'pi 30 bo'lishi kerak!",
 };
