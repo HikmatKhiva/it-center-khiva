@@ -49,7 +49,7 @@ const CertificatePage = () => {
             )
           }
           onChange={(event) =>
-            setQuery({ ...query, name: event.currentTarget.value })
+            setQuery({ ...query, name: event.target.value })
           }
           placeholder="O'quvchi passportId..."
         />

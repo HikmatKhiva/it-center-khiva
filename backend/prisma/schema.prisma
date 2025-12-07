@@ -55,13 +55,13 @@ model Teacher {
   id         Int       @id @default(autoincrement())
   firstName  String    @db.VarChar(255)
   secondName String    @db.VarChar(255)
-  username   String    @unique @db.VarChar(50) // Kirish uchun
-  password   String    @db.VarChar(255)
+  // username   String?    @unique @db.VarChar(50) // Kirish uchun
+  // password   String    @db.VarChar(255)
   photo_url  String?   @db.VarChar(255)
   createdAt  DateTime  @default(now())
   lastLogin  DateTime?
   phone      String?
-  isActive   Boolean   @default(true)
+  // isActive   Boolean   @default(true)
   updatedAt  DateTime  @updatedAt
   Groups     Group[]
   Blog       Blog[]
@@ -82,7 +82,6 @@ model Course {
   NewStudent      NewStudent[]
   teacherId       Int
 }
-
 model Group {
   id              Int        @id @default(autoincrement())
   name            String     @unique @db.VarChar(60)
@@ -105,22 +104,36 @@ model Group {
 
 model Room {
   id        Int        @id @default(autoincrement())
-  name      String
+  name      String     @unique
   capacity  Int?
   schedules Schedule[]
 }
 
+enum WeekType {
+  ODD
+  EVEN
+}
+
+enum LessonTime {
+  T09_00
+  T11_00
+  T14_00
+  T16_00
+}
+
 model Schedule {
-  id        Int       @id @default(autoincrement())
-  startTime DateTime
-  endTime   DateTime
-  dayOfWeek DayOfWeek
-  Room      Room      @relation(fields: [roomId], references: [id])
-  group     Group     @relation(fields: [groupId], references: [id])
+  id        Int        @id @default(autoincrement())
+  weekType  WeekType
+  dayOfWeek DayOfWeek?
+  time      LessonTime
+  Room      Room       @relation(fields: [roomId], references: [id])
+  group     Group      @relation(fields: [groupId], references: [id])
   roomId    Int
   groupId   Int
 
   attendances Attendance[]
+
+  @@unique([roomId, weekType, time])
 }
 
 model Attendance {

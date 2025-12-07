@@ -3,7 +3,7 @@ interface ILinks {
   link: string;
   label: string;
 }
-interface IRoom {
+interface IRoomForm {
   name: string;
   capacity: number;
 }
@@ -15,10 +15,14 @@ interface INewGroup {
   price: number;
   duration: number;
   groupTime: string;
-  // groupTime: {
-  //   day: string;
-  //   hour: string;
-  // };
+  schedules: {
+    weekType: string;
+    time: string;
+    roomId: string | number;
+  };
+}
+interface ISlotsResponse {
+  slots: ISelect[];
 }
 interface IStudentCreate {
   firstName: string;
@@ -292,6 +296,22 @@ interface IGroupQuery {
 interface GroupQueryResponse {
   groups: IGroup[];
   totalPages: number;
+}
+interface IRoom {
+  id: number;
+  name: string;
+  capacity?: number;
+}
+interface RoomsQueryResponse {
+  rooms: IRoom[];
+  totalPages: number;
+}
+interface RoomQueryResponse {
+  room: IRoom;
+}
+interface IRoomCreate {
+  name: string;
+  capacity: number;
 }
 interface IDefaultQuery {
   name: string;

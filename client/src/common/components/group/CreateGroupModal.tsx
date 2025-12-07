@@ -1,4 +1,12 @@
-import { Button, Modal, Stack, TextInput, Select } from "@mantine/core";
+import {
+  Button,
+  Modal,
+  Stack,
+  TextInput,
+  Select,
+  Grid,
+  Group,
+} from "@mantine/core";
 import { useForm } from "@mantine/form";
 import { useDisclosure } from "@mantine/hooks";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
@@ -7,18 +15,20 @@ import { createGroupValidation } from "@/validation";
 import { useAppSelector } from "@/hooks/redux";
 import useFormData from "@/hooks/useFormData";
 import { selectUser } from "@/lib/redux/reducer/admin";
-import { useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   createNotification,
   showErrorNotification,
   showSuccessNotification,
 } from "@/utils/notification";
 import { Server } from "@/api/api";
+import { duration, weekType } from "@/config";
 const CreateGroupModal = () => {
   const admin = useAppSelector(selectUser);
   const idNotification = useRef<string>("");
   const [opened, { open, close }] = useDisclosure(false);
-  const { courses, loading, teachers } = useFormData();
+  const { courses, loading, teachers, rooms } = useFormData();
+  const [slots, setSlots] = useState<null | ISelect[]>(null);
   const client = useQueryClient();
   const form = useForm({
     initialValues: {
@@ -28,13 +38,36 @@ const CreateGroupModal = () => {
       duration: 6,
       price: 100000,
       groupTime: "",
-      // groupTime: {
-      //   day: "",
-      //   hour: "",
-      // },
+      schedules: {
+        weekType: "",
+        time: "",
+        roomId: "",
+      },
     } as INewGroup,
     validate: createGroupValidation,
   });
+  // console.log( );
+
+  useEffect(() => {
+    const { roomId, weekType } = form.values.schedules;
+    if (roomId && weekType) {
+      const fetchRoomData = async () => {
+        const request = await Server<ISlotsResponse>(
+          `room/time/${roomId}?weekType=${weekType}`,
+          {
+            method: "GET",
+          }
+        );
+        if (request?.slots) {
+          setSlots(request.slots);
+        } else {
+          setSlots(null);
+        }
+      };
+      fetchRoomData();
+    }
+  }, [form.values.schedules.roomId, form.values.schedules.weekType]);
+
   const { isPending, mutateAsync } = useMutation({
     mutationFn: (group: INewGroup) =>
       Server<IMessageResponse>(`group/create`, {
@@ -48,6 +81,7 @@ const CreateGroupModal = () => {
       client.invalidateQueries({ queryKey: ["groups"] });
       showSuccessNotification(idNotification.current, success?.message);
       form.reset();
+      setSlots(null);
       close();
     },
     onError: (error) => {
@@ -76,7 +110,7 @@ const CreateGroupModal = () => {
         <form onSubmit={form.onSubmit(handleSubmit)}>
           <Stack>
             <TextInput
-              label="Guruh nomini kiriting"
+              label="Guruh nomini kiriting!"
               placeholder="Dasturlash"
               size="sm"
               value={form.values.name}
@@ -86,52 +120,58 @@ const CreateGroupModal = () => {
               error={form.errors.name}
               radius="md"
             />
-            <TextInput
-              label="Qancha oy davom etishi belgilang!"
-              placeholder="6"
-              size="sm"
-              min={1}
-              max={13}
-              maxLength={2}
-              value={form.values.duration}
-              onChange={(event) => {
-                const value = event.target.value;
-                if (/^\d*$/.test(value)) {
-                  form.setFieldValue("duration", +value);
-                }
-              }}
-              error={form.errors.duration}
-              radius="md"
+            <Grid>
+              <Grid.Col span={6}>
+                <Select
+                  label="Kurs davomiyligini tanlang!"
+                  placeholder="6 oy"
+                  data={duration}
+                  {...form.getInputProps("schedules.weekType")}
+                />
+              </Grid.Col>
+              <Grid.Col span={6}>
+                <TextInput
+                  label="To'lov summasini kiriting!"
+                  placeholder="100000"
+                  size="sm"
+                  value={form.values.price}
+                  onChange={(event) => {
+                    const value = event.target.value;
+                    if (/^\d*$/.test(value)) {
+                      form.setFieldValue("price", +value);
+                    }
+                  }}
+                  error={form.errors.price}
+                  radius="md"
+                />
+              </Grid.Col>
+            </Grid>
+            <Select
+              label="Dars xonani tanlang!"
+              placeholder="1.1"
+              data={rooms}
+              {...form.getInputProps("schedules.roomId")}
             />
-            <TextInput
-              label="Oylik To'lov summasini kiriting!"
-              placeholder="100000"
-              size="sm"
-              value={form.values.price}
-              onChange={(event) => {
-                const value = event.target.value;
-                if (/^\d*$/.test(value)) {
-                  form.setFieldValue("price", +value);
-                }
-              }}
-              error={form.errors.price}
-              radius="md"
-            />
-            {/* <Group>
-              <Select
-                label="Dars kunlari"
-                placeholder="Dushanba"
-                data={weeks}
-                {...form.getInputProps("groupTime.day")}
-              />
-              <Select
-                label="Dars vaqtlari"
-                {...form.getInputProps("groupTime.hour")}
-                placeholder="9:00"
-                data={workHours}
-              />
-            </Group> */}
-            <TextInput
+            <Grid>
+              <Grid.Col span={6}>
+                <Select
+                  label="Dars kunlari tanlang!"
+                  placeholder="Toq | Juft"
+                  data={weekType}
+                  {...form.getInputProps("schedules.weekType")}
+                />
+              </Grid.Col>
+              <Grid.Col span={6}>
+                <Select
+                  label="Dars vaqtlari tanlang!"
+                  disabled={!slots}
+                  {...form.getInputProps("schedules.time")}
+                  placeholder="9:00"
+                  data={slots ?? []}
+                />
+              </Grid.Col>
+            </Grid>
+            {/* <TextInput
               label="Guruh vaqtini kiriting"
               placeholder="Juft 14:00"
               size="sm"
@@ -141,25 +181,28 @@ const CreateGroupModal = () => {
               }
               error={form.errors?.groupTime}
               radius="md"
-            />
+            /> */}
             <Select
-              label="Kursni tanlang..."
+              label="Kursni tanlang!"
               disabled={loading}
-              placeholder="Kursni tanlang..."
+              placeholder="Kursni tanlang!"
               {...form.getInputProps("courseId")}
               data={courses}
             />
             <Select
               disabled={loading}
-              label="O'qituvchini tanlang..."
-              placeholder="O''qituvchini tanlang..."
+              label="O'qituvchini tanlang!"
+              placeholder="O'qituvchini tanlang!"
               {...form.getInputProps("teacherId")}
               data={teachers}
             />
           </Stack>
           <Button
             loading={isPending}
-            disabled={isPending}
+            disabled={
+              isPending ||
+              Object.entries(form.errors).flat(Infinity).length !== 0
+            }
             size="sm"
             mt="15"
             color="green"

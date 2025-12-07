@@ -79,7 +79,7 @@ const AddNewStudent = (props: PaperProps) => {
             value={form.values.fullName}
             size="sm"
             onChange={(event) =>
-              form.setFieldValue("fullName", event.currentTarget.value.trim())
+              form.setFieldValue("fullName", event.target.value.trim())
             }
             error={form.errors.fullName}
             radius="md"

@@ -80,7 +80,7 @@ const CreateStudent = ({
           <Stack>
             <TextInput
               onChange={(e) =>
-                form.setFieldValue("firstName", e.currentTarget.value.trim())
+                form.setFieldValue("firstName", e.target.value.trim())
               }
               value={form.values.firstName}
               error={form.errors.firstName}
@@ -91,7 +91,7 @@ const CreateStudent = ({
             />
             <TextInput
               onChange={(e) =>
-                form.setFieldValue("secondName", e.currentTarget.value.trim())
+                form.setFieldValue("secondName", e.target.value.trim())
               }
               value={form.values.secondName}
               error={form.errors.secondName}
@@ -120,7 +120,7 @@ const CreateStudent = ({
               onChange={(e) =>
                 form.setFieldValue(
                   "passportId",
-                  e.currentTarget.value.trim().toUpperCase()
+                  e.target.value.trim().toUpperCase()
                 )
               }
               error={form.errors.passportId}

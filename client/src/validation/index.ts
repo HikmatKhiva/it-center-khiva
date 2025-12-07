@@ -1,31 +1,31 @@
 export const addNewStudentValidation = {
   fullName: (val: string) =>
-    /^.{4,}$/?.test(val) ? null : "Ism 4 kirilishi shart",
+    /^.{4,}$/?.test(val) ? null : "Ism 4 kirilishi shart!",
   phone: (number: number | string) =>
     /^\+99 \(\d{3}\) \d{3}-\d{2}-\d{2}$/.test(String(number))
       ? null
-      : "Raqam kiriting",
+      : "Raqam kiriting!",
   courseId: (val: string) =>
-    /^(?!\s*$).+/.test(val) ? null : "Bu joy to'ldirilishi shart",
+    /^(?!\s*$).+/.test(val) ? null : "Bu joy to'ldirilishi shart!",
   courseTime: (val: string) =>
-    /^(?!\s*$).+/?.test(val) ? null : "Bu joy to'ldirilishi shart",
+    /^(?!\s*$).+/?.test(val) ? null : "Bu joy to'ldirilishi shart!",
 };
 export const anonymMessageValidation = {
   fullName: (val: string) =>
-    /^.{4,}$/.test(val) ? null : "Ism kiritlishi shart.",
+    /^.{4,}$/.test(val) ? null : "Ism kiritlishi shart!",
   message: (val: string) =>
-    /^.{4,}$/.test(val) ? null : "Xabar kiritlishi shart.",
+    /^.{4,}$/.test(val) ? null : "Xabar kiritlishi shart!",
 };
 export const createCourseValidation = {
   name: (value: string) =>
     value.trim().length < 3
-      ? "Kurs nomi 3 ta belgidan kam bo'lishi mumkin emas"
+      ? "Kurs nomi 3 ta belgidan kam bo'lishi mumkin emas!"
       : null,
   nameCertificate: (value: string) =>
     value.trim().length < 20
-      ? "Kurs nomi 20 harfdan kam bo'lishi mumkin emas"
+      ? "Kurs nomi 20 harfdan kam bo'lishi mumkin emas!"
       : null,
-  teacherId: (value: string) => (value ? null : "O'qituvchini tanlang"),
+  teacherId: (value: string) => (value ? null : "O'qituvchini tanlang!"),
 };
 export const createGroupValidation = {
   name: (value: string) =>
@@ -36,12 +36,14 @@ export const createGroupValidation = {
     value < 100000 ? "To'lov puli 100000 kam bo'lmasin!" : null,
   courseId: (value: string) => (!value ? "Kursni tanlash shart!" : null),
   teacherId: (value: string) => (!value ? "O'qituvchini tanlash shart!" : null),
-  // groupTime: {
-  //   day: (value: string) =>
-  //     value.trim().length === 0 ? "Kuni belgilang." : null,
-  //   hour: (value: string) =>
-  //     value.trim().length === 0 ? "Soatni belgilang." : null,
-  // },
+  schedules: {
+    weekType: (value: string) =>
+      value.trim().length === 0 ? "Kuni belgilang!" : null,
+    time: (value: string) =>
+      value.trim().length === 0 ? "Vaqtni belgilang!" : null,
+    roomId: (value: string | number) =>
+      !value ? "Xonani belgilang!" : null,
+  },
 };
 export const updateGroupValidation = {
   teacherId: (value: string) => (!value ? "O'qituvchini tanlash shart!" : null),
@@ -57,11 +59,11 @@ export const adminValidation = {
   username: (val: string) =>
     val.trim().length >= 4
       ? null
-      : "Username eng kamida 6 belgi bo'lishi kerak.",
+      : "Username eng kamida 6 belgi bo'lishi kerak!",
   password: (val: string) =>
     val.trim().length >= 6
       ? null
-      : "Password eng kamida 6 belgi bo'lishi kerak.",
+      : "Password eng kamida 6 belgi bo'lishi kerak!",
 };
 export const studentValidation = {
   firstName: (value: string) => {
@@ -78,24 +80,24 @@ export const studentValidation = {
     return null;
   },
   gender: (value: string) =>
-    !["male", "female"].includes(value) ? "Iltimos jinsni tanlang" : null,
+    !["male", "female"].includes(value) ? "Iltimos jinsni tanlang!" : null,
 };
 export const tokenValidation = {
   token: (token: string) =>
     !/^\d*$/.test(token)
-      ? "Iltmos faqat raqam kiriting"
+      ? "Iltmos faqat raqam kiriting!"
       : token?.length !== 6
-      ? "Code to'liq kiriting"
+      ? "Code to'liq kiriting!"
       : null,
 };
 export const adminValidate = {
   password: (val: string) =>
     val.trim().length >= 6
       ? null
-      : "Password eng kamida 6 belgi bo'lishi kerak.",
-  secret: (val: string) => (val.length ? null : "secret key bo'lishi kerak."),
+      : "Password eng kamida 6 belgi bo'lishi kerak!",
+  secret: (val: string) => (val.length ? null : "secret key bo'lishi kerak!"),
   username: (val: string) =>
-    /^.{4,}$/.test(val) ? null : "Username kiritlishi shart.",
+    /^.{4,}$/.test(val) ? null : "Username kiritlishi shart!",
 };
 export const teacherValidate = {
   firstName: (value: string) =>
@@ -108,5 +110,5 @@ export const RoomCreateValidate = {
   name: (value: string) =>
     value.trim().length >= 3 ? null : "Eng kami 3 belgi bo'lishi kerak!",
   capacity: (value: number) =>
-    (value >= 5 || value <= 30) ? null : "Eng kami 5 ko'pi 30 bo'lishi kerak!",
+    (value >= 5 && value <= 30) ? null : "Eng kami 5 ko'pi 30 bo'lishi kerak!",
 };

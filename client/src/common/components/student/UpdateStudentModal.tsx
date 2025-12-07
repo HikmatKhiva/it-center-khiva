@@ -61,7 +61,7 @@ const UpdateStudentModal = ({ student }: { student: IStudent }) => {
           <Stack>
             <TextInput
               onChange={(e) =>
-                form.setFieldValue("firstName", e.currentTarget.value.trim())
+                form.setFieldValue("firstName", e.target.value.trim())
               }
               value={form.values.firstName}
               error={form.errors.firstName}
@@ -72,7 +72,7 @@ const UpdateStudentModal = ({ student }: { student: IStudent }) => {
             />
             <TextInput
               onChange={(e) =>
-                form.setFieldValue("secondName", e.currentTarget.value.trim())
+                form.setFieldValue("secondName", e.target.value.trim())
               }
               value={form.values.secondName}
               error={form.errors.secondName}
@@ -102,7 +102,7 @@ const UpdateStudentModal = ({ student }: { student: IStudent }) => {
               onChange={(e) =>
                 form.setFieldValue(
                   "passport_id",
-                  e.currentTarget.value.trim().toUpperCase()
+                  e.target.value.trim().toUpperCase()
                 )
               }
               value={form.values.passportId}

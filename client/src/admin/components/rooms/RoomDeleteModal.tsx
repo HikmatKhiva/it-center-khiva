@@ -1,9 +1,47 @@
-import { Button, Group, Modal, Text } from "@mantine/core";
+import { Server } from "@/api/api";
+import { useAppSelector } from "@/hooks/redux";
+import { selectUser } from "@/lib/redux/reducer/admin";
+import {
+  createNotification,
+  showErrorNotification,
+  showSuccessNotification,
+} from "@/utils/notification";
+import { Button, Group, Highlight, Modal, Text } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Trash } from "lucide-react";
-import React from "react";
-const RoomDeleteModal = () => {
+import { useRef } from "react";
+const RoomDeleteModal = ({ id, name }: { id: number; name: string }) => {
   const [opened, { open, close }] = useDisclosure(false);
+  const admin = useAppSelector(selectUser);
+  const idNotification = useRef<string>("");
+  const client = useQueryClient();
+  const { mutateAsync, isPending } = useMutation({
+    mutationFn: () =>
+      Server<IMessageResponse>(`room/delete/${id}`, {
+        method: "DELETE",
+        headers: {
+          authorization: `Bearer ${admin?.token}`,
+        },
+      }),
+    mutationKey: ["room", "delete", id],
+    onSuccess: (success) => {
+      console.log(success);
+      
+      showSuccessNotification(idNotification.current, success?.message);
+      client.invalidateQueries({ queryKey: ["rooms"] });
+      close();
+    },
+    onError: (error) => {
+      showErrorNotification(idNotification.current, error.message);
+    },
+  });
+  const handleClick = async () => {
+    await mutateAsync();
+    console.log(isPending);
+    
+    idNotification.current = createNotification(isPending);
+  };
   return (
     <>
       <Button
@@ -15,28 +53,37 @@ const RoomDeleteModal = () => {
       >
         O'chirish
       </Button>
-      <Modal
-        centered
-        opened={opened}
-        onClose={close}
-        title="Xonani o'chirish."
-      >
+      <Modal centered opened={opened} onClose={close} title="Xonani o'chirish.">
         <Text size="md" className="text-center">
-          Siz ushbu Xonani o'chirishni xohlaysizmi?
+          Siz ushbu Xonani
+          <Highlight
+            ta="center"
+            highlight={[name]}
+            highlightStyles={{
+              backgroundImage:
+                "linear-gradient(45deg, var(--mantine-color-cyan-5), var(--mantine-color-indigo-5))",
+              fontWeight: 700,
+              WebkitBackgroundClip: "text",
+              WebkitTextFillColor: "transparent",
+            }}
+          >
+            {name}
+          </Highlight>{" "}
+          o'chirishni xohlaysizmi?
         </Text>
         <Group mt={20} justify="end" gap="10">
           <Button
-            // loading={isPending}
-            // disabled={isPending}
+            loading={isPending}
+            disabled={isPending}
             type="button"
             color="green"
-            // onClick={handleClick}
+            onClick={handleClick}
           >
             Ha
           </Button>
           <Button
             type="button"
-            // disabled={isPending}
+            disabled={isPending}
             color="red"
             variant="outline"
             onClick={close}

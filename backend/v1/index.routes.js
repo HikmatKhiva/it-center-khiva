@@ -7,6 +7,7 @@ import { teachersRoutes } from "./teachers/teachers.routes.js";
 import { paymentsRoutes } from "./payments/payments.routes.js";
 import { adminRoutes } from "./admin/admin.routes.js";
 import { debtorsRoutes } from "./debtors/debtors.routes.js";
+import { roomRoutes } from "./rooms/rooms.routes.js";
 // controllers
 import { addNewStudent } from "./newStudents/newStudents.controller.js";
 import { createMessage } from "./messages/messages.controller.js";
@@ -48,3 +49,6 @@ V1Routes.use("/reception", middlewareAdmin, receptionRoutes);
 V1Routes.use("/newStudents", middlewareAdmin, newStudentRoutes);
 V1Routes.use("/stats", middlewareAdmin, statsRoutes);
 V1Routes.get("/generate-secret", middlewareAdmin, generateSecret);
+
+// new features
+V1Routes.use("/room", middlewareAdmin, roomRoutes);

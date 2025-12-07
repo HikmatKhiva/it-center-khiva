@@ -82,13 +82,13 @@ services:
     ports:
       - "80:80"
       - "443:443"
-    volumes:
-      - ./certbot/conf:/etc/letsencrypt
-      - ./certbot/www:/var/www/certbot
+    # volumes:
+      # - ./certbot/conf:/etc/letsencrypt
+      # - ./certbot/www:/var/www/certbot
     depends_on:
       - backend
       - frontend
-      - pgadmin
+      # - pgadmin
     networks:
       it-network:
         ipv4_address: 172.0.0.5
@@ -99,20 +99,20 @@ services:
   #     - ./certbot/conf:/etc/letsencrypt
   #     - ./certbot/www:/var/www/certbot
   #   command: certonly --webroot -w /var/www/certbot --force-renewal --email xikmatkiva.4s@gmail.com -d it-khiva.uz --agree-tos
-  pgadmin:
-    image: dpage/pgadmin4
-    container_name: pgadmin
-    environment:
-      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_EMAIL}
-      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_PASSWORD}
-      PGADMIN_CONFIG_SERVER_MODE: 'False'
-    ports:
-      - "8080:80"
-    depends_on:
-      - db
-    networks:
-      it-network:
-        ipv4_address: 172.0.0.6
+#   pgadmin:
+#     image: dpage/pgadmin4
+#     container_name: pgadmin
+#     environment:
+#       PGADMIN_DEFAULT_EMAIL: ${PGADMIN_EMAIL}
+#       PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_PASSWORD}
+#       PGADMIN_CONFIG_SERVER_MODE: 'False'
+#     ports:
+#       - "8080:80"
+#     depends_on:
+#       - db
+#     networks:
+#       it-network:
+#         ipv4_address: 172.0.0.6
 volumes:
   db_data:
 

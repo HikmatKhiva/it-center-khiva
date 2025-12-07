@@ -1,0 +1,66 @@
+# Copy the HTTPS config we created earlier
+docker cp default.conf nginx_it-khiva:/etc/nginx/conf.d/default.conf
+
+copy full configuration https conf 
+
+# Test and reload
+docker exec nginx_it-khiva nginx -t
+docker exec nginx_it-khiva nginx -s reload
+
+
+
+<Group>
+              {/* <Select
+                label="Dars kunlari"
+                placeholder="Toq | Juft"
+                data={duration}
+                {...form.getInputProps("schedules.weekType")}
+              /> */}
+              {/* <TextInput
+              label="Qancha oy davom etishi belgilang!"
+              placeholder="6"
+              size="sm"
+              min={1}
+              max={13}
+              maxLength={2}
+              value={form.values.duration}
+              onChange={(event) => {
+                const value = event.target.value;
+                if (/^\d*$/.test(value)) {
+                  form.setFieldValue("duration", +value);
+                }
+              }}
+              error={form.errors.duration}
+              radius="md"
+            /> */}
+              {/* <TextInput
+                label="Oylik To'lov summasini kiriting!"
+                placeholder="100000"
+                size="sm"
+                value={form.values.price}
+                onChange={(event) => {
+                  const value = event.target.value;
+                  if (/^\d*$/.test(value)) {
+                    form.setFieldValue("price", +value);
+                  }
+                }}
+                error={form.errors.price}
+                radius="md"
+              /> */}
+            </Group>
+
+
+
+{
+    "name": "adasd",
+    "courseId": "1",
+    "teacherId": "1",
+    "duration": 6,
+    "price": 100000,
+    "groupTime": "",
+    "schedules": {
+        "weekType": "ODD",
+        "time": "T11_00",
+        "roomId": "1"
+    }
+}

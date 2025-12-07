@@ -1,35 +1,18 @@
 import { Button, Table } from "@mantine/core";
-import { CalendarDays, Pen, Trash } from "lucide-react";
+import { CalendarDays } from "lucide-react";
 import { Link } from "react-router-dom";
 import RoomUpdateModal from "./RoomUpdateModal";
 import RoomDeleteModal from "./RoomDeleteModal";
-const RoomsTable = () => {
-  const test = [
-    {
-      id: 1,
-      name: "1.1",
-      capacity: 5,
-    },
-    {
-      id: 2,
-      name: "1.1",
-      capacity: 5,
-    },
-    {
-      id: 3,
-      name: "1.1",
-      capacity: 5,
-    },
-  ];
-  const rows = test.map((t) => (
-    <Table.Tr key={t.id}>
-      <Table.Td>{t.name}</Table.Td>
-      <Table.Td>{t.capacity}</Table.Td>
+const RoomsTable = ({ rooms }: { rooms: IRoom[] }) => {
+  const rows = rooms.map((room) => (
+    <Table.Tr key={room.id}>
+      <Table.Td>{room.name}</Table.Td>
+      <Table.Td>{room.capacity}</Table.Td>
       <Table.Td>
         <Button
           size="xs"
           component={Link}
-          to={t.id?.toString()}
+          to={room.id?.toString()}
           color="grape"
           rightSection={<CalendarDays size={16} />}
         >
@@ -37,10 +20,10 @@ const RoomsTable = () => {
         </Button>
       </Table.Td>
       <Table.Td>
-        <RoomUpdateModal />
+        <RoomUpdateModal id={room.id} />
       </Table.Td>
       <Table.Td>
-        <RoomDeleteModal />
+        <RoomDeleteModal id={room.id} name={room.name} />
       </Table.Td>
     </Table.Tr>
   ));

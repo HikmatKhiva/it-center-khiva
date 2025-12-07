@@ -91,12 +91,15 @@ const createStudent = async (req, res) => {
         discount: parseInt(discount),
         gender: gender.toUpperCase(),
         phone,
+        paymentType: "selfPayment",
       },
     });
     return res
       .status(201)
       .json({ message: "O'quvchi muoffaqiyatli yaratildi." });
   } catch (error) {
+    console.log(error);
+
     return res.status(500).json({ error });
   }
 };

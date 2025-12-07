@@ -3,6 +3,7 @@ import { Server } from "@/api/api";
 interface IFormDataResponse {
   teachers: ISelect[];
   courses: ISelect[];
+  rooms: ISelect[];
 }
 const useFormData = () => {
   const { data, isLoading } = useQuery<IFormDataResponse>({
@@ -13,6 +14,7 @@ const useFormData = () => {
     teachers: data?.teachers || [],
     loading: isLoading,
     courses: data?.courses || [],
+    rooms: data?.rooms,
   };
 };
 export default useFormData;

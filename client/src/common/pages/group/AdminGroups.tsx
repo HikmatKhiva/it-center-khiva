@@ -75,7 +75,7 @@ const AdminGroups = () => {
               )
             }
             onChange={(event) =>
-              setQuery((prev) => ({ ...prev, name: event.currentTarget.value }))
+              setQuery((prev) => ({ ...prev, name: event.target.value }))
             }
             placeholder="Guruh nomi orqali qidirish..."
           />

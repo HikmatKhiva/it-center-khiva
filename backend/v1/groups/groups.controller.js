@@ -1,3 +1,4 @@
+import { Prisma } from "@prisma/client";
 import { prisma } from "../../app.js";
 import { formatterGroups } from "./group.helper.js";
 // getAll groups
@@ -58,13 +59,16 @@ const getAllGroup = async (req, res) => {
 // create a group
 const createGroup = async (req, res) => {
   try {
-    let { teacherId, name, courseId, duration, price, groupTime } = req.body;
+    let { teacherId, name, courseId, duration, price, groupTime, schedules } =
+      req.body;
     if (duration > 13) {
       return res.status(400).json({ message: "Oy xato kiritildi." });
     }
     let currentDate = new Date();
     // Add  months to the current date
     currentDate.setMonth(currentDate.getMonth() + duration);
+    console.log(parseInt(schedules.roomId));
+
     await prisma.group.create({
       data: {
         teacherId: parseInt(teacherId),
@@ -72,12 +76,21 @@ const createGroup = async (req, res) => {
         courseId: parseInt(courseId),
         duration,
         finishedDate: currentDate,
-        price,
+        price: new Prisma.Decimal(price),
         groupTime,
+        schedules: {
+          create: {
+            weekType: schedules.weekType,
+            time: schedules.time,
+            roomId: parseInt(schedules.roomId),
+          },
+        },
       },
     });
     return res.status(201).json({ message: "Guruh muoffaqiyatli yaratildi." });
   } catch (error) {
+    console.log(error);
+
     return res.status(500).json({ error });
   }
 };
@@ -205,7 +218,7 @@ const getNewGroups = async (req, res) => {
       },
     });
     console.log(data);
-    
+
     const groups = await formatterGroups(data);
     return res.status(200).json(groups);
   } catch (error) {

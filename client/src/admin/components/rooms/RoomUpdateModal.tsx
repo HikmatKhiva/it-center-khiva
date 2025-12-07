@@ -1,22 +1,73 @@
+import { Server } from "@/api/api";
+import { useAppSelector } from "@/hooks/redux";
+import { selectUser } from "@/lib/redux/reducer/admin";
+import {
+  createNotification,
+  showErrorNotification,
+  showSuccessNotification,
+} from "@/utils/notification";
 import { RoomCreateValidate } from "@/validation";
 import { Button, Modal, NumberInput, TextInput } from "@mantine/core";
 import { useForm } from "@mantine/form";
 import { useDisclosure } from "@mantine/hooks";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Pen } from "lucide-react";
-import React from "react";
-
-const RoomUpdateModal = () => {
+import { useEffect, useRef } from "react";
+const RoomUpdateModal = ({ id }: { id: number }) => {
+  const admin = useAppSelector(selectUser);
+  const client = useQueryClient();
+  const idNotification = useRef<string>("");
+  const [opened, { open, close }] = useDisclosure(false);
   const form = useForm({
     initialValues: {
       name: "",
       capacity: 0,
-    } as IRoom,
+    } as IRoomForm,
     validate: RoomCreateValidate,
   });
-  const handleSubmit = async () => {};
-  const [opened, { open, close }] = useDisclosure(false);
-console.log(form.errors.capacity);
+  const { data } = useQuery<RoomQueryResponse>({
+    queryKey: ["room", id],
+    queryFn: () =>
+      Server<RoomQueryResponse>(`room/${id}`, {
+        method: "GET",
+        headers: {
+          authorization: `Bearer ${admin?.token}`,
+        },
+      }),
+    enabled: !!admin?.token && !!id,
+  });
+  useEffect(() => {
+    if (data?.room) {
+      form.setValues({
+        name: data?.room.name || "",
+        capacity: data.room.capacity || 0,
+      });
+    }
+  }, [data?.room]);
 
+  const { mutateAsync, isPending } = useMutation({
+    mutationFn: (data: IRoomForm) =>
+      Server<IMessageResponse>(`room/update/${id}`, {
+        method: "PUT",
+        body: JSON.stringify(data),
+        headers: {
+          authorization: `Bearer ${admin?.token}`,
+        },
+      }),
+    onSuccess: (success) => {
+      client.invalidateQueries({ queryKey: ["rooms"] });
+      showSuccessNotification(idNotification.current, success?.message);
+      close();
+    },
+    onError: (error) => {
+      showErrorNotification(idNotification.current, error.message);
+    },
+  });
+
+  const handleSubmit = async (data: IRoomForm) => {
+    idNotification.current = createNotification(isPending);
+    mutateAsync(data);
+  };
   return (
     <>
       <Button onClick={open} size="xs" rightSection={<Pen size={16} />}>
