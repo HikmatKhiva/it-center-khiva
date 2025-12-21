@@ -1,83 +1,71 @@
-import { Button, Divider, Grid, Group, Stack, Text } from "@mantine/core";
-import { weeks } from "@/config";
-import { DoorClosed, Timer, TimerOff, UsersRound } from "lucide-react";
-import { useState } from "react";
+import { Group, Select, Text } from "@mantine/core";
+import { allTime, weekType } from "@/config";
+import { DoorClosed, UsersRound } from "lucide-react";
 import RoomGroup from "@/admin/components/rooms/RoomGroup";
 import BackButton from "@/common/components/BackButton";
+import { useState } from "react";
+import { useParams } from "react-router-dom";
+import { useAppSelector } from "@/hooks/redux";
+import { selectUser } from "@/lib/redux/reducer/admin";
+import { Server } from "@/api/api";
+import { useQuery } from "@tanstack/react-query";
 const AdminRoomId = () => {
-  const [isSelected, setSelected] = useState<string>("");
-  const handleSelected = (value: string) => setSelected(value);
+  const { id } = useParams();
+  const admin = useAppSelector(selectUser);
+  const [query, setQuery] = useState<IRoomQuery>({
+    weekType: "",
+    time: "",
+  });
+  const params = new URLSearchParams({
+    weekType: query.weekType,
+    time: query.time,
+  });
+  const { data, isPending } = useQuery<RoomQueryResponse>({
+    queryKey: ["room", query.time, query.weekType],
+    queryFn: () =>
+      Server(`room/${id}?${params}`, {
+        method: "GET",
+        headers: {
+          authorization: `Bearer ${admin?.token}`,
+        },
+      }),
+    enabled: !!admin?.token && !!id,
+  });
+
   return (
     <>
-      <Group justify="space-between">
-        <BackButton />
+      <Group justify="space-between" mb={15}>
         <Group>
+          <BackButton />
           <Group>
-            <Text>Xona nomi:1.1</Text>
+            <Text>Xona nomi: {data?.name}</Text>
             <DoorClosed />
           </Group>
           <Group>
-            <Text>Xona Sig'imi:15</Text>
+            <Text>Xona Sig'imi: {data?.capacity}</Text>
             <UsersRound />
           </Group>
         </Group>
-      </Group>
-      <Divider mt={16} />
-      <Group align="flex-start" className="h-[calc(100vh-140px)]">
-        <Stack className="w-80" mt={15}>
-          <Grid justify="center">
-            <Grid.Col span={3}>
-              <Button
-                type="button"
-                onClick={() => handleSelected("odd")}
-                color="green"
-                variant={`${isSelected === "odd" ? "filled" : "outline"}`}
-              >
-                Toq
-              </Button>
-            </Grid.Col>
-            <Grid.Col span={3}>
-              <Button
-                type="button"
-                variant={`${isSelected === "even" ? "filled" : "outline"}`}
-                onClick={() => handleSelected("even")}
-                color="green"
-              >
-                Juft
-              </Button>
-            </Grid.Col>
-          </Grid>
-          <Divider />
-          <Grid className="text-center">
-            <Grid.Col span={6}>
-              <Button
-                leftSection={<Timer size={16} />}
-                rightSection={<TimerOff size={16} />}
-                type="button"
-                color="grape"
-                variant="outline"
-              >
-                9:00 | 11:00
-              </Button>
-            </Grid.Col>
-            <Grid.Col span={6}>
-              <Button
-                leftSection={<Timer size={16} />}
-                rightSection={<TimerOff size={16} />}
-                type="button"
-                color="grape"
-                variant="outline"
-              >
-                9:00 | 11:00
-              </Button>
-            </Grid.Col>
-          </Grid>
-        </Stack>
-        <Divider orientation="vertical" />
-        <Group mt={15} className="grow">
-          <RoomGroup />
+        <Group>
+          <Select
+            onChange={(value) => setQuery({ ...query, weekType: value || "" })}
+            placeholder="Toq | Juft"
+            size="xs"
+            disabled={isPending}
+            data={weekType}
+            w={120}
+          />
+          <Select
+            disabled={isPending}
+            onChange={(value) => setQuery({ ...query, time: value || "" })}
+            placeholder="9:00"
+            size="xs"
+            data={allTime}
+            w={120}
+          />
         </Group>
       </Group>
+      <RoomGroup schedules={data?.schedules || []} />
     </>
   );
 };

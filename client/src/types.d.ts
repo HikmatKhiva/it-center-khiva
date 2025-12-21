@@ -1,3 +1,5 @@
+import { number } from "motion/react";
+
 interface ILinks {
   id: number;
   link: string;
@@ -297,17 +299,36 @@ interface GroupQueryResponse {
   groups: IGroup[];
   totalPages: number;
 }
-interface IRoom {
-  id: number;
+interface ISchedules {
   name: string;
-  capacity?: number;
+  time: string;
+  weekType: string;
+  teacher: string;
+  countStudents: number;
 }
 interface RoomsQueryResponse {
   rooms: IRoom[];
   totalPages: number;
+  totalCount:number;
+}
+interface IRoom {
+  id: number;
+  name: string;
+  capacity: number;
+  schedules: {
+    ODD: {
+      time: string[];
+    };
+    EVEN: {
+      time: string[];
+    };
+  };
 }
 interface RoomQueryResponse {
-  room: IRoom;
+  id: number;
+  name: string;
+  capacity?: number;
+  schedules: ISchedules[];
 }
 interface IRoomCreate {
   name: string;
@@ -380,6 +401,10 @@ interface IDebtorQuery extends IDefaultQuery {
   month: string;
 }
 
+interface IRoomQuery {
+  weekType: string;
+  time: string;
+}
 interface ICertificateResponse extends IDefaultResponse {
   students: ICertificateStudents[];
 }
@@ -388,4 +413,14 @@ interface IReceptionResponse {
 }
 interface INewsResponse extends IDefaultResponse {
   news: INews[];
+}
+
+interface IMemory {
+  totalMB: number;
+  usedMB: number;
+  freeMB: number;
+  totalGB: number;
+}
+interface IMetricsResponse {
+  memory: IMemory;
 }

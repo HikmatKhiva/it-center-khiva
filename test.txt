@@ -64,3 +64,13 @@ docker exec nginx_it-khiva nginx -s reload
         "roomId": "1"
     }
 }
+
+1 xonalarni admin va reception asosiy panelga qo'shish
+2. socket io ni tuzatish
+3. qo'shilgan barcha yangi imkoniyatlarni tekshirish
+
+
+yangi 
+
+group yaratishini yaxshilab test qilish 
+reception ga yangi imkoniyatlarni qo'shish

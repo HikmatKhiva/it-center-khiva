@@ -1,40 +1,24 @@
-import { Table } from "@mantine/core";
-
-const RoomGroup = () => {
-  const test = [
-    {
-      id: 1,
-      name: "Savodxonlik 11",
-      teacher: "Xudayshukur Polvanov",
-      capacity: 5,
-      time: "9:00",
-    },
-    {
-      id: 2,
-      name: "Front End 5",
-      teacher: "Xudayshukur Polvanov",
-      capacity: 5,
-      time: "11:00",
-    },
-    {
-      id: 3,
-      name: "Mobilagrafiya 11",
-      teacher: "Xudayshukur Polvanov",
-      capacity: 5,
-      time: "14:00",
-    },
-  ];
-  const rows = test.map((t) => (
-    <Table.Tr key={t.id}>
-      <Table.Td>{t.name}</Table.Td>
-      <Table.Td>{t.teacher}</Table.Td>
-      <Table.Td>{t.capacity}</Table.Td>
-      <Table.Td>{t.time}</Table.Td>
+import { Table, Indicator, Text } from "@mantine/core";
+const RoomGroup = ({ schedules }: { schedules: ISchedules[] }) => {
+  const rows = schedules.map((schedule, index: number) => (
+    <Table.Tr key={index}>
+      <Table.Td>{schedule.name}</Table.Td>
+      <Table.Td>{schedule.teacher}</Table.Td>
+      <Table.Td>{schedule.countStudents}</Table.Td>
+      <Table.Td>
+        <Indicator
+          inline
+          label={schedule.weekType === "ODD" ? "Toq" : "Juft"}
+          size={14}
+        >
+          <Text>{schedule.time.replace("T", "").replace("_", ":")}</Text>
+        </Indicator>
+      </Table.Td>
     </Table.Tr>
   ));
   return (
     <>
-      <Table striped highlightOnHover>
+      <Table highlightOnHover withTableBorder>
         <Table.Thead>
           <Table.Tr>
             <Table.Th>Guruh nomi</Table.Th>
@@ -48,5 +32,4 @@ const RoomGroup = () => {
     </>
   );
 };
-
 export default RoomGroup;

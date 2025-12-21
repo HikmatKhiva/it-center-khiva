@@ -1,4 +1,5 @@
 import { prisma } from "../../app.js";
+import { formatSchedules, formatSchedulesByDay } from "./room.helper.js";
 const getRooms = async (req, res) => {
   try {
     const { name, limit = 10, page = 1 } = req.query;
@@ -9,6 +10,9 @@ const getRooms = async (req, res) => {
         },
       },
       skip: (page - 1) * limit,
+      include: {
+        schedules: true, // or whatever the relation name is
+      },
       take: parseInt(limit),
     });
     const totalCount = await prisma.room.count({
@@ -18,8 +22,9 @@ const getRooms = async (req, res) => {
         },
       },
     });
+    const data = formatSchedulesByDay(rooms);
     const totalPages = Math.ceil(totalCount / limit);
-    return res.status(200).json({ rooms, totalPages });
+    return res.status(200).json({ rooms: data, totalPages, totalCount });
   } catch (error) {
     return res.status(500).json({ error });
   }
@@ -27,12 +32,21 @@ const getRooms = async (req, res) => {
 const getRoom = async (req, res) => {
   try {
     const { id } = req.params;
+    const { time, weekType } = req.query;
+    const where = {};
+    if (weekType) {
+      where.weekType = { equals: weekType }; // "ODD" or "EVEN"
+    }
+    if (time) {
+      where.time = { equals: time }; // "T11_00", "T09_00", etc.
+    }
     const room = await prisma.room.findUnique({
       where: {
         id: parseInt(id),
       },
       include: {
         schedules: {
+          where,
           select: {
             time: true,
             weekType: true,
@@ -59,12 +73,9 @@ const getRoom = async (req, res) => {
     if (!room) {
       return res.status(404).json({ message: "Xona topilmadi." });
     }
-    console.log(room);
-
-    return res.status(200).json({ room });
+    const formatterRoom = formatSchedules(room);
+    return res.status(200).json(formatterRoom);
   } catch (error) {
-    console.log(error);
-
     return res.status(500).json({ error });
   }
 };
@@ -76,16 +87,13 @@ const getRoomTime = async (req, res) => {
       where: {
         id: parseInt(id),
       },
-      include: {
-        schedules: true,
-      },
     });
     if (!room) {
       return res.status(404).json({ message: "Xona topilmadi." });
     }
     const busySlots = await prisma.schedule.findMany({
       where: {
-        roomId: 1,
+        roomId: room.id,
         weekType: weekType,
       },
       select: { time: true },

@@ -3,6 +3,7 @@ import { CalendarDays } from "lucide-react";
 import { Link } from "react-router-dom";
 import RoomUpdateModal from "./RoomUpdateModal";
 import RoomDeleteModal from "./RoomDeleteModal";
+import { IRoom } from "@/types";
 const RoomsTable = ({ rooms }: { rooms: IRoom[] }) => {
   const rows = rooms.map((room) => (
     <Table.Tr key={room.id}>

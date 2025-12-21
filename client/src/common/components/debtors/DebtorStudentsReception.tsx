@@ -16,6 +16,7 @@ import { formatTime } from "@/utils/helper";
 import PaymentsHistory from "@/common/components/payment/PaymentsHistory";
 import UploadPayment from "@/common/components/payment/UploadPayment";
 import { Server } from "@/api/api";
+import { IDebtorsResponse } from "@/types";
 const DebtorStudentsReception = () => {
   const user = useAppSelector(selectUser);
   const [query, setQuery] = useState<IDebtorQuery>({
@@ -92,7 +93,7 @@ const DebtorStudentsReception = () => {
           />
         </Group>
       </Group>
-      <Stack className="min-h-[calc(100vh_-_500px)] " justify="space-between ">
+      <Stack className="min-h-[calc(100vh_-_280px)] " justify="space-between ">
         <Table withTableBorder highlightOnHover title="Qarzdorlar ro'yxati.">
           <Table.Thead>
             <Table.Tr>

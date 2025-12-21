@@ -1,3 +1,4 @@
+import { createServer } from "http";
 import express from "express";
 import cors from "cors";
 import { V1Routes } from "./v1/index.routes.js";
@@ -8,16 +9,21 @@ import compression from "compression";
 import { PrismaClient } from "@prisma/client";
 import { rateLimiterMiddleware } from "./middleware/rateLimiter.js";
 import { findCertificate } from "./v1/certificates/certificates.controller.js";
+import { initSocket } from "./socket.io.js";
 export const prisma = new PrismaClient();
-const app = express();
+export const app = express();
 const PORT = process.env?.PORT || 5000;
 const CORS_ORIGIN = process.env?.CORS_ORIGIN || "*";
+
+const server = createServer(app);
+export const io = initSocket(server);
+
 // middlewares
 app.use(rateLimiterMiddleware); // Use the rate limiter middleware
 app.use(morgan("combined"));
 app.use(
   cors({
-    origin: [CORS_ORIGIN,'*'],
+    origin: [CORS_ORIGIN, "*"],
     methods: ["GET", "POST", "PUT", "DELETE"],
     credentials: true,
   })
@@ -44,4 +50,4 @@ app.use((err, req, res, next) => {
 app.listen(PORT, () => {
   console.log(`server running http://localhost:${PORT}`);
 });
-export default app;
+app;

@@ -82,3 +82,10 @@ export const duration = [
   { value: "11", label: "11" },
   { value: "12", label: "12" },
 ];
+
+export const allTime = [
+      { value: "T09_00", label: "9:00" },
+      { value: "T11_00", label: "11:00" },
+      { value: "T14_00", label: "14:00" },
+      { value: "T16_00", label: "16:00" },
+    ];

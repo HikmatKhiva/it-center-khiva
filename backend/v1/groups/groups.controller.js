@@ -67,8 +67,6 @@ const createGroup = async (req, res) => {
     let currentDate = new Date();
     // Add  months to the current date
     currentDate.setMonth(currentDate.getMonth() + duration);
-    console.log(parseInt(schedules.roomId));
-
     await prisma.group.create({
       data: {
         teacherId: parseInt(teacherId),
@@ -90,7 +88,7 @@ const createGroup = async (req, res) => {
     return res.status(201).json({ message: "Guruh muoffaqiyatli yaratildi." });
   } catch (error) {
     console.log(error);
-
+    
     return res.status(500).json({ error });
   }
 };
@@ -218,7 +216,7 @@ const getNewGroups = async (req, res) => {
       },
     });
     console.log(data);
-
+    
     const groups = await formatterGroups(data);
     return res.status(200).json(groups);
   } catch (error) {

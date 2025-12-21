@@ -60,8 +60,12 @@ html[data-mantine-color-scheme="light"] .tabular-nums {
     transform: rotate(10deg);
   }
 }
-.notification:hover  img {
+.notification:hover img {
   animation-name: shake;
   animation-duration: 4s; /* Duration of the shake */
-
+}
+.time-schedules_btn button:disabled {
+  text-decoration: line-through;
+  border-color: red;
+  color: red;
 }

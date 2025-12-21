@@ -28,6 +28,7 @@ import { messageSchema } from "./messages/message.validation.js";
 import { newStudentSchema } from "./newStudents/newStudent.validation.js";
 import { receptionRoutes } from "./reception/reception.routes.js";
 import { statsRoutes } from "./stats/stats.routes.js";
+import { metricsRoute } from "./metrics/metrics.routes.js";
 // without admin middleware routes
 V1Routes.post("/newStudents/add", validate(newStudentSchema), addNewStudent);
 V1Routes.post("/message/create", validate(messageSchema), createMessage);
@@ -52,3 +53,5 @@ V1Routes.get("/generate-secret", middlewareAdmin, generateSecret);
 
 // new features
 V1Routes.use("/room", middlewareAdmin, roomRoutes);
+
+V1Routes.use('/metrics',metricsRoute)

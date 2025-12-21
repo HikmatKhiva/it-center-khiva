@@ -1,8 +1,11 @@
 import { Server } from "@/api/api";
 import { useAppSelector } from "@/hooks/redux";
 import { selectUser } from "@/lib/redux/reducer/admin";
+import { IStats } from "@/types";
 import { BarChart } from "@mantine/charts";
+import { Text } from "@mantine/core";
 import { useQuery } from "@tanstack/react-query";
+import StatCards from "../components/StatCards";
 const StudentsChart = ({ isActive }: { isActive?: boolean }) => {
   const admin = useAppSelector(selectUser);
   const { data } = useQuery({
@@ -18,6 +21,10 @@ const StudentsChart = ({ isActive }: { isActive?: boolean }) => {
   });
   return (
     <>
+      <Text fw={700} mb={10}>
+        Statistika{" "}
+      </Text>
+      {data && <StatCards data={data || []} />}
       {data && (
         <BarChart
           mb="20"

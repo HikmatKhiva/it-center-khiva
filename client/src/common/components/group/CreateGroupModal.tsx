@@ -1,12 +1,4 @@
-import {
-  Button,
-  Modal,
-  Stack,
-  TextInput,
-  Select,
-  Grid,
-  Group,
-} from "@mantine/core";
+import { Button, Modal, Stack, TextInput, Select, Grid } from "@mantine/core";
 import { useForm } from "@mantine/form";
 import { useDisclosure } from "@mantine/hooks";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
@@ -50,10 +42,13 @@ const CreateGroupModal = () => {
 
   useEffect(() => {
     const { roomId, weekType } = form.values.schedules;
+    const params = new URLSearchParams({
+      weekType: weekType,
+    });
     if (roomId && weekType) {
       const fetchRoomData = async () => {
         const request = await Server<ISlotsResponse>(
-          `room/time/${roomId}?weekType=${weekType}`,
+          `room/time/${roomId}?=${params}`,
           {
             method: "GET",
           }
@@ -68,6 +63,19 @@ const CreateGroupModal = () => {
     }
   }, [form.values.schedules.roomId, form.values.schedules.weekType]);
 
+  // Second effect to reset time and weekType when roomId changes
+  useEffect(() => {
+    if (form.values.schedules.roomId) {
+      form.setValues({
+        ...form.values,
+        schedules: {
+          ...form.values.schedules,
+          time: "", // Reset time
+          weekType: "", // Reset weekType
+        },
+      });
+    }
+  }, [form.values.schedules.roomId]);
   const { isPending, mutateAsync } = useMutation({
     mutationFn: (group: INewGroup) =>
       Server<IMessageResponse>(`group/create`, {
@@ -126,7 +134,7 @@ const CreateGroupModal = () => {
                   label="Kurs davomiyligini tanlang!"
                   placeholder="6 oy"
                   data={duration}
-                  {...form.getInputProps("schedules.weekType")}
+                  {...form.getInputProps("duration")}
                 />
               </Grid.Col>
               <Grid.Col span={6}>
@@ -158,14 +166,19 @@ const CreateGroupModal = () => {
                   label="Dars kunlari tanlang!"
                   placeholder="Toq | Juft"
                   data={weekType}
-                  {...form.getInputProps("schedules.weekType")}
+                  onChange={(value) =>
+                    form.setFieldValue("schedules.weekType", value)
+                  }
+                  // {...form.getInputProps("schedules.weekType")}
                 />
               </Grid.Col>
               <Grid.Col span={6}>
                 <Select
                   label="Dars vaqtlari tanlang!"
                   disabled={!slots}
-                  {...form.getInputProps("schedules.time")}
+                  onChange={(value) =>
+                    form.setFieldValue("schedules.time", value)
+                  }
                   placeholder="9:00"
                   data={slots ?? []}
                 />
