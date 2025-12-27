@@ -124,7 +124,6 @@ enum LessonTime {
 model Schedule {
   id        Int        @id @default(autoincrement())
   weekType  WeekType
-  dayOfWeek DayOfWeek?
   time      LessonTime
   Room      Room       @relation(fields: [roomId], references: [id])
   group     Group      @relation(fields: [groupId], references: [id])

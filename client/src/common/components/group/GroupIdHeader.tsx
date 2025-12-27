@@ -7,6 +7,7 @@ import FinishGroupModal from "./FinishGroupModal";
 import DownloadCertificate from "./DownloadCertificate";
 import { ChangeEvent } from "react";
 import BackButton from "../BackButton";
+import { IGroup } from "@/types";
 const GroupIdHeader = ({
   group,
   name,

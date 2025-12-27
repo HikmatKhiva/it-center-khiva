@@ -3,6 +3,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import DeleteGroupModal from "./DeleteGroupModal";
 import { formatTime } from "@/utils/helper";
 import { Pencil } from "lucide-react";
+import { IGroup } from "@/types";
 const GroupTable = ({
   data,
   isPending,

@@ -1,3 +1,5 @@
+import { ILinks } from "@/types";
+
 export const navLinks: ILinks[] = [
   { id: 1, link: "/news", label: "Yangiliklar" },
   { id: 2, link: "/contact", label: "Bog'lanish" },
@@ -84,8 +86,10 @@ export const duration = [
 ];
 
 export const allTime = [
-      { value: "T09_00", label: "9:00" },
-      { value: "T11_00", label: "11:00" },
-      { value: "T14_00", label: "14:00" },
-      { value: "T16_00", label: "16:00" },
-    ];
+  { value: "T09_00", label: "9:00" },
+  { value: "T11_00", label: "11:00" },
+  { value: "T14_00", label: "14:00" },
+  { value: "T16_00", label: "16:00" },
+];
+
+export const years: string[] = ['2025', '2026'];

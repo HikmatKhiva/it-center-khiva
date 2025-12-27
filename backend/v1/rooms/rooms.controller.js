@@ -11,7 +11,7 @@ const getRooms = async (req, res) => {
       },
       skip: (page - 1) * limit,
       include: {
-        schedules: true, // or whatever the relation name is
+        schedules: true,
       },
       take: parseInt(limit),
     });
@@ -118,11 +118,10 @@ const getRoomTime = async (req, res) => {
     return res.status(500).json({ error });
   }
 };
-
 const createRoom = async (req, res) => {
   try {
     const { name, capacity } = req.body;
-    const rooms = await prisma.room.create({
+    await prisma.room.create({
       data: {
         name,
         capacity,
@@ -151,13 +150,22 @@ const updateRoom = async (req, res) => {
     return res.status(500).json({ error });
   }
 };
-
 const deleteRoom = async (req, res) => {
   try {
     const { id } = req.params;
+    const roomId = parseInt(id);
+    const schedulesCount = await prisma.schedule.count({
+      where: { roomId: roomId },
+    });
+    if (schedulesCount > 0) {
+      return res.status(400).json({
+        message:
+          "Bu xona jadval yoki guruhlarga biriktirilgani uchun o'chirib bo'lmaydi.",
+      });
+    }
     await prisma.room.delete({
       where: {
-        id: parseInt(id),
+        id: parseInt(roomId),
       },
     });
     return res.status(200).json({ message: "Xona muoffaqiyatli o'chirildi" });
@@ -165,5 +173,4 @@ const deleteRoom = async (req, res) => {
     return res.status(500).json({ error });
   }
 };
-
 export { createRoom, deleteRoom, getRoom, getRooms, updateRoom, getRoomTime };

@@ -1,22 +1,26 @@
 import {
   ActionIcon,
+  Box,
   Divider,
   Group,
   Image,
   Indicator,
   Modal,
   Table,
-  Text,
 } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
 import { Bell, Call, Telegram } from "@/assets";
 import { TextAnimate } from "@/animation/text-animation";
+import { IOpenedGroup } from "@/types";
 const NewOpenedGroup = ({ groupList }: { groupList: IOpenedGroup[] }) => {
   const [opened, { open, close }] = useDisclosure(false);
   const rows = groupList?.map((group: IOpenedGroup) => (
     <Table.Tr key={group.admissionEnd}>
       <Table.Td>{group.courseName}</Table.Td>
-      <Table.Td>{group.groupTime}</Table.Td>
+      <Table.Td>
+        {group.weekType === "EVEN" ? "Juft " : "Toq "}
+        {group.groupTime}
+      </Table.Td>
       <Table.Td>{group.teacher}</Table.Td>
       <Table.Td>{group.admissionEnd}</Table.Td>
     </Table.Tr>
@@ -41,9 +45,9 @@ const NewOpenedGroup = ({ groupList }: { groupList: IOpenedGroup[] }) => {
           <Table.Tbody>{rows}</Table.Tbody>
         </Table>
         <Divider my={10} />
-        <Text className="text-center" mb="10">
+        <Box className="text-center" mb="10">
           <TextAnimate animation="slideUp">Qo'shilish uchun aloqa.</TextAnimate>
-        </Text>
+        </Box>
         <Group justify="center" gap="10">
           <ActionIcon
             component="a"
@@ -72,7 +76,7 @@ const NewOpenedGroup = ({ groupList }: { groupList: IOpenedGroup[] }) => {
         processing
         color="#40C057"
       >
-        <ActionIcon variant="default" size="lg">
+        <ActionIcon component="span" variant="default" size="lg">
           <Image className="shake" src={Bell} alt="bell 3d" />
         </ActionIcon>
       </Indicator>

@@ -1,4 +1,3 @@
-import React from "react";
 import { graduateMen, men, teacher, women } from "@/admin/assets/svg";
 import { BookOpenText, GraduationCap, UsersRound } from "lucide-react";
 

@@ -18,6 +18,7 @@ import {
   showSuccessNotification,
 } from "@/utils/notification";
 import { Server } from "@/api/api";
+import { IAnonymMessage, IMessageResponse } from "@/types";
 const AnonymMessage = (props: PaperProps) => {
   const idNotification = useRef<string>("");
   const { mutateAsync, isPending } = useMutation({
@@ -71,7 +72,7 @@ const AnonymMessage = (props: PaperProps) => {
             value={form.values.fullName}
             size="sm"
             onChange={(event) =>
-              form.setFieldValue("fullName", event.target.value.trim())
+              form.setFieldValue("fullName", event.target.value)
             }
             error={form.errors.fullName}
             radius="md"
@@ -79,7 +80,7 @@ const AnonymMessage = (props: PaperProps) => {
           <Textarea
             value={form.values.message}
             onChange={(event) =>
-              form.setFieldValue("message", event.target.value.trim())
+              form.setFieldValue("message", event.target.value)
             }
             error={form.errors.message}
             label="Xabaringizni yozing!"

@@ -16,7 +16,14 @@ interface INewGroup {
   teacherId: string;
   price: number;
   duration: number;
-  groupTime: string;
+  schedules: {
+    weekType: string;
+    time: string;
+    roomId: string | number;
+  };
+}
+interface IUpdateGroup {
+  teacherId: string;
   schedules: {
     weekType: string;
     time: string;
@@ -72,6 +79,15 @@ interface IGroup {
   finishedDate: Date;
   groupTime: string;
   createdAt: Date;
+  schedules: [
+    {
+      id: number;
+      weekType: string;
+      time: string;
+      roomId: number;
+      groupId: number;
+    }
+  ];
 }
 
 interface INewCourse {
@@ -146,6 +162,8 @@ interface IOpenedGroup {
   teacher: string;
   groupTime: string;
   admissionEnd: string;
+  weekType: string;
+  room: string;
 }
 
 interface IStats {
@@ -309,7 +327,7 @@ interface ISchedules {
 interface RoomsQueryResponse {
   rooms: IRoom[];
   totalPages: number;
-  totalCount:number;
+  totalCount: number;
 }
 interface IRoom {
   id: number;

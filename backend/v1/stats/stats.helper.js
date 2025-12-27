@@ -143,47 +143,59 @@ export async function calculateIncome() {
     throw error;
   }
 }
-export async function calculateIncomeForYear() {
+export async function calculateIncomeForYear(filterYear) {
   try {
     const results = [];
-    const year = new Date().getFullYear();
+    const year = filterYear || new Date().getFullYear();
 
+    // Tugamagan guruhlar
     const activeGroups = await prisma.group.findMany({
       where: { isGroupFinished: false },
       select: {
-        price: true,
-        Students: true,
+        id: true,
+        price: true, // oylik to‘lov
+        Students: { select: { id: true } },
         createdAt: true,
-        duration: true,
+        duration: true, // davomiylik oyda
       },
     });
 
     for (let month = 0; month < 12; month++) {
-      const startOfMonth = new Date(year, month, 1);
-      const endOfMonth = new Date(year, month + 1, 0, 23, 59, 59);
+      const startOfMonth = new Date(year, month, 1, 0, 0, 0, 0);
+      const endOfMonth = new Date(year, month + 1, 0, 23, 59, 59, 999);
+      const currentMonth = new Date(year, month, 1);
 
       const expectedIncome = activeGroups.reduce((acc, group) => {
         const groupStart = new Date(group.createdAt);
-        const duration = Number(group.duration);
-        const groupEnd = new Date(groupStart);
-        groupEnd.setMonth(groupEnd.getMonth() + duration);
+        const duration = Number(group.duration) || 0;
+        if (duration <= 0) return acc;
 
-        // Check if current month is within group's active duration
-        const groupStartMonth = new Date(groupStart.getFullYear(), groupStart.getMonth(), 1);
-        const groupEndMonth = new Date(groupEnd.getFullYear(), groupEnd.getMonth(), 1);
-        const currentMonth = new Date(year, month, 1);
+        // Guruh boshlangan oyning 1-kuni
+        const groupStartMonth = new Date(
+          groupStart.getFullYear(),
+          groupStart.getMonth(),
+          1
+        );
+
+        // Oxirgi aktiv oyning 1-kuni (start + duration - 1)
+        const lastActiveMonth = new Date(
+          groupStart.getFullYear(),
+          groupStart.getMonth() + duration - 1,
+          1
+        );
 
         const isGroupActiveThisMonth =
-          currentMonth >= groupStartMonth && currentMonth < groupEndMonth;
+          currentMonth >= groupStartMonth && currentMonth <= lastActiveMonth;
 
-        if (isGroupActiveThisMonth && duration > 0) {
-          const monthlyPrice = Number(group.price) / duration;
-          return acc + monthlyPrice * (group.Students.length || 0);
-        }
+        if (!isGroupActiveThisMonth) return acc;
 
-        return acc;
+        const studentCount = group.Students.length;
+        const monthlyPrice = Number(group.price) || 0; // oylik narx
+
+        return acc + monthlyPrice * studentCount;
       }, 0);
 
+      // Shu oy ichida tushgan real to‘lovlar
       const paidAggregate = await prisma.payment.aggregate({
         _sum: { amount: true },
         where: {
@@ -213,6 +225,90 @@ export async function calculateIncomeForYear() {
     }
 
     return results;
+  } catch (error) {
+    throw error;
+  }
+}
+
+export async function calculateStats(filterYear) {
+  try {
+    const yearFilter = Number(filterYear) || new Date().getFullYear();
+    const stats = await prisma.$transaction([
+      prisma.group.count({ where: { isGroupFinished: false, ...yearFilter } }),
+      prisma.group.count({ where: { isGroupFinished: true, ...yearFilter } }),
+      prisma.teacher.count(),
+      prisma.course.count(),
+      prisma.student.count({
+        where: { Group: { isGroupFinished: false, ...yearFilter } },
+      }),
+      prisma.student.count({ where: { debt: { gt: 0 } } }),
+      prisma.student.count({
+        where: {
+          Group: { isGroupFinished: true, ...yearFilter },
+          debt: 0,
+        },
+      }),
+      prisma.student.count({
+        where: { Group: { isGroupFinished: false, ...yearFilter } },
+      }),
+      prisma.student.count({
+        where: {
+          gender: "MALE",
+          Group: { isGroupFinished: false, ...yearFilter },
+        },
+      }),
+      prisma.student.count({
+        where: {
+          gender: "FEMALE",
+          Group: { isGroupFinished: false, ...yearFilter },
+        },
+      }),
+      prisma.student.count({
+        where: {
+          gender: "FEMALE",
+          Group: { isGroupFinished: true, ...yearFilter },
+          debt: 0,
+        },
+      }),
+      prisma.student.count({
+        where: {
+          gender: "MALE",
+          Group: { isGroupFinished: true, ...yearFilter },
+          debt: 0,
+        },
+      }),
+    ]);
+    const [
+      activeGroups,
+      finishedGroups,
+      totalTeachers,
+      totalCourses,
+      activeStudents,
+      totalDebtors,
+      finishedStudents,
+      totalStudents,
+      totalMaleStudents,
+      totalFemaleStudents,
+      totalFinishedFemaleStudents,
+      totalFinishedMaleStudents,
+    ] = stats;
+
+    return {
+      stat: "Statistika",
+      yearFilter,
+      activeStudents,
+      activeGroups,
+      totalTeachers,
+      totalCourses,
+      totalMaleStudents,
+      totalFemaleStudents,
+      totalFinishedFemaleStudents,
+      totalFinishedMaleStudents,
+      totalStudents,
+      totalDebtors,
+      finishedStudents,
+      finishedGroups,
+    };
   } catch (error) {
     throw error;
   }

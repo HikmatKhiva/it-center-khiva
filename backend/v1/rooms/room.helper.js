@@ -16,7 +16,6 @@ export const formatSchedules = (room) => {
     }),
   };
 };
-// const a = [].forEach
 export const formatSchedulesByDay = (rooms) => {
   const result = rooms.map((room) => ({
     ...room,

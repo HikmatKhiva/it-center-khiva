@@ -1,23 +1,42 @@
 import { Server } from "@/api/api";
+import { years } from "@/config";
 import { useAppSelector } from "@/hooks/redux";
 import { selectUser } from "@/lib/redux/reducer/admin";
+import { IYearly } from "@/types";
 import { CompositeChart } from "@mantine/charts";
+import { Group, Select } from "@mantine/core";
 import { useQuery } from "@tanstack/react-query";
+import { useState } from "react";
 const IncomeChart = ({ isActive }: { isActive?: boolean }) => {
   const admin = useAppSelector(selectUser);
+  const currentYear = new Date().getFullYear().toString();
+  const [year, setYear] = useState<string>(currentYear || "");
+  const params = new URLSearchParams({
+    year,
+  });
   const { data } = useQuery<IYearly[]>({
     queryFn: () =>
-      Server<IYearly[]>(`stats/yearly`, {
+      Server<IYearly[]>(`stats/yearly?${params}`, {
         method: "GET",
         headers: {
           authorization: `Bearer ${admin?.token}`,
         },
       }),
-    queryKey: ["stats"],
+    queryKey: ["stats", year],
     enabled: !!admin?.token && isActive,
   });
   return (
     <>
+      <Group justify="flex-end" mb={20}>
+        <Select
+          defaultValue={year}
+          placeholder="2025"
+          data={years}
+          value={year}
+          onChange={(value) => setYear(value || "")}
+          w={150}
+        />
+      </Group>
       {data && (
         <CompositeChart
           h={350}

@@ -45,5 +45,4 @@ const RoomsTable = ({ rooms }: { rooms: IRoom[] }) => {
     </>
   );
 };
-
 export default RoomsTable;

@@ -15,6 +15,7 @@ import {
 } from "@/utils/notification";
 import { Server } from "@/api/api";
 import { duration, weekType } from "@/config";
+import { ISelect, INewGroup, ISlotsResponse, IMessageResponse } from "@/types";
 const CreateGroupModal = () => {
   const admin = useAppSelector(selectUser);
   const idNotification = useRef<string>("");
@@ -29,7 +30,6 @@ const CreateGroupModal = () => {
       teacherId: "",
       duration: 6,
       price: 100000,
-      groupTime: "",
       schedules: {
         weekType: "",
         time: "",
@@ -38,8 +38,6 @@ const CreateGroupModal = () => {
     } as INewGroup,
     validate: createGroupValidation,
   });
-  // console.log( );
-
   useEffect(() => {
     const { roomId, weekType } = form.values.schedules;
     const params = new URLSearchParams({
@@ -166,19 +164,14 @@ const CreateGroupModal = () => {
                   label="Dars kunlari tanlang!"
                   placeholder="Toq | Juft"
                   data={weekType}
-                  onChange={(value) =>
-                    form.setFieldValue("schedules.weekType", value)
-                  }
-                  // {...form.getInputProps("schedules.weekType")}
+                  {...form.getInputProps("schedules.weekType")}
                 />
               </Grid.Col>
               <Grid.Col span={6}>
                 <Select
                   label="Dars vaqtlari tanlang!"
                   disabled={!slots}
-                  onChange={(value) =>
-                    form.setFieldValue("schedules.time", value)
-                  }
+                  {...form.getInputProps("schedules.time")}
                   placeholder="9:00"
                   data={slots ?? []}
                 />

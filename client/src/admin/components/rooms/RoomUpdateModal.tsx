@@ -1,6 +1,7 @@
 import { Server } from "@/api/api";
 import { useAppSelector } from "@/hooks/redux";
 import { selectUser } from "@/lib/redux/reducer/admin";
+import { IRoomForm, RoomQueryResponse, IMessageResponse } from "@/types";
 import {
   createNotification,
   showErrorNotification,
@@ -26,7 +27,7 @@ const RoomUpdateModal = ({ id }: { id: number }) => {
     validate: RoomCreateValidate,
   });
   const { data } = useQuery<RoomQueryResponse>({
-    queryKey: ["room", id],
+    queryKey: ["room", "update", id],
     queryFn: () =>
       Server<RoomQueryResponse>(`room/${id}`, {
         method: "GET",
@@ -34,17 +35,17 @@ const RoomUpdateModal = ({ id }: { id: number }) => {
           authorization: `Bearer ${admin?.token}`,
         },
       }),
-    enabled: !!admin?.token && !!id,
+    enabled: !!admin?.token && !!id && opened,
   });
   useEffect(() => {
-    if (data?.room) {
+    if (data) {
       form.setValues({
-        name: data?.room.name || "",
-        capacity: data.room.capacity || 0,
+        name: data?.name ?? "",
+        capacity: data?.capacity ?? 0,
       });
+      console.log("run");
     }
-  }, [data?.room]);
-
+  }, [data]);
   const { mutateAsync, isPending } = useMutation({
     mutationFn: (data: IRoomForm) =>
       Server<IMessageResponse>(`room/update/${id}`, {
@@ -88,7 +89,7 @@ const RoomUpdateModal = ({ id }: { id: number }) => {
             label="O'quvchi sig'imini kiriting."
             placeholder="15"
             size="sm"
-            value={form.values.name}
+            value={form.values.capacity}
             min={5}
             max={30}
             {...form.getInputProps("capacity")}
@@ -96,8 +97,8 @@ const RoomUpdateModal = ({ id }: { id: number }) => {
             radius="md"
           />
           <Button
-            // loading={isPending}
-            // disabled={isPending}
+            loading={isPending}
+            disabled={isPending}
             size="sm"
             mt="15"
             color="green"
@@ -111,5 +112,4 @@ const RoomUpdateModal = ({ id }: { id: number }) => {
     </>
   );
 };
-
 export default RoomUpdateModal;

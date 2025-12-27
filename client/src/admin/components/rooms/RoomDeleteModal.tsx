@@ -1,12 +1,13 @@
 import { Server } from "@/api/api";
 import { useAppSelector } from "@/hooks/redux";
 import { selectUser } from "@/lib/redux/reducer/admin";
+import { IMessageResponse } from "@/types";
 import {
   createNotification,
   showErrorNotification,
   showSuccessNotification,
 } from "@/utils/notification";
-import { Button, Group, Highlight, Modal, Text } from "@mantine/core";
+import { Box, Button, Group, Highlight, Modal } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Trash } from "lucide-react";
@@ -26,8 +27,6 @@ const RoomDeleteModal = ({ id, name }: { id: number; name: string }) => {
       }),
     mutationKey: ["room", "delete", id],
     onSuccess: (success) => {
-      console.log(success);
-      
       showSuccessNotification(idNotification.current, success?.message);
       client.invalidateQueries({ queryKey: ["rooms"] });
       close();
@@ -36,11 +35,10 @@ const RoomDeleteModal = ({ id, name }: { id: number; name: string }) => {
       showErrorNotification(idNotification.current, error.message);
     },
   });
+
   const handleClick = async () => {
+    idNotification.current = createNotification(true);
     await mutateAsync();
-    console.log(isPending);
-    
-    idNotification.current = createNotification(isPending);
   };
   return (
     <>
@@ -54,7 +52,7 @@ const RoomDeleteModal = ({ id, name }: { id: number; name: string }) => {
         O'chirish
       </Button>
       <Modal centered opened={opened} onClose={close} title="Xonani o'chirish.">
-        <Text size="md" className="text-center">
+        <Box size="md" className="text-center">
           Siz ushbu Xonani
           <Highlight
             ta="center"
@@ -68,9 +66,9 @@ const RoomDeleteModal = ({ id, name }: { id: number; name: string }) => {
             }}
           >
             {name}
-          </Highlight>{" "}
+          </Highlight>
           o'chirishni xohlaysizmi?
-        </Text>
+        </Box>
         <Group mt={20} justify="end" gap="10">
           <Button
             loading={isPending}
@@ -95,5 +93,4 @@ const RoomDeleteModal = ({ id, name }: { id: number; name: string }) => {
     </>
   );
 };
-
 export default RoomDeleteModal;

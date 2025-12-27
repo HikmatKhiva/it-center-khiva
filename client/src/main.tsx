@@ -28,7 +28,7 @@ const theme = createTheme({
   /** Put your mantine theme override here */
 });
 createRoot(document.getElementById("root")!).render(
-  <StrictMode>
+  <>
     {/* tanstack query wrapper */}
     <QueryClientProvider client={queryClient}>
       {/* mantine ui wrapper */}
@@ -46,5 +46,5 @@ createRoot(document.getElementById("root")!).render(
       {/* tanstack query devtool */}
       <ReactQueryDevtools initialIsOpen={false} />
     </QueryClientProvider>
-  </StrictMode>
+  // </>
 );

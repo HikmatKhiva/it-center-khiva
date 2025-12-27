@@ -3,28 +3,43 @@ import { useAppSelector } from "@/hooks/redux";
 import { selectUser } from "@/lib/redux/reducer/admin";
 import { IStats } from "@/types";
 import { BarChart } from "@mantine/charts";
-import { Text } from "@mantine/core";
+import { Group, Select, Text } from "@mantine/core";
 import { useQuery } from "@tanstack/react-query";
 import StatCards from "../components/StatCards";
+import { useState } from "react";
+import { years } from "@/config";
 const StudentsChart = ({ isActive }: { isActive?: boolean }) => {
   const admin = useAppSelector(selectUser);
+  const currentYear = new Date().getFullYear().toString();
+  const [year, setYear] = useState<string>(currentYear || "");
+  const params = new URLSearchParams({
+    year,
+  });
   const { data } = useQuery({
     queryFn: () =>
-      Server<IStats[]>(`stats`, {
+      Server<IStats[]>(`stats?${params}`, {
         method: "GET",
         headers: {
           authorization: `Bearer ${admin?.token}`,
         },
       }),
-    queryKey: ["stats"],
+    queryKey: ["stats", year],
     enabled: !!admin?.token && isActive,
   });
   return (
     <>
-      <Text fw={700} mb={10}>
-        Statistika{" "}
-      </Text>
-      {data && <StatCards data={data || []} />}
+      <Group mb={10} justify="space-between">
+        <Text fw={700}>Statistika</Text>
+        <Select
+          defaultValue={year}
+          placeholder="2025"
+          data={years}
+          value={year}
+          onChange={(value) => setYear(value || "")}
+          w={150}
+        />
+      </Group>
+      {data && <StatCards data={data} />}
       {data && (
         <BarChart
           mb="20"

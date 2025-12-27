@@ -41,12 +41,18 @@ export const createGroupValidation = {
       value.trim().length === 0 ? "Kuni belgilang!" : null,
     time: (value: string) =>
       value.trim().length === 0 ? "Vaqtni belgilang!" : null,
-    roomId: (value: string | number) =>
-      !value ? "Xonani belgilang!" : null,
+    roomId: (value: string | number) => (!value ? "Xonani belgilang!" : null),
   },
 };
 export const updateGroupValidation = {
   teacherId: (value: string) => (!value ? "O'qituvchini tanlash shart!" : null),
+  schedules: {
+    weekType: (value: string) =>
+      value.trim().length === 0 ? "Kuni belgilang!" : null,
+    time: (value: string) =>
+      value.trim().length === 0 ? "Vaqtni belgilang!" : null,
+    roomId: (value: string | number) => (!value ? "Xonani belgilang!" : null),
+  },
 };
 export const createPaymentValidation = {
   amount: (number: number) =>
@@ -110,5 +116,5 @@ export const RoomCreateValidate = {
   name: (value: string) =>
     value.trim().length >= 3 ? null : "Eng kami 3 belgi bo'lishi kerak!",
   capacity: (value: number) =>
-    (value >= 5 && value <= 30) ? null : "Eng kami 5 ko'pi 30 bo'lishi kerak!",
+    value >= 5 && value <= 30 ? null : "Eng kami 5 ko'pi 30 bo'lishi kerak!",
 };

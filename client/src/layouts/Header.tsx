@@ -8,6 +8,7 @@ import LogoSVG from "../motions_components/LogoSVG";
 import NewOpenedGroup from "../components/announcement/NewOpenedGroup";
 import { useQuery } from "@tanstack/react-query";
 import { Server } from "@/api/api";
+import { IOpenedGroup, ILinks } from "@/types";
 const Header = () => {
   const [opened, { toggle, close }] = useDisclosure(false);
   const { data } = useQuery({

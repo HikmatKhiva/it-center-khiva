@@ -53,18 +53,18 @@ const getPayments = async (req, res) => {
 const uploadPayment = async (req, res) => {
   try {
     const { studentId, amount, paymentDate } = req.body;
-    const username = req.admin.username;
-    const find = await prisma.admin.findUnique({
-      where: {
-        username,
-      },
-    });
-    if (!find) {
-      return res.status(400).json({ message: "Hisob topilmadi!" });
-    }
-    if (!find.isActive && find.role === "RECEPTION") {
-      return res.status(400).json({ message: "Sizda Ruxsat yo'q!" });
-    }
+    // const username = req.admin.username;
+    // const find = await prisma.admin.findUnique({
+    //   where: {
+    //     username,
+    //   },
+    // });
+    // if (!find) {
+    //   return res.status(400).json({ message: "Hisob topilmadi!" });
+    // }
+    // if (!find.isActive && find.role === "RECEPTION") {
+    //   return res.status(400).json({ message: "Sizda Ruxsat yo'q!" });
+    // }
     const student = await prisma.student.findUnique({
       where: {
         id: parseInt(studentId),
@@ -78,24 +78,28 @@ const uploadPayment = async (req, res) => {
         .status(400)
         .json({ message: "To'lov miqdori qarz miqdoridan yuqori!" });
     }
-    await prisma.student.update({
-      where: {
-        id: parseInt(studentId),
-      },
-      data: {
-        debt: parseInt(student.debt) - parseInt(amount),
-        finishedDate: new Date(),
-      },
-    });
-    await prisma.payment.create({
-      data: {
-        amount: parseInt(amount),
-        studentId: parseInt(studentId),
-        createdAt: new Date(paymentDate),
-      },
-    });
+    await prisma.$transaction([
+      prisma.student.update({
+        where: {
+          id: parseInt(studentId),
+        },
+        data: {
+          debt: parseInt(student.debt) - parseInt(amount),
+          finishedDate: new Date(),
+        },
+      }),
+      prisma.payment.create({
+        data: {
+          amount: parseInt(amount),
+          studentId: parseInt(studentId),
+          createdAt: new Date(paymentDate),
+        },
+      }),
+    ]);
     return res.status(201).json({ message: "To'lov muoffaqiyatli yuklandi." });
   } catch (error) {
+    console.log(error);
+
     return res.status(500).json({ error });
   }
 };
