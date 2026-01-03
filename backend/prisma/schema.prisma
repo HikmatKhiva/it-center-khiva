@@ -39,6 +39,12 @@ enum DayOfWeek {
   // SUNDAY
 }
 
+enum isAttend {
+  PENDING
+  CAME
+  NOT_CAME
+}
+
 model Admin {
   id        Int      @id @default(autoincrement()) // Ensure PostgreSQL is configured correctly
   username  String   @unique @db.VarChar(50)
@@ -59,7 +65,7 @@ model Teacher {
   // password   String    @db.VarChar(255)
   photo_url  String?   @db.VarChar(255)
   createdAt  DateTime  @default(now())
-  lastLogin  DateTime?
+  // lastLogin  DateTime?
   phone      String?
   // isActive   Boolean   @default(true)
   updatedAt  DateTime  @updatedAt
@@ -82,6 +88,7 @@ model Course {
   NewStudent      NewStudent[]
   teacherId       Int
 }
+
 model Group {
   id              Int        @id @default(autoincrement())
   name            String     @unique @db.VarChar(60)
@@ -99,7 +106,6 @@ model Group {
   Students  Student[]
   courseId  Int // course_id (nullable)
   teacherId Int // teacher_id (nullable)
-  // Certificate Certificate[]
 }
 
 model Room {
@@ -122,13 +128,13 @@ enum LessonTime {
 }
 
 model Schedule {
-  id        Int        @id @default(autoincrement())
-  weekType  WeekType
-  time      LessonTime
-  Room      Room       @relation(fields: [roomId], references: [id])
-  group     Group      @relation(fields: [groupId], references: [id])
-  roomId    Int
-  groupId   Int
+  id       Int        @id @default(autoincrement())
+  weekType WeekType
+  time     LessonTime
+  Room     Room       @relation(fields: [roomId], references: [id])
+  group    Group      @relation(fields: [groupId], references: [id])
+  roomId   Int
+  groupId  Int
 
   attendances Attendance[]
 
@@ -172,15 +178,28 @@ model Student {
 }
 
 model Payment {
-  id          Int      @id @default(autoincrement())
-  paymentDate DateTime @default(now())
+  id          Int       @id @default(autoincrement())
+  paymentDate DateTime  @default(now())
   amount      Decimal
-  status      String   @default("Paid")
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  status      String    @default("Paid")
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
   // Foreign key relationships
-  Student     Student  @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  Student     Student   @relation(fields: [studentId], references: [id], onDelete: Cascade)
   studentId   Int
+  isRefunded  Boolean   @default(false)
+  refundedAt  DateTime?
+
+  refunds Refund[]
+}
+
+model Refund {
+  id        Int      @id @default(autoincrement())
+  paymentId Int
+  amount    Decimal
+  createdAt DateTime @default(now())
+  reason    String?
+  payment   Payment  @relation(fields: [paymentId], references: [id])
 }
 
 model Messages {
@@ -197,8 +216,10 @@ model NewStudent {
   courseTime String
   createdAt  DateTime @default(now())
 
+  isAttend isAttend @default(PENDING)
+  reason   String?
   // Foreign key relationship to Course
-  course   Course @relation(fields: [courseId], references: [id])
+  course   Course  @relation(fields: [courseId], references: [id])
   courseId Int
 }
 

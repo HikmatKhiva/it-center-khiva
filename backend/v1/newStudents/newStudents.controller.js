@@ -17,7 +17,8 @@ const getNewStudents = async (req, res) => {
     const endDate = new Date(currentYear, monthNumber, 0, 23, 59, 59); // Last day of the month
     const students = await prisma.newStudent.findMany({
       where: {
-        isAttend,
+        // isCame: isAttend.toUpperCase(),
+
         courseTime: {
           contains: courseTime,
         },
@@ -32,14 +33,16 @@ const getNewStudents = async (req, res) => {
         }),
       },
       include: {
+      
         course: true,
+
       },
       skip: (page - 1) * limit,
       take: parseInt(limit),
     });
     const totalCount = await prisma.newStudent.count({
       where: {
-        isAttend,
+        // isCame: isAttend.toUpperCase(),
         ...(courseId && {
           courseId: parseInt(courseId),
         }),
@@ -47,7 +50,9 @@ const getNewStudents = async (req, res) => {
     });
     const countNewStudents = await prisma.newStudent.count({
       where: {
-        isAttend,
+        // isCame: {
+        //   contains: isAttend.toUpperCase(),
+        // },
         courseTime: {
           contains: courseTime,
         },
@@ -59,13 +64,18 @@ const getNewStudents = async (req, res) => {
         }),
       },
     });
+    console.log(countNewStudents);
+
     const totalPages = Math.ceil(totalCount / limit);
     res.status(200).json({
       totalPages,
       students,
       countNewStudents,
     });
+    console.log(students);
   } catch (error) {
+    console.log(error);
+
     return res.status(500).json({ error });
   }
 };
@@ -85,6 +95,8 @@ const addNewStudent = async (req, res) => {
       message: "Ma'lumotlaringiz bazaga joylandi biz siz bilan bog'lanamiz!",
     });
   } catch (error) {
+    console.log(error);
+
     return res.status(500).json({ error });
   }
 };

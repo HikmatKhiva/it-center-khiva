@@ -29,7 +29,7 @@ const StudentsChart = ({ isActive }: { isActive?: boolean }) => {
   return (
     <>
       <Group mb={10} justify="space-between">
-        <Text fw={700}>Statistika</Text>
+        <Text fw={700}>Statistika {data && data[0].yearFilter}</Text>
         <Select
           defaultValue={year}
           placeholder="2025"

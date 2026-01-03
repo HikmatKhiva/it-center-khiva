@@ -1,4 +1,3 @@
-import { prisma } from "../../app.js";
 import {
   calculateIncomeForYear,
   calculateAllTeachersSalaries,
@@ -17,8 +16,6 @@ const getStats = async (req, res) => {
 const getYearlyIncome = async (req, res) => {
   try {
     const { year } = req.query;
-    console.log(year);
-
     const yearly = await calculateIncomeForYear(year);
     res.status(200).json(yearly);
   } catch (error) {
@@ -27,7 +24,12 @@ const getYearlyIncome = async (req, res) => {
 };
 const getTeachersSalary = async (req, res) => {
   try {
-    const teachers = await calculateAllTeachersSalaries();
+    const date = new Date();
+    const { year = date.getFullYear(), month = date.getMonth() } = req.query;
+    const teachers = await calculateAllTeachersSalaries(
+      parseInt(year, 10),
+      parseInt(month, 10)
+    );
     res.status(200).json(teachers);
   } catch (error) {
     return res.status(500).json({ error });

@@ -21,6 +21,7 @@ import {
 } from "@/utils/notification";
 import useFormData from "@/hooks/useFormData";
 import { Server } from "@/api/api";
+import { INewStudentCreate, IMessageResponse } from "@/types";
 const AddNewStudent = (props: PaperProps) => {
   const idNotification = useRef<string>("");
   const form = useForm({

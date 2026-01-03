@@ -21,10 +21,10 @@ import { selectUser } from "@/lib/redux/reducer/admin";
 import { Server } from "@/api/api";
 import { useDisclosure } from "@mantine/hooks";
 import AddNewStudent from "@/components/contact/AddNewStudent";
+import { IQueryStudent, INewStudentResponse } from "@/types";
 const NewStudents = () => {
   const user = useAppSelector(selectUser);
   const [opened, { open, close }] = useDisclosure(false);
-
   const [query, setQuery] = useState<IQueryStudent>({
     isAttend: "pending",
     month: (new Date().getMonth() + 1).toString(),
@@ -140,7 +140,7 @@ const NewStudents = () => {
         />
       </Stack>
       <Modal opened={opened} onClose={close}>
-        <AddNewStudent />
+        <AddNewStudent withBorder={false} shadow="none" />
       </Modal>
     </section>
   );

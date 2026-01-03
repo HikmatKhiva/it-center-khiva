@@ -47,9 +47,9 @@ export const courseTimes: CourseTimeGroup[] = [
 ];
 
 export const attends = [
-  { label: "Kelmaydigan O'quvchilar", value: "reject" },
-  { label: "Keladigan O'quvchilar", value: "success" },
-  { label: "Telefon qilinmagan", value: "pending" },
+  { label: "Kelmaydigan O'quvchilar", value: "NOT_CAME" },
+  { label: "Keladigan O'quvchilar", value: "CAME" },
+  { label: "Telefon qilinmagan", value: "PENDING" },
 ];
 export const weeks = [
   "Dushanba",
@@ -92,4 +92,4 @@ export const allTime = [
   { value: "T16_00", label: "16:00" },
 ];
 
-export const years: string[] = ['2025', '2026'];
+export const years: string[] = ["2025", "2026"];

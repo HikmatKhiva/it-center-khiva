@@ -14,6 +14,7 @@ import { LoaderCircle, RefreshCw, Search } from "lucide-react";
 import { useState } from "react";
 import { formatTime } from "@/utils/helper";
 import { Server } from "@/api/api";
+import { IDebtorQuery, IDebtorsResponse, IDebtor } from "@/types";
 const DebtorStudents = () => {
   const admin = useAppSelector(selectUser);
   const [query, setQuery] = useState<IDebtorQuery>({

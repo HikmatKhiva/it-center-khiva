@@ -18,6 +18,7 @@ import { selectUser } from "@/lib/redux/reducer/admin";
 import GroupIdHeader from "@/common/components/group/GroupIdHeader";
 import { Check, Eye, RefreshCw } from "lucide-react";
 import { Server } from "@/api/api";
+import { IDefaultQuery, IGroup, IStudentsResponse, IStudent } from "@/types";
 const AdminGroupId = () => {
   const url = `/site/certificate?code`;
   const admin = useAppSelector(selectUser);
@@ -78,9 +79,7 @@ const AdminGroupId = () => {
         )}
       </Table.Td>
       <Table.Td>{student?.gender === "MALE" ? "Erkak" : "Ayol"}</Table.Td>
-      {/* {!group?.isGroupFinished && ( */}
       <Table.Td>{id && <UpdateStudentModal student={student} />}</Table.Td>
-      {/* )} */}
       {!group?.isGroupFinished && (
         <Table.Td>
           <DeleteStudentModal id={student?.id} />

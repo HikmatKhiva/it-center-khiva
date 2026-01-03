@@ -10,7 +10,7 @@ const RoomGroup = ({ schedules }: { schedules: ISchedules[] }) => {
         <Indicator
           inline
           label={schedule.weekType === "ODD" ? "Toq" : "Juft"}
-          size={14}
+          size={15}
         >
           <Text>{schedule.time.replace("T", "").replace("_", ":")}</Text>
         </Indicator>
@@ -24,7 +24,7 @@ const RoomGroup = ({ schedules }: { schedules: ISchedules[] }) => {
           <Table.Tr>
             <Table.Th>Guruh nomi</Table.Th>
             <Table.Th>O'qituvchisi</Table.Th>
-            <Table.Th>O'quvchilsan soni</Table.Th>
+            <Table.Th>O'quvchilar soni</Table.Th>
             <Table.Th>Vaqti</Table.Th>
           </Table.Tr>
         </Table.Thead>

@@ -3,6 +3,7 @@ import OptionsMenuNewStudent from "@/common/components/newstudent/OptionsMenuNew
 import React from "react";
 import { Check, Clock3, X } from "lucide-react";
 import { formatTime } from "@/utils/helper";
+import { INewStudent } from "@/types";
 const NewStudentsTable = ({ newStudents }: { newStudents: INewStudent[] }) => {
   const rows =
     Array.isArray(newStudents) &&
@@ -21,7 +22,7 @@ const NewStudentsTable = ({ newStudents }: { newStudents: INewStudent[] }) => {
         <Table.Td>{student?.course.name}</Table.Td>
         <Table.Td>{student?.courseTime}</Table.Td>
         <Table.Td>
-          <OptionsMenuNewStudent id={student.id} />
+          <OptionsMenuNewStudent student={student} id={student.id} />
         </Table.Td>
       </Table.Tr>
     ));

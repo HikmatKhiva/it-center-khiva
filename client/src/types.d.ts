@@ -168,6 +168,7 @@ interface IOpenedGroup {
 
 interface IStats {
   stat: string;
+  yearFilter: number;
   activeStudents: number;
   activeGroups: number;
   totalTeachers: number;
@@ -368,6 +369,7 @@ interface ICoursesResponse extends IDefaultResponse {
 }
 interface IMessagesResponse extends IDefaultResponse {
   messages: IMessage[];
+  totalCount: number;
 }
 interface INewStudentResponse extends IDefaultResponse {
   students: INewStudent[];
@@ -441,4 +443,11 @@ interface IMemory {
 }
 interface IMetricsResponse {
   memory: IMemory;
+}
+
+interface INewStudentUpdate {
+  courseId: string;
+  fullName: string;
+  isCame: string;
+  reason: string;
 }

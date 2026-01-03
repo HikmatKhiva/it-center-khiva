@@ -19,16 +19,22 @@ const createMessage = async (req, res) => {
 // get all Messages
 const getMessages = async (req, res) => {
   try {
-    const { limit = 20, page = 1 } = req.query;
+    const { limit = 20, page = 1, name } = req.query;
     const messages = await prisma.messages.findMany({
+      where: {
+        fullName: {
+          contains: name,
+        },
+      },
       skip: (page - 1) * limit,
-      take: parseInt(limit)
+      take: parseInt(limit),
     });
     const totalCount = await prisma.messages.count();
     const totalPages = Math.ceil(totalCount / limit);
     return res.status(200).json({
       messages,
       totalPages,
+      totalCount,
     });
   } catch (error) {
     return res.status(500).json({ error });

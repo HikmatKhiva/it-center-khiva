@@ -257,6 +257,9 @@ const finishGroup = async (req, res) => {
         id: parseInt(id),
       },
       data: {
+        schedules: {
+          deleteMany: {},
+        },
         isGroupFinished: true,
         finishedDate: now,
       },

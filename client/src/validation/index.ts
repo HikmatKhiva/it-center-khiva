@@ -12,9 +12,9 @@ export const addNewStudentValidation = {
 };
 export const anonymMessageValidation = {
   fullName: (val: string) =>
-    /^.{4,}$/.test(val) ? null : "Ism kiritlishi shart!",
+    val.length > 4 ? null : "4 ta belgidan ko'p bo'lishi kerak!",
   message: (val: string) =>
-    /^.{4,}$/.test(val) ? null : "Xabar kiritlishi shart!",
+    val.length > 10 ? null : "10 ta belgidan ko'p bo'lishi kerak shart!",
 };
 export const createCourseValidation = {
   name: (value: string) =>
@@ -117,4 +117,10 @@ export const RoomCreateValidate = {
     value.trim().length >= 3 ? null : "Eng kami 3 belgi bo'lishi kerak!",
   capacity: (value: number) =>
     value >= 5 && value <= 30 ? null : "Eng kami 5 ko'pi 30 bo'lishi kerak!",
+};
+
+export const updateNewStudentValidation = {
+  fullName: (val: string) => null,
+  isCame: (val: string) => null,
+  reason: (val: string) => null,
 };

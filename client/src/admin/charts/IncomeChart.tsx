@@ -22,7 +22,7 @@ const IncomeChart = ({ isActive }: { isActive?: boolean }) => {
           authorization: `Bearer ${admin?.token}`,
         },
       }),
-    queryKey: ["stats", year],
+    queryKey: ["stats", "income", year],
     enabled: !!admin?.token && isActive,
   });
   return (

@@ -1,80 +1,88 @@
 import { prisma } from "../../app.js";
 export async function getTeacherMonthlyReport(teacherId, year, month) {
-  if (!teacherId) throw new Error("Invalid teacherId");
-  if (
-    typeof year !== "number" ||
-    typeof month !== "number" ||
-    month < 1 ||
-    month > 12
-  ) {
-    throw new Error("Invalid year or month");
-  }
+  try {
+    console.log(year, "year");
+    console.log(month, "month");
 
-  // 1. Fetch teacher info
-  const teacher = await prisma.teacher.findUnique({
-    where: { id: teacherId },
-    select: { id: true, firstName: true, secondName: true }, // adjust field name if different
-  });
-  if (!teacher) throw new Error("Teacher not found");
+    if (!teacherId) throw new Error("Invalid teacherId");
+    if (
+      typeof year !== "number" ||
+      typeof month !== "number" ||
+      month < 1 ||
+      month > 12
+    ) {
+      throw new Error("Invalid year or month");
+    }
+    // 1. Fetch teacher info
+    const teacher = await prisma.teacher.findUnique({
+      where: { id: teacherId },
+      select: { id: true, firstName: true, secondName: true }, // adjust field name if different
+    });
+    if (!teacher) throw new Error("Teacher not found");
 
-  // 2. Calculate totalPaid by students of this teacher's groups in the month
-  const paidAggregate = await prisma.payment.aggregate({
-    _sum: { amount: true },
-    where: {
-      createdAt: {
-        gte: new Date(year, month - 1, 1),
-        lt: new Date(year, month, 1),
-      },
-      Student: {
-        Group: {
-          teacherId: teacherId,
+    // 2. Calculate totalPaid by students of this teacher's groups in the month
+    const paidAggregate = await prisma.payment.aggregate({
+      _sum: { amount: true },
+      where: {
+        createdAt: {
+          gte: new Date(year, month - 1, 1),
+          lt: new Date(year, month, 1),
+        },
+        Student: {
+          Group: {
+            teacherId: teacherId,
+          },
         },
       },
-    },
-  });
-  const totalPaid = Number(paidAggregate._sum.amount) || 0;
+    });
+    const totalPaid = Number(paidAggregate._sum.amount) || 0;
 
-  // 3. Calculate totalSalary (50% of totalPaid)
-  const totalSalary = totalPaid * 0.5;
+    // 3. Calculate totalSalary (50% of totalPaid)
+    const totalSalary = totalPaid * 0.5;
 
-  // 4. Calculate expectedSalary based on groups and students count
-  const groups = await prisma.group.findMany({
-    where: {
-      teacherId,
-      createdAt: {
-        gte: new Date(year, month - 1, 1),
-        lt: new Date(year, month, 1),
+    // 4. Calculate expectedSalary based on groups and students count
+    const groups = await prisma.group.findMany({
+      where: {
+        teacherId,
+        createdAt: {
+          gte: new Date(year, month - 1, 1),
+          lt: new Date(year, month, 1),
+        },
       },
-    },
-    select: {
-      price: true,
-      Students: true,
-    },
-  });
-  const expectedSalary = groups.reduce(
-    (sum, group) => sum + Number(group.price) * group.Students.length * 0.5,
-    0
-  );
-  const totalAmount = groups.reduce(
-    (sum, group) => sum + Number(group.price) * group.Students.length,
-    0
-  );
-  // 5. Build report object
-  return {
-    teacherName: teacher.firstName + " " + teacher.secondName,
-    month,
-    totalPaid,
-    totalSalary,
-    expectedSalary,
-    totalAmount,
-  };
+      select: {
+        price: true,
+        Students: true,
+      },
+    });
+    const expectedSalary = groups.reduce(
+      (sum, group) => sum + Number(group.price) * group.Students.length * 0.5,
+      0
+    );
+    const totalAmount = groups.reduce(
+      (sum, group) => sum + Number(group.price) * group.Students.length,
+      0
+    );
+    const monthName = getMonthName(year, month);
+    // 5. Build report object
+    return {
+      teacherName: teacher.firstName + " " + teacher.secondName,
+      month: monthName,
+      totalPaid,
+      totalSalary,
+      expectedSalary,
+      totalAmount,
+      year,
+    };
+  } catch (error) {
+    throw error;
+  }
 }
-export async function calculateAllTeachersSalaries() {
+export async function calculateAllTeachersSalaries(filterYear, filterMonth) {
   try {
     // Get current year and month from system date
     const now = new Date();
-    const year = now.getFullYear();
-    const month = now.getMonth() + 1; // getMonth() is zero-based
+    const year = parseInt(filterYear, 10) || now.getFullYear();
+    const month = parseInt(filterMonth, 10) || now.getMonth() + 1; // getMonth() is zero-based
     // Validate year and month (optional but recommended)
     if (typeof year !== "number" || year < 0) {
       throw new Error("Invalid year");
@@ -93,8 +101,11 @@ export async function calculateAllTeachersSalaries() {
         return await getTeacherMonthlyReport(teacher.id, year, month);
       })
     );
+
     return results; // array of { teacherId, teacherName, monthlyReport }
   } catch (error) {
+    console.log(error);
+
     throw error;
   }
 }
@@ -229,7 +240,6 @@ export async function calculateIncomeForYear(filterYear) {
     throw error;
   }
 }
-
 export async function calculateStats(filterYear) {
   try {
     const yearFilter = Number(filterYear) || new Date().getFullYear();
@@ -312,4 +322,16 @@ export async function calculateStats(filterYear) {
   } catch (error) {
     throw error;
   }
+}
+
+function getMonthName(year, month) {
+  const now = new Date();
+  // If year/month are not provided, use current year/month
+  const y = typeof year === "number" ? year : now.getFullYear();
+  // `month` expected as 1–12; convert to 0–11; if not given, use current month (0–11)
+  const m = typeof month === "number" ? month - 1 : now.getMonth();
+  const date = new Date(y, m, 1);
+  return date.toLocaleString("default", {
+    month: "long",
+  });
 }
