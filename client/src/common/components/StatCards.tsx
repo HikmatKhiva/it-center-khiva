@@ -1,5 +1,11 @@
 import { graduateMen, men, teacher, women } from "@/admin/assets/svg";
-import { BookOpenText, GraduationCap, UsersRound } from "lucide-react";
+import {
+  BookOpenText,
+  GraduationCap,
+  UserRoundCheck,
+  UsersRound,
+  UserX2,
+} from "lucide-react";
 
 import { NumberTicker } from "@/animation/number-ticker";
 import { Card, Group, Indicator, Text } from "@mantine/core";
@@ -90,6 +96,34 @@ const StatCards = ({ data }: { data: IStats[] }) => {
               <img src={women} alt="woman" width={28} />
               <Text>Ayol:</Text>
               <NumberTicker value={data ? data[0]?.totalStudents : 0} />
+            </Group>
+          </Card>
+        </Indicator>
+        <Indicator
+          inline
+          size={16}
+          offset={1}
+          position="top-end"
+          color="grape"
+          processing
+        >
+          <Card withBorder w={250} h={180}>
+            <Group mb={15}>
+              <UsersRound />
+              <Text>Umumiy:</Text>
+              <NumberTicker value={data ? data[0]?.totalNewstudent : 0} />
+            </Group>
+            <Group mb={15}>
+              <UserRoundCheck />
+              <Text>Darsga kelgan:</Text>
+              <NumberTicker value={data ? data[0]?.totalNewstudentCAME : 0} />
+            </Group>
+            <Group mb={15}>
+              <UserX2 />
+              <Text>Darsga kelmagan:</Text>
+              <NumberTicker
+                value={data ? data[0]?.totalNewstudentNOT_CAME : 0}
+              />
             </Group>
           </Card>
         </Indicator>

@@ -4,6 +4,7 @@ import React from "react";
 import { Check, Clock3, X } from "lucide-react";
 import { formatTime } from "@/utils/helper";
 import { INewStudent } from "@/types";
+import NewStudentDeleteModal from "./NewStudentDeleteModal";
 const NewStudentsTable = ({ newStudents }: { newStudents: INewStudent[] }) => {
   const rows =
     Array.isArray(newStudents) &&
@@ -24,6 +25,13 @@ const NewStudentsTable = ({ newStudents }: { newStudents: INewStudent[] }) => {
         <Table.Td>
           <OptionsMenuNewStudent student={student} id={student.id} />
         </Table.Td>
+        <Table.Td>
+          <NewStudentDeleteModal
+            isAttend={student.isAttend}
+            fullName={student.fullName}
+            id={student.id}
+          />
+        </Table.Td>
       </Table.Tr>
     ));
   return (
@@ -38,6 +46,7 @@ const NewStudentsTable = ({ newStudents }: { newStudents: INewStudent[] }) => {
             <Table.Th>Kurs nomi</Table.Th>
             <Table.Th>Vaqt</Table.Th>
             <Table.Th>Sozlash</Table.Th>
+            <Table.Th>O'chirish</Table.Th>
           </Table.Tr>
         </Table.Thead>
         <Table.Tbody>{rows}</Table.Tbody>
@@ -54,24 +63,24 @@ const CheckStudent = ({
   isChecked: string;
   children: React.ReactNode;
 }) => {
-  if (isChecked === "pending")
+  if (isChecked === "PENDING")
     return (
       <Chip
         color="blue"
         variant="filled"
         icon={<Clock3 size={14} />}
-        checked={isChecked === "pending"}
+        checked={isChecked === "PENDING"}
       >
         {children}
       </Chip>
     );
-  if (isChecked === "reject")
+  if (isChecked === "NOT_CAME")
     return (
       <Chip
         color="red"
         variant="filled"
         icon={<X size={14} />}
-        checked={isChecked === "reject"}
+        checked={isChecked === "NOT_CAME"}
       >
         {children}
       </Chip>

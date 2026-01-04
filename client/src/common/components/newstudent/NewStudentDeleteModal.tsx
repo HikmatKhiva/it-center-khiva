@@ -7,13 +7,25 @@ import {
   showErrorNotification,
   showSuccessNotification,
 } from "@/utils/notification";
+import { Button, Group, Highlight, Modal, Text } from "@mantine/core";
+import { useDisclosure } from "@mantine/hooks";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { Trash } from "lucide-react";
 import { useRef } from "react";
 
-const NewStudentDeleteModal = ({ id }: { id: number }) => {
+const NewStudentDeleteModal = ({
+  id,
+  fullName,
+  isAttend,
+}: {
+  id: number;
+  fullName: string;
+  isAttend: string;
+}) => {
   const admin = useAppSelector(selectUser);
   const client = useQueryClient();
   const idNotification = useRef<string>("");
+  const [opened, { open, close }] = useDisclosure(false);
 
   const { mutateAsync: mutationDelete, isPending } = useMutation({
     mutationFn: () =>
@@ -36,7 +48,42 @@ const NewStudentDeleteModal = ({ id }: { id: number }) => {
     idNotification.current = createNotification(isPending);
     await mutationDelete();
   };
-  return <div>NewStudentDeleteModal</div>;
+  return (
+    <>
+      <Modal opened={opened} onClose={close} size="md">
+        <Text size="md" className="text-center">
+          Siz
+          <Highlight
+            highlight={[fullName]}
+            highlightStyles={{
+              textTransform: "capitalize",
+              textDecoration: "underline solid 1px",
+            }}
+          >
+            {fullName}
+          </Highlight>
+          o'chirishni xohlaysizmi?
+        </Text>
+        <Group mt={20} justify="center" gap="10">
+          <Button color="green" onClick={handleDelete}>
+            Ha
+          </Button>
+          <Button color="red" variant="outline" onClick={close}>
+            Yo'q
+          </Button>
+        </Group>
+      </Modal>
+      <Button
+        disabled={["CAME", "NOT_CAME"].includes(isAttend)}
+        variant="filled"
+        color="red"
+        size="compact-md"
+        onClick={open}
+      >
+        <Trash size={14} />
+      </Button>
+    </>
+  );
 };
 
 export default NewStudentDeleteModal;

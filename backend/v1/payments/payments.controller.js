@@ -13,6 +13,12 @@ const getPayments = async (req, res) => {
         studentId: parseInt(id),
       },
     });
+    const paymentNotRefund = await prisma.payment.findMany({
+      where: {
+        studentId: parseInt(id),
+        isRefunded: false,
+      },
+    });
     const student = await prisma.student.findUnique({
       where: {
         id: parseInt(id),
@@ -34,7 +40,7 @@ const getPayments = async (req, res) => {
     });
     const { price, duration } = student.Group;
     const totalPrice = calculateTotalPrice(price, duration);
-    const totalPaid = calculateTotalPaid(payments);
+    const totalPaid = calculateTotalPaid(paymentNotRefund);
     const monthly = await calculateCourseDuration(student);
     const discountAmount = ((price * student.discount) / 100) * duration;
     const percentagePaid =
@@ -46,6 +52,8 @@ const getPayments = async (req, res) => {
       monthly,
     });
   } catch (error) {
+    console.log(error);
+
     return res.status(500).json({ error });
   }
 };
@@ -98,9 +106,81 @@ const uploadPayment = async (req, res) => {
     ]);
     return res.status(201).json({ message: "To'lov muoffaqiyatli yuklandi." });
   } catch (error) {
+    return res.status(500).json({ error });
+  }
+};
+const paymentRefund = async (req, res) => {
+  try {
+    const { paymentId } = req.params;
+    const { reason, amount } = req.body;
+    console.log(reason);
+    
+    const parsedPaymentId = parseInt(paymentId, 10);
+    const payment = await prisma.payment.findUnique({
+      where: { id: parsedPaymentId },
+      include: { Student: true },
+    });
+    if (!payment || payment.isRefunded) {
+      return res
+        .status(400)
+        .json({ message: "To'lov topilmadi yoki allaqachon bekor qilingan" });
+    }
+    if (payment.amount < amount) {
+      return res
+        .status(400)
+        .json({ message: "Bekor qilish miqdori to'lov miqdoridan yuqori!" });
+    }
+    await prisma.$transaction([
+      prisma.student.update({
+        where: { id: payment.studentId },
+        data: {
+          debt: {
+            increment: amount,
+          },
+        },
+      }),
+      prisma.payment.update({
+        where: { id: parsedPaymentId },
+        data: {
+          status: "Refunded",
+          isRefunded: true,
+          refundedAt: new Date(),
+        },
+      }),
+      prisma.refund.create({
+        data: {
+          reason,
+          amount: amount,
+          paymentId: parsedPaymentId,
+        },
+      }),
+    ]);
+    return res
+      .status(200)
+      .json({ message: "To'lov muoffaqiyatli bekor qilindi!" });
+  } catch (error) {
     console.log(error);
 
     return res.status(500).json({ error });
   }
 };
-export { uploadPayment, getPayments };
+const getRefund = async (req, res) => {
+  try {
+    const { paymentId } = req.params;
+    const refund = await prisma.refund.findFirst({
+      where: {
+        paymentId: parseInt(paymentId, 10),
+      },
+    });
+    if (!refund) {
+      return res
+        .status(404)
+        .json({ message: "Bekor qilingan to'lov topilmadi!" });
+    }
+    return res.status(200).json(refund);
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({ error });
+  }
+};
+export { uploadPayment, getPayments, paymentRefund, getRefund };

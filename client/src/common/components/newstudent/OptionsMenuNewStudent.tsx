@@ -1,17 +1,14 @@
 import {
   Button,
   Group,
-  Menu,
   Modal,
   Select,
-  Table,
-  Text,
   Textarea,
   TextInput,
 } from "@mantine/core";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { Check, Ellipsis, Settings, Trash2, X } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
+import { Settings } from "lucide-react";
+import { useEffect, useRef } from "react";
 import { useAppSelector } from "@/hooks/redux";
 import {
   createNotification,
@@ -38,51 +35,53 @@ const OptionsMenuNewStudent = ({
   const [opened, { open, close }] = useDisclosure(false);
   const idNotification = useRef<string>("");
   const client = useQueryClient();
-  const { mutateAsync, isPending } = useMutation({
-    mutationFn: (status: string) =>
-      Server<IMessageResponse>(`newStudents/update/${id}`, {
-        method: "PUT",
-        headers: {
-          authorization: `Bearer ${admin?.token}`,
-        },
-        body: JSON.stringify({ status }),
-      }),
-    mutationKey: ["update", "newStudent", id],
-    onSuccess: (success) => {
-      client.invalidateQueries({ queryKey: ["newStudents"] });
-      showSuccessNotification(idNotification.current, success?.message);
-    },
-    onError: (error) => {
-      showErrorNotification(idNotification.current, error.message);
-    },
-  });
   const { courses, loading } = useFormData();
-  const handleUpdateStatus = async (status: string) => {
-    idNotification.current = createNotification(isPending);
-    await mutateAsync(status);
-  };
-
   const form = useForm({
     initialValues: {
       fullName: "",
-      isCame: "",
+      isAttend: "",
       reason: "",
       courseId: "",
     } as INewStudentUpdate,
     validate: updateNewStudentValidation,
   });
 
+  const { mutateAsync, isPending } = useMutation({
+    mutationFn: (newStudent: INewStudentUpdate) =>
+      Server<IMessageResponse>(`newStudents/update/${id}`, {
+        method: "PUT",
+        headers: {
+          authorization: `Bearer ${admin?.token}`,
+        },
+        body: JSON.stringify(newStudent),
+      }),
+    mutationKey: ["update", "newStudent", id],
+    onSuccess: (success) => {
+      client.invalidateQueries({ queryKey: ["newStudents"] });
+      showSuccessNotification(idNotification.current, success?.message);
+      form.reset();
+      close();
+    },
+    onError: (error) => {
+      showErrorNotification(idNotification.current, error.message);
+    },
+  });
   useEffect(() => {
-    if (student.courseId) {
-      form.setFieldValue("courseId", student.courseId);
+    if (student) {
+      form.setFieldValue("courseId", student.courseId.toString());
+      form.setFieldValue("fullName", student.fullName);
+      form.setFieldValue("isAttend", student.isAttend);
+      form.setFieldValue("reason", student.reason || "");
     }
-  }, [student.courseId]);
-  console.log(form.values);
-  
+  }, [student]);
+  const handleUpdateStatus = async (newStudent: INewStudentUpdate) => {
+    idNotification.current = createNotification(isPending);
+    await mutateAsync(newStudent);
+  };
   return (
     <>
       <Modal opened={opened} onClose={close} size="md">
-        <form>
+        <form onSubmit={form.onSubmit(handleUpdateStatus)}>
           <Group w="100%" mb={10}>
             <TextInput
               onChange={(event) =>
@@ -102,17 +101,24 @@ const OptionsMenuNewStudent = ({
               data={courses}
             />
           </Group>
-          <Select mb={10} label="Holatni tanlash" data={attends} />
+          <Select
+            mb={10}
+            label="Holatni tanlash"
+            onChange={(event) => form.setFieldValue("isAttend", event || "")}
+            value={form.values.isAttend}
+            error={form.errors.isAttend}
+            data={attends}
+          />
           <Textarea
-            disabled={form.values.isCame !== "NOT_CAME"}
             onChange={(event) =>
-              form.setFieldValue("isCame", event.target.value)
+              form.setFieldValue("reason", event.target.value)
             }
+            value={form.values.reason}
             error={form.errors.reason}
             placeholder="Sababini kiriting..."
             rows={5}
           />
-          <Button mt={10} color="green" disabled={isPending}>
+          <Button mt={10} color="green" type="submit" disabled={isPending}>
             Yangilash
           </Button>
         </form>
@@ -121,36 +127,6 @@ const OptionsMenuNewStudent = ({
         <Settings size={14} />
       </Button>
     </>
-    // <Menu opened={opened} onChange={setOpened} shadow="md">
-    //   <Menu.Target>
-    //     <Button size="xs" variant="default">
-    //       <Ellipsis size="16" />
-    //     </Button>
-    //   </Menu.Target>
-    //   <Menu.Dropdown>
-    //     <Menu.Item
-    //       onClick={() => handleUpdateStatus("success")}
-    //       rightSection={<Check size={14} />}
-    //       color="green"
-    //     >
-    //       Darsga qatnashadigan
-    //     </Menu.Item>
-    //     <Menu.Item
-    //       onClick={() => handleUpdateStatus("reject")}
-    //       rightSection={<X size={14} />}
-    //       color="red"
-    //     >
-    //       Darsga qatnashmaydigan
-    //     </Menu.Item>
-    //     <Menu.Item
-    //       onClick={handleDelete}
-    //       rightSection={<Trash2 size={14} />}
-    //       color="red"
-    //     >
-    //       Ro'yxatdan o'chirish
-    //     </Menu.Item>
-    //   </Menu.Dropdown>
-    // </Menu>
   );
 };
 export default OptionsMenuNewStudent;

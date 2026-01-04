@@ -1,3 +1,4 @@
+import { IPaymentMonthly } from "@/types";
 import { CompositeChart } from "@mantine/charts";
 const PaymentMonthly = ({ monthly }: { monthly: IPaymentMonthly[] }) => {
   return (

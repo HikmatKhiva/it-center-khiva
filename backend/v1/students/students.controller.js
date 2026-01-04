@@ -133,10 +133,12 @@ const deleteStudent = async (req, res) => {
     const { id } = req.params;
     await prisma.student.delete({
       where: {
-        id: parseInt(id),
+        id: parseInt(id, 10),
       },
     });
-    res.status(200).json({ message: "O'quvchi muoffaqiyatli o'chirildi." });
+    return res
+      .status(200)
+      .json({ message: "O'quvchi muoffaqiyatli o'chirildi." });
   } catch (error) {
     return res.status(500).json({ error });
   }

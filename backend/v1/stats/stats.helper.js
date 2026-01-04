@@ -242,49 +242,151 @@ export async function calculateIncomeForYear(filterYear) {
 }
 export async function calculateStats(filterYear) {
   try {
-    const yearFilter = Number(filterYear) || new Date().getFullYear();
+    const yearFilter = parseInt(filterYear) || new Date().getFullYear();
     const stats = await prisma.$transaction([
-      prisma.group.count({ where: { isGroupFinished: false, ...yearFilter } }),
-      prisma.group.count({ where: { isGroupFinished: true, ...yearFilter } }),
-      prisma.teacher.count(),
-      prisma.course.count(),
-      prisma.student.count({
-        where: { Group: { isGroupFinished: false, ...yearFilter } },
+      prisma.group.count({
+        where: {
+          isGroupFinished: false,
+          createdAt: {
+            gte: new Date(yearFilter, 0, 1),
+            lte: new Date(yearFilter, 11, 31, 23, 59, 59, 999),
+          },
+        },
       }),
-      prisma.student.count({ where: { debt: { gt: 0 } } }),
+      prisma.group.count({
+        where: {
+          isGroupFinished: true,
+          createdAt: {
+            gte: new Date(yearFilter, 0, 1),
+            lte: new Date(yearFilter, 11, 31, 23, 59, 59, 999),
+          },
+        },
+      }),
+      prisma.teacher.count({
+        where: {
+          createdAt: {
+            gte: new Date(yearFilter, 0, 1),
+            lte: new Date(yearFilter, 11, 31, 23, 59, 59, 999),
+          },
+        },
+      }),
+      prisma.course.count({
+        where: {
+          createdAt: {
+            gte: new Date(yearFilter, 0, 1),
+            lte: new Date(yearFilter, 11, 31, 23, 59, 59, 999),
+          },
+        },
+      }),
       prisma.student.count({
         where: {
-          Group: { isGroupFinished: true, ...yearFilter },
+          Group: {
+            isGroupFinished: false,
+            createdAt: {
+              gte: new Date(yearFilter, 0, 1),
+              lte: new Date(yearFilter, 11, 31, 23, 59, 59, 999),
+            },
+          },
+        },
+      }),
+      prisma.student.count({
+        where: {
+          debt: { gt: 0 },
+          createdAt: {
+            gte: new Date(yearFilter, 0, 1),
+            lte: new Date(yearFilter, 11, 31, 23, 59, 59, 999),
+          },
+        },
+      }),
+      prisma.student.count({
+        where: {
+          Group: {
+            isGroupFinished: true,
+            finishedDate: {
+              gte: new Date(yearFilter, 0, 1),
+              lte: new Date(yearFilter, 11, 31, 23, 59, 59, 999),
+            },
+          },
           debt: 0,
         },
       }),
       prisma.student.count({
-        where: { Group: { isGroupFinished: false, ...yearFilter } },
+        where: {
+          Group: {
+            isGroupFinished: false,
+          },
+          createdAt: {
+            gte: new Date(yearFilter, 0, 1),
+            lte: new Date(yearFilter, 11, 31, 23, 59, 59, 999),
+          },
+        },
       }),
       prisma.student.count({
         where: {
           gender: "MALE",
           Group: { isGroupFinished: false, ...yearFilter },
+          createdAt: {
+            gte: new Date(yearFilter, 0, 1),
+            lte: new Date(yearFilter, 11, 31, 23, 59, 59, 999),
+          },
         },
       }),
       prisma.student.count({
         where: {
           gender: "FEMALE",
-          Group: { isGroupFinished: false, ...yearFilter },
+          Group: { isGroupFinished: false },
+          createdAt: {
+            gte: new Date(yearFilter, 0, 1),
+            lte: new Date(yearFilter, 11, 31, 23, 59, 59, 999),
+          },
         },
       }),
       prisma.student.count({
         where: {
           gender: "FEMALE",
-          Group: { isGroupFinished: true, ...yearFilter },
+          Group: { isGroupFinished: true },
           debt: 0,
+          createdAt: {
+            gte: new Date(yearFilter, 0, 1),
+            lte: new Date(yearFilter, 11, 31, 23, 59, 59, 999),
+          },
         },
       }),
       prisma.student.count({
         where: {
           gender: "MALE",
-          Group: { isGroupFinished: true, ...yearFilter },
+          Group: { isGroupFinished: true },
           debt: 0,
+          createdAt: {
+            gte: new Date(yearFilter, 0, 1),
+            lte: new Date(yearFilter, 11, 31, 23, 59, 59, 999),
+          },
+        },
+      }),
+      prisma.newStudent.count({
+        where: {
+          isAttend: "NOT_CAME",
+          createdAt: {
+            gte: new Date(yearFilter, 0, 1),
+            lte: new Date(yearFilter, 11, 31, 23, 59, 59, 999),
+          },
+        },
+      }),
+      prisma.newStudent.count({
+        where: {
+          isAttend: "CAME",
+          createdAt: {
+            gte: new Date(yearFilter, 0, 1),
+            lte: new Date(yearFilter, 11, 31, 23, 59, 59, 999),
+          },
+        },
+      }),
+      prisma.newStudent.count({
+        where: {
+          createdAt: {
+            gte: new Date(yearFilter, 0, 1),
+            lte: new Date(yearFilter, 11, 31, 23, 59, 59, 999),
+          },
         },
       }),
     ]);
@@ -301,8 +403,10 @@ export async function calculateStats(filterYear) {
       totalFemaleStudents,
       totalFinishedFemaleStudents,
       totalFinishedMaleStudents,
+      totalNewstudentNOT_CAME,
+      totalNewstudentCAME,
+      totalNewstudent,
     ] = stats;
-
     return {
       stat: "Statistika",
       yearFilter,
@@ -318,6 +422,9 @@ export async function calculateStats(filterYear) {
       totalDebtors,
       finishedStudents,
       finishedGroups,
+      totalNewstudentNOT_CAME,
+      totalNewstudentCAME,
+      totalNewstudent,
     };
   } catch (error) {
     throw error;

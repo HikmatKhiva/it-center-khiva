@@ -120,7 +120,12 @@ export const RoomCreateValidate = {
 };
 
 export const updateNewStudentValidation = {
-  fullName: (val: string) => null,
-  isCame: (val: string) => null,
-  reason: (val: string) => null,
+  fullName: (val: string) =>
+    val.length < 3 ? "Ism 3 ta harfdan katta bo'lishi kerak!" : null,
+  isAttend: (val: string) => (!val ? "Bu joy bo'sh bo'lmasligi kerak" : null),
+  // reason: (val: string) => null,
 };
+
+export const paymentRefundValidation = {
+  amount:(val:number)=>val < 10000 ? "Qiymat 10000 dan katta bo'lishi kerak!":null, 
+}

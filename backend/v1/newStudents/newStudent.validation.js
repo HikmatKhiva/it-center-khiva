@@ -9,11 +9,17 @@ export const newStudentSchema = {
   required: ["fullName", "phone", "courseId", "courseTime"],
   additionalProperties: false,
 };
-export const newStudentStatusSchema = {
+export const newStudentUpdateSchema = {
   type: "object",
   properties: {
-    status: { type: "string" },
+    courseId: { type: "string" },
+    fullName: { type: "string", minLength: 3, maxLength: 20 },
+    isAttend: {
+      type: "string",
+      enum: ["PENDING", "CAME", "NOT_CAME"], // Matnli variantlar
+    },
+    reason: { type: "string" },
   },
-  required: ["status"],
+  required: ["fullName", "courseId", "isAttend"],
   additionalProperties: false,
 };

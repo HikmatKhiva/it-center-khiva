@@ -17,8 +17,9 @@ const getNewStudents = async (req, res) => {
     const endDate = new Date(currentYear, monthNumber, 0, 23, 59, 59); // Last day of the month
     const students = await prisma.newStudent.findMany({
       where: {
-        // isCame: isAttend.toUpperCase(),
-
+        ...(isAttend && {
+          isAttend,
+        }),
         courseTime: {
           contains: courseTime,
         },
@@ -33,16 +34,16 @@ const getNewStudents = async (req, res) => {
         }),
       },
       include: {
-      
         course: true,
-
       },
       skip: (page - 1) * limit,
       take: parseInt(limit),
     });
     const totalCount = await prisma.newStudent.count({
       where: {
-        // isCame: isAttend.toUpperCase(),
+        ...(isAttend && {
+          isAttend,
+        }),
         ...(courseId && {
           courseId: parseInt(courseId),
         }),
@@ -50,9 +51,7 @@ const getNewStudents = async (req, res) => {
     });
     const countNewStudents = await prisma.newStudent.count({
       where: {
-        // isCame: {
-        //   contains: isAttend.toUpperCase(),
-        // },
+        isAttend: "PENDING",
         courseTime: {
           contains: courseTime,
         },
@@ -64,18 +63,13 @@ const getNewStudents = async (req, res) => {
         }),
       },
     });
-    console.log(countNewStudents);
-
     const totalPages = Math.ceil(totalCount / limit);
     res.status(200).json({
       totalPages,
       students,
       countNewStudents,
     });
-    console.log(students);
   } catch (error) {
-    console.log(error);
-
     return res.status(500).json({ error });
   }
 };
@@ -103,8 +97,8 @@ const addNewStudent = async (req, res) => {
 // update new student status
 const updateNewStudent = async (req, res) => {
   try {
-    const { status } = req.body;
     const { id } = req.params;
+    const { courseId, fullName, isAttend, reason } = req.body;
     const find = await prisma.newStudent.findUnique({
       where: {
         id: parseInt(id),
@@ -118,11 +112,16 @@ const updateNewStudent = async (req, res) => {
         id: parseInt(id),
       },
       data: {
-        isAttend: status,
+        isAttend,
+        courseId: parseInt(courseId, 10),
+        fullName,
+        reason: reason ? reason : null,
       },
     });
     res.status(200).json({ message: "Ma'lumotlar yangilandi." });
   } catch (error) {
+    console.log(error);
+
     return res.status(500).json({ error });
   }
 };
@@ -132,7 +131,8 @@ const deleteNewStudent = async (req, res) => {
     const { id } = req.params;
     await prisma.newStudent.delete({
       where: {
-        id: parseInt(id),
+        id: parseInt(id, 10),
+        AND: [{ isAttend: "PENDING" }],
       },
     });
     res.status(200).json({ message: "Ma'lumotlar o'chirildi." });

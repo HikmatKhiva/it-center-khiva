@@ -26,7 +26,7 @@ const NewStudents = () => {
   const user = useAppSelector(selectUser);
   const [opened, { open, close }] = useDisclosure(false);
   const [query, setQuery] = useState<IQueryStudent>({
-    isAttend: "pending",
+    isAttend: "PENDING",
     month: (new Date().getMonth() + 1).toString(),
     courseTime: "",
     courseId: "",

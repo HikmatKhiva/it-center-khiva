@@ -59,7 +59,7 @@ const GroupTable = ({
         <Table.Tr>
           <Table.Th>Guruh nomi</Table.Th>
           <Table.Th>Kurs nomi</Table.Th>
-          <Table.Th>O'qitivchisi</Table.Th>
+          <Table.Th>O'qituvchisi</Table.Th>
           <Table.Th>Bolalar soni</Table.Th>
           <Table.Th>Boshlangan sana</Table.Th>
           <Table.Th>Guruh holati</Table.Th>

@@ -14,6 +14,7 @@ import {
 import { selectUser } from "@/lib/redux/reducer/admin";
 import { Server } from "@/api/api";
 import { DateTimePicker } from "@mantine/dates";
+import { INewPayment, IMessageResponse } from "@/types";
 const UploadPayment = ({ studentId }: { studentId: number }) => {
   const admin = useAppSelector(selectUser);
   const [opened, { open, close }] = useDisclosure(false);

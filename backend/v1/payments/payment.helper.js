@@ -22,6 +22,7 @@ export const calculateCourseDuration = async (student) => {
       "November",
       "December",
     ];
+    const paid = student.Payments.filter((item) => !item.isRefunded);
     const paymentsArray = [];
     const startDate = student.createdAt;
     const duration = student.Group.duration;
@@ -38,7 +39,7 @@ export const calculateCourseDuration = async (student) => {
       });
     }
     if (student.Payments.length === 0) return paymentsArray;
-    student.Payments.forEach((payment) => {
+    paid.forEach((payment) => {
       const payDate = new Date(payment.paymentDate);
       const payMonth = payDate.getMonth();
       const payYear = payDate.getFullYear();

@@ -129,6 +129,14 @@ interface IPayments extends IDefault {
   amount: string;
   status: string;
   studentId: number;
+  isRefunded: boolean;
+}
+interface IRefund {
+  id: number;
+  paymentId: number;
+  amount: string;
+  createdAt: Date;
+  reason: string;
 }
 interface INewStudentCreate {
   fullName: string;
@@ -148,6 +156,7 @@ interface IAddStudents {
 interface INewStudent extends INewStudentCreate, IDefault {
   course: ICourse;
   isAttend: string;
+  reason: null | string;
 }
 interface IQueryStudent {
   isAttend: string;
@@ -181,6 +190,13 @@ interface IStats {
   totalFinishedFemaleStudents: number;
   finishedGroups: number;
   totalDebtors: number;
+  totalNewstudentNOT_CAME: number;
+  totalNewstudentCAME: number;
+  totalNewstudent: number;
+}
+interface IPaymentRefund {
+  amount: number;
+  reason: string;
 }
 interface IYearly {
   month: string;
@@ -448,6 +464,6 @@ interface IMetricsResponse {
 interface INewStudentUpdate {
   courseId: string;
   fullName: string;
-  isCame: string;
+  isAttend: string;
   reason: string;
 }

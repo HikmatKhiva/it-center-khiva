@@ -16,7 +16,7 @@ import { formatTime } from "@/utils/helper";
 import PaymentsHistory from "@/common/components/payment/PaymentsHistory";
 import UploadPayment from "@/common/components/payment/UploadPayment";
 import { Server } from "@/api/api";
-import { IDebtorsResponse } from "@/types";
+import { IDebtor, IDebtorQuery, IDebtorsResponse } from "@/types";
 const DebtorStudentsReception = () => {
   const user = useAppSelector(selectUser);
   const [query, setQuery] = useState<IDebtorQuery>({
