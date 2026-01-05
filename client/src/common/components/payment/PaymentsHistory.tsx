@@ -32,7 +32,11 @@ const PaymentsHistory = ({ id }: { id: number }) => {
   });
   return (
     <>
-      <Drawer opened={opened} size="lg" onClose={close}>
+      <Drawer
+        opened={opened}
+        size="750px"
+        onClose={close}
+      >
         <Group mb="10" justify="space-between" px="20">
           <Text>
             O'quvchi: <strong>{data?.student?.firstName}</strong>

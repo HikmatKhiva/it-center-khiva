@@ -2,6 +2,7 @@ import {
   ActionIcon,
   Group,
   Pagination,
+  Select,
   Stack,
   Table,
   Text,
@@ -17,19 +18,23 @@ import PaymentsHistory from "@/common/components/payment/PaymentsHistory";
 import UploadPayment from "@/common/components/payment/UploadPayment";
 import { Server } from "@/api/api";
 import { IDebtor, IDebtorQuery, IDebtorsResponse } from "@/types";
+import { years } from "@/config";
 const DebtorStudentsReception = () => {
   const user = useAppSelector(selectUser);
+  const currentYear = new Date().getFullYear().toString();
   const [query, setQuery] = useState<IDebtorQuery>({
     name: "",
     page: 1,
     limit: 16,
     month: (new Date().getMonth() + 1).toString(),
+    year: currentYear || "",
   });
   const params = new URLSearchParams({
     name: query.name,
     page: query.page.toString(),
     limit: query.limit.toString(),
     month: query.month,
+    year: query.year || "",
   });
   const { data, isPending, refetch } = useQuery<IDebtorsResponse>({
     queryFn: () =>
@@ -39,7 +44,7 @@ const DebtorStudentsReception = () => {
           authorization: `Bearer ${user?.token}`,
         },
       }),
-    queryKey: ["debtors", query.name, query.page, query.month],
+    queryKey: ["debtors", query.name, query.page, query.month, query.year],
     enabled: !!user?.token,
   });
   const rows = data?.debtors?.map((student: IDebtor, index: number) => (
@@ -90,6 +95,14 @@ const DebtorStudentsReception = () => {
               setQuery((prev) => ({ ...prev, name: event.target.value }))
             }
             placeholder="O'quvchi ismi..."
+          />
+          <Select
+            defaultValue={query.year}
+            placeholder="2025"
+            data={years}
+            value={query.year}
+            onChange={(value) => setQuery({ ...query, year: value || "" })}
+            w={90}
           />
         </Group>
       </Group>

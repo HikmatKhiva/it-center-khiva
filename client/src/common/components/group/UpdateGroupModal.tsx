@@ -55,12 +55,15 @@ const UpdateGroupModal = ({ id }: { id: number }) => {
   });
   useEffect(() => {
     if (data) {
-      form.setFieldValue("teacherId", data?.teacher?.id.toString());
-      form.setFieldValue("schedules.weekType", data.schedules[0].weekType);
-      form.setFieldValue("schedules.time", data.schedules[0].time);
+      form.setFieldValue("teacherId", data?.teacher?.id.toString() || "");
+      form.setFieldValue(
+        "schedules.weekType",
+        data?.schedules[0]?.weekType || ""
+      );
+      form.setFieldValue("schedules.time", data?.schedules[0]?.time || "");
       form.setFieldValue(
         "schedules.roomId",
-        data.schedules[0].roomId.toString()
+        data?.schedules[0]?.roomId.toString()
       );
     }
   }, [data]);

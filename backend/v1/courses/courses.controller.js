@@ -2,11 +2,12 @@ import { prisma } from "../../app.js";
 // getAll courses
 const getAllCourse = async (req, res) => {
   try {
-    const { name, limit = 10, page = 1 } = req.params;
+    const { name, limit = 10, page = 1 } = req.query;
     const courses = await prisma.course.findMany({
       where: {
         name: {
           contains: name,
+          mode: "insensitive",
         },
       },
       include: {
@@ -100,6 +101,8 @@ const deleteCourse = async (req, res) => {
     });
     return res.status(200).json({ message: "Kurs muffaqiyatli o'chirildi." });
   } catch (error) {
+    console.log(error);
+    
     return res.status(500).json({ error });
   }
 };

@@ -12,10 +12,20 @@ const PaymentTable = ({
 }) => {
   const rows = payments?.map((payment: IPayments, index: number) => (
     <Table.Tr key={index}>
-      <Table.Td>{payment.amount}</Table.Td>
-      <Table.Td>{formatTime.DateTimeHours(payment?.paymentDate)}</Table.Td>
       <Table.Td>
-        <Badge component="span" color={payment.isRefunded ? "red" : "green"}>
+        {/* {payment.amount} */}
+        <Badge component="span" color={payment.isRefunded ? "red" : "blue"}>
+          {payment.amount}
+        </Badge>
+      </Table.Td>
+      <Table.Td>
+        {/* {formatTime.DateTimeHours(payment?.paymentDate)} */}
+        <Badge component="span" color={payment.isRefunded ? "red" : "blue"}>
+          {formatTime.DateTimeHours(payment?.paymentDate)}
+        </Badge>
+      </Table.Td>
+      <Table.Td>
+        <Badge component="span" color={payment.isRefunded ? "red" : "blue"}>
           {payment.status}
         </Badge>
       </Table.Td>
@@ -32,6 +42,13 @@ const PaymentTable = ({
           id={payment.id}
         />
       </Table.Td>
+      <Table.Td>
+        <Badge hidden={!payment?.refundedAt} component="span" color={payment.isRefunded ? "red" : "blue"}>
+          {payment?.refundedAt
+            ? formatTime.DateTimeHours(payment?.refundedAt)
+            : ""}
+        </Badge>
+      </Table.Td>
     </Table.Tr>
   ));
   return (
@@ -40,9 +57,10 @@ const PaymentTable = ({
         <Table.Tr>
           <Table.Th>To'lov miqdori</Table.Th>
           <Table.Th>To'lov sanasi</Table.Th>
-          <Table.Th>To'lov statusi</Table.Th>
+          <Table.Th>Statusi</Table.Th>
           <Table.Th>Bekor qilish</Table.Th>
-          <Table.Th>Bekor sababi</Table.Th>
+          <Table.Th>Sababini ko'rish</Table.Th>
+          <Table.Th>Bekor qilingan sana</Table.Th>
         </Table.Tr>
       </Table.Thead>
       <Table.Tbody>{rows}</Table.Tbody>

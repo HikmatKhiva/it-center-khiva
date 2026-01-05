@@ -8,3 +8,13 @@ export const paymentSchema = {
   required: ["studentId", "amount", "paymentDate"],
   additionalProperties: false,
 };
+
+export const refundSchema = {
+  type: "object",
+  properties: {
+    amount: { type: "number" },
+    reason: { type: "string" },
+  },
+  required: ["amount", "reason"],
+  additionalProperties: false,
+};

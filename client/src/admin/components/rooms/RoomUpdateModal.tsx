@@ -43,7 +43,6 @@ const RoomUpdateModal = ({ id }: { id: number }) => {
         name: data?.name ?? "",
         capacity: data?.capacity ?? 0,
       });
-      console.log("run");
     }
   }, [data]);
   const { mutateAsync, isPending } = useMutation({

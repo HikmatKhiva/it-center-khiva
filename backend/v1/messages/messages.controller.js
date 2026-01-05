@@ -24,6 +24,7 @@ const getMessages = async (req, res) => {
       where: {
         fullName: {
           contains: name,
+          mode: "insensitive",
         },
       },
       skip: (page - 1) * limit,

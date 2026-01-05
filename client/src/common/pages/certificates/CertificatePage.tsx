@@ -2,24 +2,36 @@ import { useQuery } from "@tanstack/react-query";
 import { useAppSelector } from "@/hooks/redux";
 import { selectUser } from "@/lib/redux/reducer/admin";
 import { useState } from "react";
-import { Group, Pagination, Stack, Text, TextInput } from "@mantine/core";
+import {
+  Group,
+  Pagination,
+  Select,
+  Stack,
+  Text,
+  TextInput,
+} from "@mantine/core";
 import { GraduationCap, LoaderCircle, Search } from "lucide-react";
 import CertificateTable from "@/common/components/CertificateTable";
 import { Server } from "@/api/api";
+import { ICertificateResponse } from "@/types";
+import { years } from "@/config";
 const CertificatePage = () => {
   const admin = useAppSelector(selectUser);
+  const currentYear = new Date().getFullYear().toString();
   const [query, setQuery] = useState({
     name: "",
     page: 1,
     limit: 10,
+    year: currentYear || "",
   });
   const params = new URLSearchParams({
     name: query.name,
     page: query.page.toString(),
     limit: query.limit.toString(),
+    year: query.year,
   });
   const { data, isPending } = useQuery<ICertificateResponse>({
-    queryKey: ["certificates", query.name, query.page],
+    queryKey: ["certificates", query.name, query.page, query.year],
     queryFn: () =>
       Server<ICertificateResponse>(`certificate?${params}`, {
         method: "GET",
@@ -36,23 +48,33 @@ const CertificatePage = () => {
           <Text size="xl">Tayor Sertificatlar</Text>
           <GraduationCap />
         </Group>
-        <TextInput
-          className="self-end"
-          fz="sm"
-          size="sm"
-          value={query.name}
-          rightSection={
-            isPending ? (
-              <LoaderCircle size={16} className="animate-spin" />
-            ) : (
-              <Search size={16} />
-            )
-          }
-          onChange={(event) =>
-            setQuery({ ...query, name: event.target.value })
-          }
-          placeholder="O'quvchi passportId..."
-        />
+        <Group>
+          <TextInput
+            className="self-end"
+            fz="sm"
+            size="sm"
+            value={query.name}
+            rightSection={
+              isPending ? (
+                <LoaderCircle size={16} className="animate-spin" />
+              ) : (
+                <Search size={16} />
+              )
+            }
+            onChange={(event) =>
+              setQuery({ ...query, name: event.target.value })
+            }
+            placeholder="O'quvchi passportId..."
+          />
+          <Select
+            defaultValue={query.year}
+            placeholder="2025"
+            data={years}
+            value={query.year}
+            onChange={(value) => setQuery({ ...query, year: value || "" })}
+            w={90}
+          />
+        </Group>
       </Group>
       <Stack className="h-[calc(100vh_-_140px)]" justify="space-between">
         <CertificateTable students={data?.students || []} />

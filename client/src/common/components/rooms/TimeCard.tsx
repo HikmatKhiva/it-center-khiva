@@ -7,12 +7,13 @@ import {
   Text,
   Tooltip,
 } from "@mantine/core";
-import { getTimeRange, TimeGrid } from "@mantine/dates";
+import { TimeGrid } from "@mantine/dates";
 import { useDisclosure } from "@mantine/hooks";
 import { Table } from "lucide-react";
 import DrawerTable from "./DrawerTable";
 const TimeCard = ({ room }: { room: IRoom }) => {
   const [opened, { open, close }] = useDisclosure(false);
+  const timesRange = ["09:00:00", "11:00:00", "14:00:00", "16:00:00"];
   return (
     <>
       <Indicator
@@ -43,32 +44,26 @@ const TimeCard = ({ room }: { room: IRoom }) => {
             <Grid.Col span={6}>
               <Text ta={"center"}>Toq</Text>
               <TimeGrid
+                allowDeselect={false}
                 simpleGridProps={{
                   type: "container",
                   cols: { base: 1 },
                   spacing: "xs",
                 }}
-                data={getTimeRange({
-                  startTime: "09:00",
-                  endTime: "16:00",
-                  interval: "02:00",
-                })}
+                data={timesRange}
                 disableTime={room.schedules.ODD.time || []}
               />
             </Grid.Col>
             <Grid.Col span={6}>
               <Text ta={"center"}>Juft</Text>
               <TimeGrid
+                allowDeselect={false}
                 simpleGridProps={{
                   type: "container",
                   cols: { base: 1 },
                   spacing: "xs",
                 }}
-                data={getTimeRange({
-                  startTime: "09:00",
-                  endTime: "16:00",
-                  interval: "02:00",
-                })}
+                data={timesRange}
                 disableTime={room.schedules.EVEN.time || []}
               />
             </Grid.Col>

@@ -130,6 +130,7 @@ interface IPayments extends IDefault {
   status: string;
   studentId: number;
   isRefunded: boolean;
+  refundedAt: Date;
 }
 interface IRefund {
   id: number;
@@ -193,6 +194,7 @@ interface IStats {
   totalNewstudentNOT_CAME: number;
   totalNewstudentCAME: number;
   totalNewstudent: number;
+  totalNewstudentPENDING: number;
 }
 interface IPaymentRefund {
   amount: number;
@@ -435,6 +437,7 @@ interface IDebtorsResponse extends IDefaultResponse {
 
 interface IDebtorQuery extends IDefaultQuery {
   month: string;
+  year: string;
 }
 
 interface IRoomQuery {

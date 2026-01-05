@@ -16,7 +16,7 @@ import "@/css/index.css";
 import "@mantine/core/styles.css";
 import "@mantine/notifications/styles.css";
 import "@mantine/dates/styles.css";
-import '@mantine/charts/styles.css';
+import "@mantine/charts/styles.css";
 // import NavigationProgressComponent from "./loading/NavigationProgressComponent.tsx";
 // Create a client
 const queryClient = new QueryClient();
@@ -46,5 +46,5 @@ createRoot(document.getElementById("root")!).render(
       {/* tanstack query devtool */}
       <ReactQueryDevtools initialIsOpen={false} />
     </QueryClientProvider>
-  // </>
+  </>
 );

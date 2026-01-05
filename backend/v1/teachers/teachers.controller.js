@@ -11,6 +11,7 @@ const getAllTeacher = async (req, res) => {
       where: {
         firstName: {
           contains: name,
+          mode: "insensitive",
         },
       },
       skip: (page - 1) * limit,
@@ -56,7 +57,7 @@ const createTeacher = async (req, res) => {
     return res.status(201).json({ message: "Ustoz muoffaqiyatli yaratildi." });
   } catch (error) {
     console.log(error);
-    
+
     return res.status(500).json({ error });
   }
 };
@@ -87,7 +88,6 @@ const updateTeacher = async (req, res) => {
     });
     return res.status(200).json({ message: "Ustoz muoffaqiyatli yangilandi." });
   } catch (error) {
-
     return res.status(500).json({ error });
   }
 };

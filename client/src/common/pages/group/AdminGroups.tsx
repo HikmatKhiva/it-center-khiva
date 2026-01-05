@@ -14,22 +14,33 @@ import { useState } from "react";
 import { useAppSelector } from "@/hooks/redux";
 import { Server } from "@/api/api";
 import { selectUser } from "@/lib/redux/reducer/admin";
+import { GroupQueryResponse } from "@/types";
+import { years } from "@/config";
 const AdminGroups = () => {
   const admin = useAppSelector(selectUser);
+  const currentYear = new Date().getFullYear().toString();
   const [query, setQuery] = useState({
     name: "",
     page: 1,
     limit: 12,
     isGroupFinished: false,
+    year: currentYear || "",
   });
   const params = new URLSearchParams({
     name: query.name,
     page: query.page.toString(),
     limit: query.limit.toString(),
     isGroupFinished: query.isGroupFinished.toString(),
+    year: query.year,
   });
   const { data, isPending } = useQuery<GroupQueryResponse>({
-    queryKey: ["groups", query.name, query.isGroupFinished, query.page],
+    queryKey: [
+      "groups",
+      query.name,
+      query.isGroupFinished,
+      query.page,
+      query.year,
+    ],
     queryFn: () =>
       Server(`group?${params}`, {
         method: "GET",
@@ -78,6 +89,14 @@ const AdminGroups = () => {
               setQuery((prev) => ({ ...prev, name: event.target.value }))
             }
             placeholder="Guruh nomi orqali qidirish..."
+          />
+          <Select
+            defaultValue={query.year}
+            placeholder="2025"
+            data={years}
+            value={query.year}
+            onChange={(value) => setQuery({ ...query, year: value || "" })}
+            w={90}
           />
           <CreateGroupModal />
         </Group>

@@ -8,6 +8,7 @@ const getAllStudents = async (req, res) => {
       where: {
         firstName: {
           contains: name,
+          mode: "insensitive",
         },
         ...(groupId && { groupId: parseInt(groupId) }),
       },
@@ -98,8 +99,6 @@ const createStudent = async (req, res) => {
       .status(201)
       .json({ message: "O'quvchi muoffaqiyatli yaratildi." });
   } catch (error) {
-    console.log(error);
-
     return res.status(500).json({ error });
   }
 };

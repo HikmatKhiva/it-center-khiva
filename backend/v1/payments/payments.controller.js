@@ -52,8 +52,6 @@ const getPayments = async (req, res) => {
       monthly,
     });
   } catch (error) {
-    console.log(error);
-
     return res.status(500).json({ error });
   }
 };
@@ -113,8 +111,6 @@ const paymentRefund = async (req, res) => {
   try {
     const { paymentId } = req.params;
     const { reason, amount } = req.body;
-    console.log(reason);
-    
     const parsedPaymentId = parseInt(paymentId, 10);
     const payment = await prisma.payment.findUnique({
       where: { id: parsedPaymentId },
@@ -159,8 +155,6 @@ const paymentRefund = async (req, res) => {
       .status(200)
       .json({ message: "To'lov muoffaqiyatli bekor qilindi!" });
   } catch (error) {
-    console.log(error);
-
     return res.status(500).json({ error });
   }
 };
@@ -179,7 +173,6 @@ const getRefund = async (req, res) => {
     }
     return res.status(200).json(refund);
   } catch (error) {
-    console.log(error);
     return res.status(500).json({ error });
   }
 };

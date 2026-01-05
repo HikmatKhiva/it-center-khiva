@@ -7,6 +7,7 @@ const getRooms = async (req, res) => {
       where: {
         name: {
           contains: name,
+          mode: "insensitive",
         },
       },
       skip: (page - 1) * limit,

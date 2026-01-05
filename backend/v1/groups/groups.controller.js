@@ -4,13 +4,19 @@ import { formatterGroups } from "./group.helper.js";
 // getAll groups
 const getAllGroup = async (req, res) => {
   try {
-    const { name, isGroupFinished, limit = 10, page = 1 } = req.query;
+    const { name, isGroupFinished, limit = 10, page = 1, year } = req.query;
+    const yearFilter = parseInt(year, 10) || new Date().getFullYear();
     const groups = await prisma.group.findMany({
       where: {
         name: {
           contains: name,
+          mode: "insensitive",
         },
         isGroupFinished: isGroupFinished === "true",
+        createdAt: {
+          gte: new Date(yearFilter, 0, 1),
+          lte: new Date(yearFilter, 11, 31, 23, 59, 59, 999),
+        },
       },
       select: {
         id: true,
@@ -36,6 +42,7 @@ const getAllGroup = async (req, res) => {
           },
         },
       },
+
       skip: (page - 1) * limit,
       take: parseInt(limit),
     });
@@ -43,6 +50,10 @@ const getAllGroup = async (req, res) => {
       where: {
         name: {
           contains: name,
+        },
+        createdAt: {
+          gte: new Date(yearFilter, 0, 1),
+          lte: new Date(yearFilter, 11, 31, 23, 59, 59, 999),
         },
         isGroupFinished: isGroupFinished === "true" ? true : false,
       },
@@ -53,6 +64,8 @@ const getAllGroup = async (req, res) => {
       totalPages,
     });
   } catch (error) {
+    console.log(error);
+
     return res.status(500).json({ error });
   }
 };
@@ -85,8 +98,6 @@ const createGroup = async (req, res) => {
     });
     return res.status(201).json({ message: "Guruh muoffaqiyatli yaratildi." });
   } catch (error) {
-    console.log(error);
-
     return res.status(500).json({ error });
   }
 };

@@ -2,7 +2,8 @@ import { prisma } from "../../app.js";
 import { filterStudents } from "./debtors.helper.js";
 const getAllMonthlyDebtors = async (req, res) => {
   try {
-    let { month, limit = 10, page = 1, name } = req.query;
+    let { month, limit = 10, page = 1, name, year } = req.query;
+    const yearFilter = parseInt(year, 10) || new Date().getFullYear();
     const currentDate = new Date();
     const monthNumber = parseInt(month)
       ? parseInt(month)
@@ -25,6 +26,10 @@ const getAllMonthlyDebtors = async (req, res) => {
       where: {
         debt: {
           gt: 0,
+        },
+        createdAt: {
+          gte: new Date(yearFilter, 0, 1),
+          lte: new Date(yearFilter, 11, 31, 23, 59, 59, 999),
         },
       },
       select: {

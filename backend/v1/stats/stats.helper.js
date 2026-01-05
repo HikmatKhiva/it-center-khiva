@@ -1,9 +1,6 @@
 import { prisma } from "../../app.js";
 export async function getTeacherMonthlyReport(teacherId, year, month) {
   try {
-    console.log(year, "year");
-    console.log(month, "month");
-
     if (!teacherId) throw new Error("Invalid teacherId");
     if (
       typeof year !== "number" ||
@@ -24,6 +21,7 @@ export async function getTeacherMonthlyReport(teacherId, year, month) {
     const paidAggregate = await prisma.payment.aggregate({
       _sum: { amount: true },
       where: {
+        isRefunded: false,
         createdAt: {
           gte: new Date(year, month - 1, 1),
           lt: new Date(year, month, 1),
@@ -104,53 +102,6 @@ export async function calculateAllTeachersSalaries(filterYear, filterMonth) {
 
     return results; // array of { teacherId, teacherName, monthlyReport }
   } catch (error) {
-    console.log(error);
-
-    throw error;
-  }
-}
-export async function calculateIncome() {
-  try {
-    const now = new Date();
-    const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
-    const endOfMonth = new Date(
-      now.getFullYear(),
-      now.getMonth() + 1,
-      0,
-      23,
-      59,
-      59
-    );
-
-    // 1. Fetch active groups with their students
-    const activeGroups = await prisma.group.findMany({
-      where: { isGroupFinished: false },
-      select: {
-        price: true,
-        Students: true, // fetch students array to get count
-      },
-    });
-
-    // 2. Calculate expected income: sum of (group price * number of students)
-    const expectedIncome = activeGroups.reduce(
-      (acc, group) => acc + Number(group.price) * group.Students.length,
-      0
-    );
-
-    // 3. Calculate total paid this month by summing payment amounts
-    const paidAggregate = await prisma.payment.aggregate({
-      _sum: { amount: true },
-      where: {
-        createdAt: {
-          gte: startOfMonth,
-          lte: endOfMonth,
-        },
-      },
-    });
-    const paidThisMonth = Number(paidAggregate._sum.amount) ?? 0;
-    const percentage = Math.floor((paidThisMonth / expectedIncome) * 100);
-    return { expectedIncome, paidThisMonth, percentage };
-  } catch (error) {
     throw error;
   }
 }
@@ -159,15 +110,26 @@ export async function calculateIncomeForYear(filterYear) {
     const results = [];
     const year = filterYear || new Date().getFullYear();
 
-    // Tugamagan guruhlar
     const activeGroups = await prisma.group.findMany({
       where: { isGroupFinished: false },
       select: {
         id: true,
-        price: true, // oylik to‘lov
-        Students: { select: { id: true } },
+        price: true,
+        Students: {
+          select: {
+            id: true,
+            Payments: {
+              where: {
+                isRefunded: false,
+              },
+              include: {
+                refunds: true,
+              },
+            },
+          },
+        },
         createdAt: true,
-        duration: true, // davomiylik oyda
+        duration: true,
       },
     });
 
@@ -181,14 +143,11 @@ export async function calculateIncomeForYear(filterYear) {
         const duration = Number(group.duration) || 0;
         if (duration <= 0) return acc;
 
-        // Guruh boshlangan oyning 1-kuni
         const groupStartMonth = new Date(
           groupStart.getFullYear(),
           groupStart.getMonth(),
           1
         );
-
-        // Oxirgi aktiv oyning 1-kuni (start + duration - 1)
         const lastActiveMonth = new Date(
           groupStart.getFullYear(),
           groupStart.getMonth() + duration - 1,
@@ -201,23 +160,30 @@ export async function calculateIncomeForYear(filterYear) {
         if (!isGroupActiveThisMonth) return acc;
 
         const studentCount = group.Students.length;
-        const monthlyPrice = Number(group.price) || 0; // oylik narx
-
+        const monthlyPrice = Number(group.price) || 0;
         return acc + monthlyPrice * studentCount;
       }, 0);
 
-      // Shu oy ichida tushgan real to‘lovlar
-      const paidAggregate = await prisma.payment.aggregate({
-        _sum: { amount: true },
+      const paymentsThisMonth = await prisma.payment.findMany({
         where: {
+          isRefunded: false,
           createdAt: {
             gte: startOfMonth,
             lte: endOfMonth,
           },
         },
+        include: {
+          refunds: true,
+        },
       });
 
-      const paidThisMonth = Number(paidAggregate._sum.amount) || 0;
+      const paidThisMonth = paymentsThisMonth.reduce((total, payment) => {
+        const refundedAmount = payment.refunds.reduce(
+          (sum, refund) => sum + Number(refund.amount),
+          0
+        );
+        return total + (Number(payment.amount) - refundedAmount);
+      }, 0);
 
       const percentage =
         expectedIncome > 0
@@ -383,6 +349,15 @@ export async function calculateStats(filterYear) {
       }),
       prisma.newStudent.count({
         where: {
+          isAttend: "PENDING",
+          createdAt: {
+            gte: new Date(yearFilter, 0, 1),
+            lte: new Date(yearFilter, 11, 31, 23, 59, 59, 999),
+          },
+        },
+      }),
+      prisma.newStudent.count({
+        where: {
           createdAt: {
             gte: new Date(yearFilter, 0, 1),
             lte: new Date(yearFilter, 11, 31, 23, 59, 59, 999),
@@ -405,6 +380,7 @@ export async function calculateStats(filterYear) {
       totalFinishedMaleStudents,
       totalNewstudentNOT_CAME,
       totalNewstudentCAME,
+      totalNewstudentPENDING,
       totalNewstudent,
     ] = stats;
     return {
@@ -425,6 +401,7 @@ export async function calculateStats(filterYear) {
       totalNewstudentNOT_CAME,
       totalNewstudentCAME,
       totalNewstudent,
+      totalNewstudentPENDING,
     };
   } catch (error) {
     throw error;

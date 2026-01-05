@@ -23,7 +23,6 @@ const getReceptionAccount = async (req, res) => {
     });
     return res.status(200).json(reception);
   } catch (error) {
-
     return res.status(500).json({ error });
   }
 };

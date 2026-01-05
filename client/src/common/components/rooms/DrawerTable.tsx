@@ -36,8 +36,6 @@ const DrawerTable = ({
       }),
     enabled: !!admin?.token && (!!id && opened),
   });
-  console.log("run");
-
   return (
     <>
       <Drawer

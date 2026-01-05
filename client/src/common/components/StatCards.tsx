@@ -2,6 +2,7 @@ import { graduateMen, men, teacher, women } from "@/admin/assets/svg";
 import {
   BookOpenText,
   GraduationCap,
+  Hourglass,
   UserRoundCheck,
   UsersRound,
   UserX2,
@@ -20,7 +21,7 @@ const StatCards = ({ data }: { data: IStats[] }) => {
             <Group mb={15}>
               <BookOpenText />
               <Text>Kurslar:</Text>
-              <NumberTicker value={data ? data[0]?.activeStudents : 0} />
+              <NumberTicker value={data ? data[0]?.totalCourses : 0} />
             </Group>
             <Group mb={15}>
               <UsersRound />
@@ -40,7 +41,7 @@ const StatCards = ({ data }: { data: IStats[] }) => {
             <Group mb={15}>
               <Banknote />
               <Text>Qarzdorlar:</Text>
-              <NumberTicker value={data ? data[0]?.totalDebtors : 0} />
+              <NumberTicker value={data[0]?.totalDebtors ? data[0]?.totalDebtors : 0} />
             </Group>
           </Card>
         </Indicator>
@@ -90,12 +91,12 @@ const StatCards = ({ data }: { data: IStats[] }) => {
             <Group mb={15}>
               <img src={men} alt="men" width={28} />
               <Text>Erkak:</Text>
-              <NumberTicker value={data ? data[0]?.totalStudents : 0} />
+              <NumberTicker value={data ? data[0]?.totalMaleStudents : 0} />
             </Group>
             <Group mb={15}>
               <img src={women} alt="woman" width={28} />
               <Text>Ayol:</Text>
-              <NumberTicker value={data ? data[0]?.totalStudents : 0} />
+              <NumberTicker value={data ? data[0]?.totalFemaleStudents : 0} />
             </Group>
           </Card>
         </Indicator>
@@ -123,6 +124,13 @@ const StatCards = ({ data }: { data: IStats[] }) => {
               <Text>Darsga kelmagan:</Text>
               <NumberTicker
                 value={data ? data[0]?.totalNewstudentNOT_CAME : 0}
+              />
+            </Group>
+            <Group mb={15}>
+              <Hourglass />
+              <Text>Kutish xolatida:</Text>
+              <NumberTicker
+                value={data ? data[0]?.totalNewstudentPENDING : 0}
               />
             </Group>
           </Card>

@@ -89,8 +89,6 @@ const addNewStudent = async (req, res) => {
       message: "Ma'lumotlaringiz bazaga joylandi biz siz bilan bog'lanamiz!",
     });
   } catch (error) {
-    console.log(error);
-
     return res.status(500).json({ error });
   }
 };
@@ -120,8 +118,6 @@ const updateNewStudent = async (req, res) => {
     });
     res.status(200).json({ message: "Ma'lumotlar yangilandi." });
   } catch (error) {
-    console.log(error);
-
     return res.status(500).json({ error });
   }
 };

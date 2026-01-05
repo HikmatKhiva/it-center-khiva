@@ -48,61 +48,72 @@ const findCertificate = async (req, res) => {
 };
 const getAllCertificates = async (req, res) => {
   try {
-    const { limit = 10, page = 1, passport } = req.query;
-    const students = await prisma.student.findMany({
-      where: {
-        passportId: {
-          contains: passport,
-        },
-        debt: 0,
+    const { limit = 10, page = 1, name = "", year } = req.query;
+    const yearFilter = parseInt(year, 10) || new Date().getFullYear();
+
+    // Shared where clause to avoid duplication
+    const whereClause = {
+      passportId: {
+        contains: name,
+        mode: "insensitive",
       },
-      select: {
-        id: true,
-        firstName: true,
-        secondName: true,
-        passportId: true,
-        code: true,
-        course: {
-          select: {
-            id: true,
-            name: true,
-            teacher: {
-              select: {
-                firstName: true,
-                secondName: true,
+      debt: { equals: 0 },
+      Group: {
+        finishedDate: {
+          gte: new Date(yearFilter, 0, 1),
+          lte: new Date(yearFilter, 11, 31, 23, 59, 59, 999),
+        },
+      },
+    };
+
+    const [students, totalCount] = await prisma.$transaction([
+      prisma.student.findMany({
+        where: whereClause,
+        select: {
+          id: true,
+          firstName: true,
+          secondName: true,
+          passportId: true,
+          code: true,
+          course: {
+            select: {
+              id: true,
+              name: true,
+              teacher: {
+                select: {
+                  firstName: true,
+                  secondName: true,
+                },
               },
             },
           },
-        },
-        Group: {
-          select: {
-            finishedDate: true,
+          Group: {
+            select: {
+              finishedDate: true,
+            },
           },
         },
-      },
-      orderBy: {
-        createdAt: "desc",
-      },
-      skip: (page - 1) * limit,
-      take: parseInt(limit),
-    });
-    const totalCount = await prisma.student.count({
-      where: {
-        passportId: {
-          contains: passport,
+        orderBy: {
+          createdAt: "desc",
         },
-        debt: 0,
-      },
-    });
-    const totalPages = Math.ceil(totalCount / limit);
+        skip: (parseInt(page) - 1) * parseInt(limit),
+        take: parseInt(limit),
+      }),
+      prisma.student.count({ where: whereClause }),
+    ]);
+    const totalPages = Math.ceil(totalCount / parseInt(limit));
+
     return res.status(200).json({
       students,
       totalPages,
+      totalCount,
     });
   } catch (error) {
+    console.log(error);
     return res.status(500).json({ error: error.message });
   }
 };
+
 const downloadGroupCertificateZip = async (req, res) => {
   try {
     const { id } = req.params;

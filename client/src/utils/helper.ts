@@ -1,7 +1,5 @@
 export const formatTime = {
   DateTime: (dateInput: Date): string => {
-    console.log(dateInput);
-    
     const date = new Date(dateInput);
     // Extract month, day, and year
     const month = (date.getMonth() + 1).toString().padStart(2, "0"); // Months are 0-indexed in JavaScript

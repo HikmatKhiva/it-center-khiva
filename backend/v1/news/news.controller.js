@@ -3,7 +3,7 @@ import fs from "fs";
 import slugify from "slugify";
 import { prisma } from "../../app.js";
 import Ajv from "ajv";
-import {  newsSchema } from "./news.validator.js";
+import { newsSchema } from "./news.validator.js";
 import { promisify } from "util";
 import cloudinary from "../../db/db.js";
 const ajv = new Ajv({ allErrors: true });
@@ -60,6 +60,7 @@ const getAllNews = async (req, res) => {
       where: {
         title: {
           contains: name,
+          mode: "insensitive",
         },
       },
       skip: (page - 1) * limit,

@@ -6,9 +6,9 @@ import {
   getRefund,
 } from "./payments.controller.js";
 import { validate } from "../../middleware/validation.middleware.js";
-import { paymentSchema } from "./payment.validation.js";
+import { paymentSchema, refundSchema } from "./payment.validation.js";
 export const paymentsRoutes = Router();
 paymentsRoutes.post("/create", validate(paymentSchema), uploadPayment);
 paymentsRoutes.get("/:id", getPayments);
 paymentsRoutes.get("/refund/:paymentId", getRefund);
-paymentsRoutes.put("/refund/:paymentId", paymentRefund);
+paymentsRoutes.put("/refund/:paymentId", validate(refundSchema), paymentRefund);
