@@ -65,7 +65,13 @@ docker exec nginx_it-khiva nginx -s reload
     }
 }
 
-1 xonalarni admin va reception asosiy panelga qo'shish
+
+
+stats refund qilingan summani ham hisoblayapdi where isRefunded faqat false larni olishni to'girlash kerak 
+
+hammasi qo'shildi deyarli test yaxshi natija berdi eski bazani qoshib deploy qilish kerak
+
+
 2. socket io ni tuzatish
 3. qo'shilgan barcha yangi imkoniyatlarni tekshirish
 

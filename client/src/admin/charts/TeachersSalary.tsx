@@ -10,7 +10,6 @@ import { useState } from "react";
 const TeachersSalary = ({ isActive }: { isActive?: boolean }) => {
   const admin = useAppSelector(selectUser);
   const current = new Date();
-  
   const [query, setQuery] = useState({
     year: current.getFullYear().toString() || "",
     month: current.getMonth() + (1).toString() || "",
@@ -41,7 +40,7 @@ const TeachersSalary = ({ isActive }: { isActive?: boolean }) => {
           onChange={(value) =>
             setQuery((prev) => ({ ...prev, year: value || "" }))
           }
-          w={130}
+          w={90}
         />
         <Select
           defaultValue={query.month}
@@ -51,7 +50,7 @@ const TeachersSalary = ({ isActive }: { isActive?: boolean }) => {
           onChange={(value) =>
             setQuery((prev) => ({ ...prev, month: value || "" }))
           }
-          w={130}
+          w={120}
         />
       </Group>
       {data && (

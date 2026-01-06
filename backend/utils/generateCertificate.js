@@ -63,7 +63,7 @@ async function createPdf(student, courseName) {
 
     // write id
     page.drawText(`${student.code}`, {
-      x: 635,
+      x: 620,
       y: 130,
       font: poppinsFont,
       size: 15,

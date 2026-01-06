@@ -100,7 +100,7 @@ model Student {
   firstName    String       @db.VarChar(50)
   secondName   String       @db.VarChar(50)
   passportId   String?      @unique @db.VarChar(9)
-  paymentType  PaymentType
+  paymentType  PaymentType  @default(selfPayment)
   gender       gender
   debt         Decimal      @default(0.00)
   code         String       @unique

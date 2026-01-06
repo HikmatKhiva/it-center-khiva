@@ -34,7 +34,7 @@ const IncomeChart = ({ isActive }: { isActive?: boolean }) => {
           data={years}
           value={year}
           onChange={(value) => setYear(value || "")}
-          w={150}
+          w={90}
         />
       </Group>
       {data && (

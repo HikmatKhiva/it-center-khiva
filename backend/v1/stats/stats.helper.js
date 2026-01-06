@@ -230,18 +230,18 @@ export async function calculateStats(filterYear) {
       }),
       prisma.teacher.count({
         where: {
-          createdAt: {
-            gte: new Date(yearFilter, 0, 1),
-            lte: new Date(yearFilter, 11, 31, 23, 59, 59, 999),
-          },
+          // createdAt: {
+          //   gte: new Date(yearFilter, 0, 1),
+          //   lte: new Date(yearFilter, 11, 31, 23, 59, 59, 999),
+          // },
         },
       }),
       prisma.course.count({
         where: {
-          createdAt: {
-            gte: new Date(yearFilter, 0, 1),
-            lte: new Date(yearFilter, 11, 31, 23, 59, 59, 999),
-          },
+          // createdAt: {
+          //   gte: new Date(yearFilter, 0, 1),
+          //   lte: new Date(yearFilter, 11, 31, 23, 59, 59, 999),
+          // },
         },
       }),
       prisma.student.count({

@@ -10,6 +10,8 @@ const getStats = async (req, res) => {
     const stats = await calculateStats(year);
     res.status(200).json([stats]);
   } catch (error) {
+    console.log(error);
+    
     return res.status(500).json({ error });
   }
 };
@@ -19,6 +21,8 @@ const getYearlyIncome = async (req, res) => {
     const yearly = await calculateIncomeForYear(year);
     res.status(200).json(yearly);
   } catch (error) {
+    console.log(error);
+
     return res.status(500).json({ error });
   }
 };
@@ -32,6 +36,8 @@ const getTeachersSalary = async (req, res) => {
     );
     res.status(200).json(teachers);
   } catch (error) {
+    console.log(error);
+
     return res.status(500).json({ error });
   }
 };
