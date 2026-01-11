@@ -1,9 +1,15 @@
-export const calculateTotalPrice = (price, duration) => {
-  return parseInt(price) * duration;
+export const calculateTotalPrice = (price, duration, discount) => {
+  const monthlyPrice = Number(price);
+  const discountFactor = 1 - Number(discount) / 100;
+  return monthlyPrice * discountFactor * Number(duration);
 };
 export const calculateTotalPaid = (payments) => {
-  return payments.reduce((accumulator, payment) => {
-    return accumulator + parseInt(payment.amount);
+  return payments.reduce((total, payment) => {
+    const refundedAmount = payment.refunds.reduce(
+      (sum, refund) => sum + Number(refund.amount),
+      0
+    );
+    return total + (Number(payment.amount) - refundedAmount);
   }, 0);
 };
 export const calculateCourseDuration = async (student) => {
@@ -27,13 +33,15 @@ export const calculateCourseDuration = async (student) => {
     const startDate = student.createdAt;
     const duration = student.Group.duration;
     const monthlyPayment = student.Group.price;
+    const discountFactor = 1 - Number(student.discount) / 100; 
+
     for (let i = 0; i < duration; i++) {
       const currentDate = new Date(startDate);
       currentDate.setMonth(startDate.getMonth() + i);
       paymentsArray.push({
         month: monthNames[currentDate.getMonth()],
         year: currentDate.getFullYear(),
-        payment: monthlyPayment,
+        payment: monthlyPayment * discountFactor,
         paid: 0,
         percentage: 0,
       });

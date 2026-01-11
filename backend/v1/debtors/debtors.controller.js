@@ -39,6 +39,7 @@ const getAllMonthlyDebtors = async (req, res) => {
         passportId: true,
         createdAt: true,
         debt: true,
+        discount:true,
         Group: {
           select: {
             id: true,

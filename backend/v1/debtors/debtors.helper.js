@@ -1,6 +1,6 @@
 const totalPaidThisMonth = (student) => {
   return student.Payments.reduce(
-    (sum, payment) => sum + parseFloat(payment.amount), // Use parseFloat for better precision
+    (sum, payment) => sum + parseFloat(payment.amount), 
     0
   );
 };
@@ -10,7 +10,7 @@ const latestPaymentDate = (student) => {
     (latest, payment) =>
       new Date(payment.createdAt) > new Date(latest)
         ? payment.createdAt
-        : latest, // Ensure comparison is done with Date objects
+        : latest, 
     student?.Payments[0].createdAt
   );
 };
@@ -20,29 +20,33 @@ export const filterStudents = async (students, name) => {
       .map((student) => {
         const group = student.Group;
         const totalPaid = totalPaidThisMonth(student);
-        let lastPayment = latestPaymentDate(student);
+        const discountFactor = 1 - Number(student.discount) / 100;
+        const expectedPayment = Number(group.price) * discountFactor;
+        const lastPayment = latestPaymentDate(student);
         return {
           id: student.id,
           fullName: `${student.firstName} ${student.secondName}`,
           passportId: student.passportId,
-          debt: student.debt,
-          groupPrice: group.price,
+          debt: Number(student.debt),
+          discount: Number(student.discount),
+          groupPrice: Number(group.price) * discountFactor,
+          expectedPayment,
           groupName: group.name,
           courseName: student.course.name,
           teacherName: `${group.teacher.firstName} ${group.teacher.secondName}`,
           lastPaymentDate: lastPayment
-            ? new Date(lastPayment).toLocaleDateString("en-GB") // Ensure lastPayment is a Date object
+            ? new Date(lastPayment).toLocaleDateString("en-GB")
             : "No payments",
           totalPaidThisMonth: totalPaid,
           createdAt: student.createdAt,
         };
       })
       .filter((student) =>
-        student?.fullName?.toLowerCase()?.includes(name?.toLowerCase())
+        student?.fullName?.toLowerCase()?.includes(name?.toLowerCase() || "")
       );
-    // Filter students whose total payments are less than the group price
+
     return newArray.filter(
-      (student) => student.totalPaidThisMonth < student.groupPrice
+      (student) => student.totalPaidThisMonth < student.expectedPayment
     );
   } catch (error) {
     throw error;

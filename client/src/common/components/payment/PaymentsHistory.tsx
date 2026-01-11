@@ -47,7 +47,7 @@ const PaymentsHistory = ({ id }: { id: number }) => {
         </Group>
         <Group mb="10" justify="space-between" px="20">
           <Text>
-            Oylik to'lovi: <strong>{data?.student?.Group.price}</strong>
+            Oylik to'lovi: <strong>{data?.monthlyPrice}</strong>
           </Text>
           <Text>
             Berilgan chegirma: <strong>{data?.student?.discount}%</strong>

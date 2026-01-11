@@ -28,13 +28,13 @@ const AdminHome = () => {
         mb="20"
       >
         <Tabs.List mb="20">
-          <Tabs.Tab
+          {/* <Tabs.Tab
             fz="xl"
             value="metrics"
             rightSection={<Computer size={16} />}
           >
             Metrics
-          </Tabs.Tab>
+          </Tabs.Tab> */}
           <Tabs.Tab
             fz="xl"
             value="debtors"
@@ -74,9 +74,9 @@ const AdminHome = () => {
         <Tabs.Panel value="stats">
           <StudentsChart isActive={activeTab === "stats"} />
         </Tabs.Panel>
-        <Tabs.Panel value="metrics">
-          <Metrics isActive={activeTab === "stats"} />
-        </Tabs.Panel>
+        {/* <Tabs.Panel value="metrics">
+          <Metrics isActive={activeTab === "metrics"} />
+        </Tabs.Panel> */}
         <Tabs.Panel value="income">
           <IncomeChart isActive={activeTab === "income"} />
         </Tabs.Panel>

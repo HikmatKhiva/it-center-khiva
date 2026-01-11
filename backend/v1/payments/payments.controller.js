@@ -12,11 +12,17 @@ const getPayments = async (req, res) => {
       where: {
         studentId: parseInt(id),
       },
+      include: {
+        refunds: true,
+      },
     });
     const paymentNotRefund = await prisma.payment.findMany({
       where: {
         studentId: parseInt(id),
         isRefunded: false,
+      },
+      include: {
+        refunds: true,
       },
     });
     const student = await prisma.student.findUnique({
@@ -29,23 +35,28 @@ const getPayments = async (req, res) => {
         discount: true,
         debt: true,
         createdAt: true,
+        discount: true,
         Group: {
           select: {
             duration: true,
             price: true,
           },
         },
-        Payments: true,
+        Payments: {
+          include: { refunds: true },
+        },
       },
     });
     const { price, duration } = student.Group;
-    const totalPrice = calculateTotalPrice(price, duration);
+    const totalPrice = calculateTotalPrice(price, duration, student.discount);
+    const discountFactor = 1 - Number(student.discount) / 100;
+    const monthlyPrice = price * discountFactor;
     const totalPaid = calculateTotalPaid(paymentNotRefund);
     const monthly = await calculateCourseDuration(student);
-    const discountAmount = ((price * student.discount) / 100) * duration;
     const percentagePaid =
-      ((totalPaid + discountAmount) / parseInt(totalPrice)) * 100;
+      totalPrice > 0 ? Math.min((totalPaid / totalPrice) * 100, 100) : 0;
     return res.status(200).json({
+      monthlyPrice,
       payments,
       student,
       percentagePaid,

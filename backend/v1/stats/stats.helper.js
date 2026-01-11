@@ -10,21 +10,24 @@ export async function getTeacherMonthlyReport(teacherId, year, month) {
     ) {
       throw new Error("Invalid year or month");
     }
+
     // 1. Fetch teacher info
     const teacher = await prisma.teacher.findUnique({
       where: { id: teacherId },
-      select: { id: true, firstName: true, secondName: true }, // adjust field name if different
+      select: { id: true, firstName: true, secondName: true },
     });
     if (!teacher) throw new Error("Teacher not found");
 
-    // 2. Calculate totalPaid by students of this teacher's groups in the month
-    const paidAggregate = await prisma.payment.aggregate({
-      _sum: { amount: true },
+    const startOfMonth = new Date(year, month - 1, 1);
+    const endOfMonth = new Date(year, month, 0, 23, 59, 59, 999);
+
+    // 2. Calculate totalPaid by students of this teacher's groups in the month (with refunds)
+    const paymentsThisMonth = await prisma.payment.findMany({
       where: {
         isRefunded: false,
         createdAt: {
-          gte: new Date(year, month - 1, 1),
-          lt: new Date(year, month, 1),
+          gte: startOfMonth,
+          lte: endOfMonth,
         },
         Student: {
           Group: {
@@ -32,76 +35,137 @@ export async function getTeacherMonthlyReport(teacherId, year, month) {
           },
         },
       },
+      include: {
+        refunds: true,
+      },
     });
-    const totalPaid = Number(paidAggregate._sum.amount) || 0;
 
-    // 3. Calculate totalSalary (50% of totalPaid)
-    const totalSalary = totalPaid * 0.5;
+    const totalPaid = paymentsThisMonth.reduce((total, payment) => {
+      const refundedAmount = payment.refunds.reduce(
+        (sum, refund) => sum + Number(refund.amount),
+        0
+      );
+      return total + (Number(payment.amount) - refundedAmount);
+    }, 0);
 
-    // 4. Calculate expectedSalary based on groups and students count
+    // 3. Calculate expectedSalary based on active groups with student discounts
     const groups = await prisma.group.findMany({
       where: {
         teacherId,
+        isGroupFinished: false, // Only active groups
         createdAt: {
-          gte: new Date(year, month - 1, 1),
-          lt: new Date(year, month, 1),
+          lt: endOfMonth, // Group must have started by end of month
         },
       },
       select: {
+        id: true,
         price: true,
-        Students: true,
+        createdAt: true,
+        duration: true,
+        Students: {
+          select: {
+            discount: true,
+          },
+        },
       },
     });
-    const expectedSalary = groups.reduce(
-      (sum, group) => sum + Number(group.price) * group.Students.length * 0.5,
-      0
-    );
-    const totalAmount = groups.reduce(
-      (sum, group) => sum + Number(group.price) * group.Students.length,
-      0
-    );
+
+    let expectedSalary = 0;
+    const currentMonthDate = new Date(year, month - 1, 1);
+
+    groups.forEach((group) => {
+      const groupStart = new Date(group.createdAt);
+      const duration = Number(group.duration) || 0;
+
+      if (duration <= 0) return;
+
+      const groupStartMonth = new Date(
+        groupStart.getFullYear(),
+        groupStart.getMonth(),
+        1
+      );
+      const lastActiveMonth = new Date(
+        groupStart.getFullYear(),
+        groupStart.getMonth() + duration - 1,
+        1
+      );
+
+      // Check if group was active this month
+      const isGroupActiveThisMonth =
+        currentMonthDate >= groupStartMonth &&
+        currentMonthDate <= lastActiveMonth;
+
+      if (!isGroupActiveThisMonth) return;
+
+      // Calculate expected income with student discounts
+      const monthlyExpectedIncome = group.Students.reduce(
+        (groupTotal, student) => {
+          const discountFactor = 1 - Number(student.discount) / 100;
+          const studentMonthlyPrice = Number(group.price) * discountFactor;
+          return groupTotal + studentMonthlyPrice;
+        },
+        0
+      );
+
+      // Teacher gets 50% of expected income
+      expectedSalary += monthlyExpectedIncome * 0.5;
+    });
+
+    const totalSalary = totalPaid * 0.5; // 50% of actual payments
+    const totalAmount = expectedSalary * 2; // Full expected amount (before teacher split)
+
     const monthName = getMonthName(year, month);
-    // 5. Build report object
+
     return {
-      teacherName: teacher.firstName + " " + teacher.secondName,
+      teacherName: `${teacher.firstName} ${teacher.secondName}`,
       month: monthName,
-      totalPaid,
-      totalSalary,
-      expectedSalary,
-      totalAmount,
+      totalPaid: Number(totalPaid.toFixed(2)),
+      totalSalary: Number(totalSalary.toFixed(2)),
+      expectedSalary: Number(expectedSalary.toFixed(2)),
+      totalAmount: Number(totalAmount.toFixed(2)),
       year,
     };
   } catch (error) {
+    console.error("Error in getTeacherMonthlyReport:", error);
     throw error;
   }
 }
 export async function calculateAllTeachersSalaries(filterYear, filterMonth) {
   try {
-    // Get current year and month from system date
     const now = new Date();
     const year = parseInt(filterYear, 10) || now.getFullYear();
-    const month = parseInt(filterMonth, 10) || now.getMonth() + 1; // getMonth() is zero-based
-    // Validate year and month (optional but recommended)
+    const month = parseInt(filterMonth, 10) || now.getMonth() + 1;
+
     if (typeof year !== "number" || year < 0) {
       throw new Error("Invalid year");
     }
     if (typeof month !== "number" || month < 1 || month > 12) {
       throw new Error("Invalid month");
     }
-    // Fetch all teachers
+
     const teachers = await prisma.teacher.findMany({
       select: { id: true, firstName: true, secondName: true },
+      where: {
+        // Optional: only teachers with active groups
+        Groups: {
+          some: {
+            isGroupFinished: false,
+          },
+        },
+      },
     });
-    // For each teacher, calculate salary for the current month
+
     const results = await Promise.all(
       teachers.map(async (teacher) => {
-        // Pass year and month to getTeacherMonthlyReport
         return await getTeacherMonthlyReport(teacher.id, year, month);
       })
     );
 
-    return results; // array of { teacherId, teacherName, monthlyReport }
+    return results.filter(
+      (report) => report.totalPaid > 0 || report.expectedSalary > 0
+    );
   } catch (error) {
+    console.error("Error in calculateAllTeachersSalaries:", error);
     throw error;
   }
 }
@@ -118,6 +182,7 @@ export async function calculateIncomeForYear(filterYear) {
         Students: {
           select: {
             id: true,
+            discount: true, // Include discount for calculation
             Payments: {
               where: {
                 isRefunded: false,
@@ -138,6 +203,7 @@ export async function calculateIncomeForYear(filterYear) {
       const endOfMonth = new Date(year, month + 1, 0, 23, 59, 59, 999);
       const currentMonth = new Date(year, month, 1);
 
+      // FIXED: Calculate expected income with student discounts applied
       const expectedIncome = activeGroups.reduce((acc, group) => {
         const groupStart = new Date(group.createdAt);
         const duration = Number(group.duration) || 0;
@@ -159,9 +225,14 @@ export async function calculateIncomeForYear(filterYear) {
 
         if (!isGroupActiveThisMonth) return acc;
 
-        const studentCount = group.Students.length;
-        const monthlyPrice = Number(group.price) || 0;
-        return acc + monthlyPrice * studentCount;
+        // Calculate per-student expected payment with discounts
+        const monthlyIncome = group.Students.reduce((groupTotal, student) => {
+          const discountFactor = 1 - Number(student.discount) / 100; // Assumes discount is percentage
+          const studentMonthlyPrice = Number(group.price) * discountFactor;
+          return groupTotal + studentMonthlyPrice;
+        }, 0);
+
+        return acc + monthlyIncome;
       }, 0);
 
       const paymentsThisMonth = await prisma.payment.findMany({
@@ -195,17 +266,19 @@ export async function calculateIncomeForYear(filterYear) {
           month: "long",
           year: "numeric",
         }),
-        expectedIncome,
-        paidThisMonth,
+        expectedIncome: Number(expectedIncome.toFixed(2)),
+        paidThisMonth: Number(paidThisMonth.toFixed(2)),
         percentage,
       });
     }
 
     return results;
   } catch (error) {
+    console.error("Error calculating income:", error);
     throw error;
   }
 }
+
 export async function calculateStats(filterYear) {
   try {
     const yearFilter = parseInt(filterYear) || new Date().getFullYear();
@@ -407,7 +480,6 @@ export async function calculateStats(filterYear) {
     throw error;
   }
 }
-
 function getMonthName(year, month) {
   const now = new Date();
   // If year/month are not provided, use current year/month

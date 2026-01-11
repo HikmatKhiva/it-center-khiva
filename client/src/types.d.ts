@@ -409,6 +409,7 @@ interface IStudentsResponse extends IDefaultResponse {
 }
 
 interface IPaymentsResponse {
+  monthlyPrice: number;
   payments: IPayments[];
   student: IStudent;
   percentagePaid: number;
