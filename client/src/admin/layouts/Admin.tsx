@@ -28,7 +28,7 @@ const Admin = () => {
       }}
       padding="md"
     >
-      <AppShell.Header>
+      <AppShell.Header >
         <Group align="center" justify="space-between" h="100%" px="md">
           <div className="flex items-center gap-4">
             <Burger

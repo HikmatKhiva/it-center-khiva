@@ -48,12 +48,22 @@ const findCertificate = async (req, res) => {
 };
 const getAllCertificates = async (req, res) => {
   try {
-    const { limit = 10, page = 1, name = "", year } = req.query;
+    const {
+      limit = 10,
+      page = 1,
+      name = "",
+      year,
+      passportId = "",
+    } = req.query;
     const yearFilter = parseInt(year, 10) || new Date().getFullYear();
 
     // Shared where clause to avoid duplication
     const whereClause = {
       passportId: {
+        contains: passportId,
+        mode: "insensitive",
+      },
+      firstName: {
         contains: name,
         mode: "insensitive",
       },
@@ -75,6 +85,7 @@ const getAllCertificates = async (req, res) => {
           secondName: true,
           passportId: true,
           code: true,
+          finishedDate: true,
           course: {
             select: {
               id: true,
@@ -109,7 +120,6 @@ const getAllCertificates = async (req, res) => {
       totalCount,
     });
   } catch (error) {
-    console.log(error);
     return res.status(500).json({ error: error.message });
   }
 };
@@ -223,13 +233,8 @@ const downloadCertificate = async (req, res) => {
     if (!student) {
       return res.status(404).json({ message: "Certificate not found" });
     }
-
     // Generate PDF
-    const pdfBytes = await createPdf(
-      student,
-      student.course,
-      student.course.nameCertificate
-    );
+    const pdfBytes = await createPdf(student, student.course.nameCertificate);
 
     res.setHeader("Content-Type", "application/pdf");
     res.setHeader(

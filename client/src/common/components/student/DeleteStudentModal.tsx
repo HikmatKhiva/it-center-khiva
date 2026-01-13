@@ -4,7 +4,8 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useAppSelector } from "@/hooks/redux";
 import { Server } from "@/api/api";
 import { selectUser } from "@/lib/redux/reducer/admin";
-const DeleteStudentModal = ({ id }: { id: number }) => {
+import { memo } from "react";
+const DeleteStudentModal = memo(({ id }: { id: number }) => {
   const admin = useAppSelector(selectUser);
   const [opened, { open, close }] = useDisclosure(false);
   const client = useQueryClient();
@@ -49,5 +50,5 @@ const DeleteStudentModal = ({ id }: { id: number }) => {
       </Modal>
     </>
   );
-};
+});
 export default DeleteStudentModal;

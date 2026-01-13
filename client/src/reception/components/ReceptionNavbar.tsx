@@ -1,3 +1,4 @@
+import { graduateMen } from "@/admin/assets/svg";
 import { Divider, Group } from "@mantine/core";
 import {
   GraduationCap,
@@ -54,6 +55,14 @@ const ReceptionNavbar = ({ close }: { close: () => void }) => {
       >
         <GraduationCap />
         Tayor Sertificatlar
+      </NavLink>
+      <NavLink
+        onClick={close}
+        className="w-full py-2 px-4 flex items-center gap-2  text-lg"
+        to="/reception/students"
+      >
+        <img src={graduateMen} alt="graduateMen" width={28} />
+        O'quvchilar
       </NavLink>
     </div>
   );

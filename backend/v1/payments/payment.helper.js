@@ -56,7 +56,7 @@ export const calculateCourseDuration = async (student) => {
       );
       if (monthRecord) {
         monthRecord.paid += Number(payment.amount);
-        monthRecord.percentage = (monthRecord.paid / monthRecord.payment) * 100;
+        monthRecord.percentage = Math.floor((monthRecord.paid / monthRecord.payment) * 100);
       }
     });
     const result = paymentsArray.map(

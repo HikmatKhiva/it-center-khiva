@@ -39,6 +39,7 @@ import {
   LoadNewStudents,
   LoadAdminGroup,
   LoadAdminGroupId,
+  LoadStudents,
 } from "./common/pages";
 export const routes = createBrowserRouter([
   {
@@ -136,7 +137,7 @@ export const routes = createBrowserRouter([
         ],
       },
       {
-        path: "students",
+        path: "new-students",
         element: <LazyAdminPage Page={LoadNewStudents} />,
       },
       {
@@ -146,6 +147,10 @@ export const routes = createBrowserRouter([
       {
         path: "certificate",
         element: <LazyAdminPage Page={LoadCertificatePage} />,
+      },
+      {
+        path: "students",
+        element: <LazyAdminPage Page={LoadStudents} />,
       },
     ],
   },
@@ -168,6 +173,10 @@ export const routes = createBrowserRouter([
       {
         path: "certificate",
         element: <LazyAdminPage Page={LoadCertificatePage} />,
+      },
+      {
+        path: "students",
+        element: <LazyAdminPage Page={LoadStudents} />,
       },
       {
         path: "group",

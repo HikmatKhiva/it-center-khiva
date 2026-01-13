@@ -63,6 +63,29 @@ interface IStudent extends IDefault {
     price: string;
   };
 }
+interface IStudents extends IDefault {
+  firstName: string;
+  secondName: string;
+  code: string;
+  passportId: string;
+  finishedDate: Date | null;
+  Group: {
+    name: string;
+
+    isGroupFinished: boolean;
+  };
+  course: {
+    name: string;
+    teacher: {
+      firstName: string;
+      secondName: string;
+    };
+  };
+}
+interface IAllStudentsResponse {
+  students: IStudents[];
+  totalPages: number;
+}
 interface ISelect {
   value: string;
   label: string;
@@ -289,6 +312,7 @@ interface ICertificateStudents {
   secondName: string;
   passportId: string;
   code: string;
+  finishedDate: Date;
   Certificate: {
     id: number;
     certificateUrl: string;

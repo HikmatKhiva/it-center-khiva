@@ -10,17 +10,14 @@ export async function getTeacherMonthlyReport(teacherId, year, month) {
     ) {
       throw new Error("Invalid year or month");
     }
-
     // 1. Fetch teacher info
     const teacher = await prisma.teacher.findUnique({
       where: { id: teacherId },
       select: { id: true, firstName: true, secondName: true },
     });
     if (!teacher) throw new Error("Teacher not found");
-
     const startOfMonth = new Date(year, month - 1, 1);
     const endOfMonth = new Date(year, month, 0, 23, 59, 59, 999);
-
     // 2. Calculate totalPaid by students of this teacher's groups in the month (with refunds)
     const paymentsThisMonth = await prisma.payment.findMany({
       where: {
@@ -94,9 +91,7 @@ export async function getTeacherMonthlyReport(teacherId, year, month) {
       const isGroupActiveThisMonth =
         currentMonthDate >= groupStartMonth &&
         currentMonthDate <= lastActiveMonth;
-
       if (!isGroupActiveThisMonth) return;
-
       // Calculate expected income with student discounts
       const monthlyExpectedIncome = group.Students.reduce(
         (groupTotal, student) => {
@@ -106,16 +101,12 @@ export async function getTeacherMonthlyReport(teacherId, year, month) {
         },
         0
       );
-
       // Teacher gets 50% of expected income
       expectedSalary += monthlyExpectedIncome * 0.5;
     });
-
     const totalSalary = totalPaid * 0.5; // 50% of actual payments
     const totalAmount = expectedSalary * 2; // Full expected amount (before teacher split)
-
     const monthName = getMonthName(year, month);
-
     return {
       teacherName: `${teacher.firstName} ${teacher.secondName}`,
       month: monthName,
@@ -145,22 +136,19 @@ export async function calculateAllTeachersSalaries(filterYear, filterMonth) {
 
     const teachers = await prisma.teacher.findMany({
       select: { id: true, firstName: true, secondName: true },
-      where: {
-        // Optional: only teachers with active groups
-        Groups: {
-          some: {
-            isGroupFinished: false,
-          },
-        },
-      },
+      // where: {
+      //   Groups: {
+      //     some: {
+      //       isGroupFinished: false,
+      //     },
+      //   },
+      // },
     });
-
     const results = await Promise.all(
       teachers.map(async (teacher) => {
         return await getTeacherMonthlyReport(teacher.id, year, month);
       })
     );
-
     return results.filter(
       (report) => report.totalPaid > 0 || report.expectedSalary > 0
     );
@@ -456,6 +444,8 @@ export async function calculateStats(filterYear) {
       totalNewstudentPENDING,
       totalNewstudent,
     ] = stats;
+    console.log(finishedStudents);
+
     return {
       stat: "Statistika",
       yearFilter,

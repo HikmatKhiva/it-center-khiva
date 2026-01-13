@@ -2,6 +2,7 @@ import { Router } from "express";
 import {
   createStudent,
   getAllStudents,
+  getGroupStudents,
   deleteStudent,
   updateStudent,
   getAStudent,
@@ -9,7 +10,8 @@ import {
 import { studentSchema, studentUpdateSchema } from "./student.validator.js";
 import { validate } from "../../middleware/validation.middleware.js";
 export const studentsRoutes = Router();
-studentsRoutes.get("/", getAllStudents);
+studentsRoutes.get("/", getGroupStudents);
+studentsRoutes.get("/all", getAllStudents);
 studentsRoutes.get("/:id", getAStudent);
 studentsRoutes.post("/create", validate(studentSchema), createStudent);
 studentsRoutes.delete("/delete/:id", deleteStudent);

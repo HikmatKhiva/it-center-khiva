@@ -1,7 +1,81 @@
 import { prisma } from "../../app.js";
 import { calculateDebt, generateStudentCode } from "./students.helper.js";
-// get all users
+// get all students
 const getAllStudents = async (req, res) => {
+  try {
+    const { limit = 1, page = 1, name, passportId, year, courseId } = req.query;
+    const yearFilter = parseInt(year, 10) || new Date().getFullYear();
+    const students = await prisma.student.findMany({
+      where: {
+        firstName: {
+          contains: name,
+          mode: "insensitive",
+        },
+        ...(courseId && { courseId: parseInt(courseId) }),
+        passportId: {
+          contains: passportId,
+          mode: "insensitive",
+        },
+        createdAt: {
+          gte: new Date(yearFilter, 0, 1),
+          lte: new Date(yearFilter, 11, 31, 23, 59, 59, 999),
+        },
+      },
+      select: {
+        id: true,
+        firstName: true,
+        secondName: true,
+        createdAt: true,
+        code: true,
+        passportId: true,
+        finishedDate: true,
+        Group: {
+          select: {
+            name: true,
+            isGroupFinished: true,
+          },
+        },
+        course: {
+          select: {
+            name: true,
+            teacher: {
+              select: {
+                firstName: true,
+                secondName: true,
+              },
+            },
+          },
+        },
+      },
+      skip: (page - 1) * limit,
+      take: parseInt(limit),
+    });
+
+    const totalCount = await prisma.student.count({
+      where: {
+        firstName: {
+          contains: name,
+          mode: "insensitive",
+        },
+        ...(courseId && { courseId: parseInt(courseId) }),
+        passportId: {
+          contains: passportId,
+          mode: "insensitive",
+        },
+        createdAt: {
+          gte: new Date(yearFilter, 0, 1),
+          lte: new Date(yearFilter, 11, 31, 23, 59, 59, 999),
+        },
+      },
+    });
+    const totalPages = Math.ceil(totalCount / limit);
+    return res.status(200).json({ students, totalPages });
+  } catch (error) {
+    return res.status(500).json({ error });
+  }
+};
+// get group students
+const getGroupStudents = async (req, res) => {
   try {
     const { limit = 1, page = 1, name, groupId } = req.query;
     const students = await prisma.student.findMany({
@@ -29,7 +103,7 @@ const getAllStudents = async (req, res) => {
     return res.status(500).json({ error });
   }
 };
-// get a user
+// get a student
 const getAStudent = async (req, res) => {
   try {
     const { id } = req.params;
@@ -46,7 +120,7 @@ const getAStudent = async (req, res) => {
     return res.status(500).json({ error });
   }
 };
-// create a user
+// create a student
 const createStudent = async (req, res) => {
   try {
     const {
@@ -79,7 +153,18 @@ const createStudent = async (req, res) => {
         .json({ message: "Passport ID ma'lumotlar bazasida mavjud!" });
     }
     const code = await generateStudentCode();
+
+    const exists = await prisma.student.findUnique({
+      where: { code: code },
+    });
+    if (exists) {
+      console.log(exists);
+      return res
+        .status(400)
+        .json({ message: "Passport ID ma'lumotlar bazasida mavjud!" });
+    }
     const debt = await calculateDebt(groupId, discount);
+    console.log(code, "code");
     await prisma.student.create({
       data: {
         firstName,
@@ -99,6 +184,8 @@ const createStudent = async (req, res) => {
       .status(201)
       .json({ message: "O'quvchi muoffaqiyatli yaratildi." });
   } catch (error) {
+    console.log(error);
+
     return res.status(500).json({ error });
   }
 };
@@ -143,6 +230,7 @@ const deleteStudent = async (req, res) => {
   }
 };
 export {
+  getGroupStudents,
   getAllStudents,
   getAStudent,
   createStudent,

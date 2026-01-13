@@ -1,6 +1,7 @@
 import { downloadCertificate } from "@/api/api";
 import { useAppSelector } from "@/hooks/redux";
 import { selectUser } from "@/lib/redux/reducer/admin";
+import { ICertificateStudents } from "@/types";
 import { formatTime } from "@/utils/helper";
 import { ActionIcon, Table } from "@mantine/core";
 import { ArrowDownToLine, Eye } from "lucide-react";
@@ -26,7 +27,7 @@ const CertificateTable = ({
         </Table.Td>
         <Table.Td>{`${student?.course?.teacher?.firstName} ${student?.course?.teacher?.secondName}`}</Table.Td>
         <Table.Td>{student.course.name}</Table.Td>
-        <Table.Td>{formatTime.DateTime(student?.Group?.finishedDate)}</Table.Td>
+        <Table.Td>{formatTime.DateTime(student?.finishedDate)}</Table.Td>
         <Table.Td>
           <ActionIcon
             component="a"

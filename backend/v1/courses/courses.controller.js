@@ -101,8 +101,6 @@ const deleteCourse = async (req, res) => {
     });
     return res.status(200).json({ message: "Kurs muffaqiyatli o'chirildi." });
   } catch (error) {
-    console.log(error);
-    
     return res.status(500).json({ error });
   }
 };

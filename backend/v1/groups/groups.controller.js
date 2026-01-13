@@ -42,7 +42,6 @@ const getAllGroup = async (req, res) => {
           },
         },
       },
-
       skip: (page - 1) * limit,
       take: parseInt(limit),
     });
@@ -64,8 +63,6 @@ const getAllGroup = async (req, res) => {
       totalPages,
     });
   } catch (error) {
-    console.log(error);
-
     return res.status(500).json({ error });
   }
 };
@@ -98,6 +95,8 @@ const createGroup = async (req, res) => {
     });
     return res.status(201).json({ message: "Guruh muoffaqiyatli yaratildi." });
   } catch (error) {
+    console.log(error);
+    
     return res.status(500).json({ error });
   }
 };

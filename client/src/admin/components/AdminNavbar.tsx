@@ -12,6 +12,7 @@ import {
   Users,
 } from "lucide-react";
 import { NavLink } from "react-router-dom";
+import { graduateMen } from "../assets/svg";
 const AdminNavbar = ({ close }: { close: () => void }) => {
   return (
     <div className="flex flex-col admin-navbar">
@@ -71,7 +72,7 @@ const AdminNavbar = ({ close }: { close: () => void }) => {
       <NavLink
         onClick={close}
         className="w-full py-2 px-4 flex items-center gap-2  text-lg"
-        to="/admin/students"
+        to="/admin/new-students"
       >
         <UserRoundPlus />
         Yangi o'quvchilar
@@ -97,8 +98,16 @@ const AdminNavbar = ({ close }: { close: () => void }) => {
         className="w-full py-2 px-4 flex items-center gap-2  text-lg"
         to="/admin/rooms"
       >
-        <DoorClosed  />
+        <DoorClosed />
         Xonalar
+      </NavLink>
+      <NavLink
+        onClick={close}
+        className="w-full py-2 px-4 flex items-center gap-2  text-lg"
+        to="/admin/students"
+      >
+        <img src={graduateMen} alt="graduateMen" width={28} />
+        O'quvchilar
       </NavLink>
     </div>
   );

@@ -19,8 +19,6 @@ const normalizedRed = red / 255;
 const normalizedGreen = green / 255;
 const normalizedBlue = blue / 255;
 async function createPdf(student, courseName) {
-  console.log(student, "student ");
-
   const date = new Date(student?.finishedDate) || new Date();
   const url = `${process.env.CORS_ORIGIN}/site/certificate?code=${student.code}`;
   try {

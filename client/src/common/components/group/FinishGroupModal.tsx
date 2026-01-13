@@ -4,7 +4,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Check } from "lucide-react";
 import confetti from "canvas-confetti";
 import { useAppSelector } from "@/hooks/redux";
-import { useRef } from "react";
+import { memo, useRef } from "react";
 import { selectUser } from "@/lib/redux/reducer/admin";
 import {
   createNotification,
@@ -13,7 +13,7 @@ import {
 } from "@/utils/notification";
 import { Server } from "@/api/api";
 import { IMessageResponse } from "@/types";
-const FinishGroupModal = ({ id }: { id: number }) => {
+const FinishGroupModal = memo(({ id }: { id: number }) => {
   const admin = useAppSelector(selectUser);
   const [opened, { open, close }] = useDisclosure(false);
   const idNotification = useRef<string>("");
@@ -93,5 +93,5 @@ const FinishGroupModal = ({ id }: { id: number }) => {
       </Modal>
     </>
   );
-};
+});
 export default FinishGroupModal;

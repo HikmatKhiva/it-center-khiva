@@ -1,7 +1,10 @@
-import { useQuery } from "@tanstack/react-query";
+import { Server } from "@/api/api";
+import StudentsTable from "@/common/components/students/StudentsTable";
+import { years } from "@/config";
 import { useAppSelector } from "@/hooks/redux";
+import useFormData from "@/hooks/useFormData";
 import { selectUser } from "@/lib/redux/reducer/admin";
-import { useState } from "react";
+import { IAllStudentsResponse } from "@/types";
 import {
   Group,
   Pagination,
@@ -10,20 +13,20 @@ import {
   Text,
   TextInput,
 } from "@mantine/core";
+import { useQuery } from "@tanstack/react-query";
 import { GraduationCap, LoaderCircle, Search } from "lucide-react";
-import CertificateTable from "@/common/components/CertificateTable";
-import { Server } from "@/api/api";
-import { ICertificateResponse } from "@/types";
-import { years } from "@/config";
-const CertificatePage = () => {
+import React, { useState } from "react";
+const StudentsPage = () => {
   const admin = useAppSelector(selectUser);
   const currentYear = new Date().getFullYear().toString();
+  const { courses } = useFormData();
   const [query, setQuery] = useState({
     name: "",
     passportId: "",
     page: 1,
     limit: 10,
     year: currentYear || "",
+    courseId: "",
   });
   const params = new URLSearchParams({
     name: query.name,
@@ -31,17 +34,20 @@ const CertificatePage = () => {
     limit: query.limit.toString(),
     year: query.year,
     passportId: query.passportId,
+    courseId: query.courseId,
   });
-  const { data, isPending } = useQuery<ICertificateResponse>({
+  const { data, isPending } = useQuery<IAllStudentsResponse>({
     queryKey: [
-      "certificates",
+      "students",
+      "all",
       query.name,
       query.page,
       query.year,
+      query.courseId,
       query.passportId,
     ],
     queryFn: () =>
-      Server<ICertificateResponse>(`certificate?${params}`, {
+      Server<IAllStudentsResponse>(`students/all?${params}`, {
         method: "GET",
         headers: {
           authorization: `Bearer ${admin?.token}`,
@@ -53,7 +59,7 @@ const CertificatePage = () => {
     <section>
       <Group mb="10" justify="space-between" align="center">
         <Group>
-          <Text size="xl">Tayor Sertificatlar</Text>
+          <Text size="xl">O'quvchilar</Text>
           <GraduationCap />
         </Group>
         <Group>
@@ -92,6 +98,14 @@ const CertificatePage = () => {
             placeholder="O'quvchi passportId..."
           />
           <Select
+            defaultValue={query.courseId}
+            placeholder="Kurs..."
+            data={courses}
+            value={query.courseId.toString()}
+            onChange={(value) => setQuery({ ...query, courseId: value || "" })}
+            w={150}
+          />
+          <Select
             defaultValue={query.year}
             placeholder="2025"
             data={years}
@@ -102,8 +116,9 @@ const CertificatePage = () => {
         </Group>
       </Group>
       <Stack className="h-[calc(100vh_-_140px)]" justify="space-between">
-        <CertificateTable students={data?.students || []} />
+        <StudentsTable students={data?.students || []} />
         <Pagination
+        className="justify-end"
           value={query.page}
           hidden={(data?.totalPages ?? 0) <= 1 || isPending}
           onChange={(pageNumber) => setQuery({ ...query, page: pageNumber })}
@@ -113,4 +128,5 @@ const CertificatePage = () => {
     </section>
   );
 };
-export default CertificatePage;
+
+export default StudentsPage;

@@ -8,6 +8,7 @@ import { useState } from "react";
 import { formatTime } from "@/utils/helper";
 import CourseCertificateDemo from "./CourseCertificateDemo";
 import { Server } from "@/api/api";
+import { ICoursesResponse, ICourse } from "@/types";
 const CourseTable = ({ name }: { name: string }) => {
   const [query, setQuery] = useState({
     page: 1,
@@ -44,13 +45,16 @@ const CourseTable = ({ name }: { name: string }) => {
         <Table.Td>
           <DeleteCourseModal id={course?.id} />
         </Table.Td>
-        <Table.Td>
-          <CourseCertificateDemo teacherFullName={`${course?.teacher?.firstName } ${course?.teacher?.secondName}`} id={course.id} />
+        <Table.Td className="overflow-hidden">
+          <CourseCertificateDemo
+            teacherFullName={`${course?.teacher?.firstName} ${course?.teacher?.secondName}`}
+            id={course.id}
+          />
         </Table.Td>
       </Table.Tr>
     ));
   return (
-    <Stack className="h-[calc(100vh_-_140px)]" justify="space-between">
+    <Stack className="h-[calc(100vh-200px)]" justify="space-between">
       <Table withTableBorder highlightOnHover>
         <Table.Thead>
           <Table.Tr>

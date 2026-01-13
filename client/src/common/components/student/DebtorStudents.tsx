@@ -22,6 +22,7 @@ const DebtorStudents = () => {
     page: 1,
     limit: 10,
     month: (new Date().getMonth() + 1).toString(),
+    year: new Date().getFullYear().toString(),
   });
   const params = new URLSearchParams({
     name: query.name,

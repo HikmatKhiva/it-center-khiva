@@ -99,7 +99,7 @@ model Student {
   id           Int          @id @default(autoincrement())
   firstName    String       @db.VarChar(50)
   secondName   String       @db.VarChar(50)
-  passportId   String?      @unique @db.VarChar(9)
+  passportId   String?      @unique @db.VarChar(10)
   paymentType  PaymentType  @default(selfPayment)
   gender       gender
   debt         Decimal      @default(0.00)

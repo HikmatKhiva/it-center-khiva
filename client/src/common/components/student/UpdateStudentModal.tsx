@@ -5,14 +5,15 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useAppSelector } from "@/hooks/redux";
 import { selectUser } from "@/lib/redux/reducer/admin";
 import { InputMask } from "@react-input/mask";
-import { useRef } from "react";
+import { memo, useRef } from "react";
 import {
   createNotification,
   showSuccessNotification,
 } from "@/utils/notification";
 import { Pencil } from "lucide-react";
 import { Server } from "@/api/api";
-const UpdateStudentModal = ({ student }: { student: IStudent }) => {
+import { IStudent, IMessageResponse } from "@/types";
+const UpdateStudentModal = memo(({ student }: { student: IStudent }) => {
   const client = useQueryClient();
   const admin = useAppSelector(selectUser);
   const idNotification = useRef<string>("");
@@ -135,5 +136,5 @@ const UpdateStudentModal = ({ student }: { student: IStudent }) => {
       </Modal>
     </>
   );
-};
+});
 export default UpdateStudentModal;

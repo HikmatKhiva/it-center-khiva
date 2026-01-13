@@ -80,11 +80,9 @@ const AdminGroupId = () => {
       </Table.Td>
       <Table.Td>{student?.gender === "MALE" ? "Erkak" : "Ayol"}</Table.Td>
       <Table.Td>{id && <UpdateStudentModal student={student} />}</Table.Td>
-      {!group?.isGroupFinished && (
-        <Table.Td>
-          <DeleteStudentModal id={student?.id} />
-        </Table.Td>
-      )}
+      <Table.Td>
+        <DeleteStudentModal id={student?.id} />
+      </Table.Td>
       <Table.Td hidden={!group?.isGroupFinished}>
         <ActionIcon
           component="a"
@@ -130,7 +128,7 @@ const AdminGroupId = () => {
               <Table.Th>Jins</Table.Th>
               <Table.Th>O'zgartirish</Table.Th>
               {group?.isGroupFinished && <Table.Th>Certificate URL</Table.Th>}
-              {!group?.isGroupFinished && <Table.Th>O'chirish</Table.Th>}
+              <Table.Th>O'chirish</Table.Th>
               <Table.Th>To'lov tarixi</Table.Th>
               <Table.Th>To'lov qo'shish</Table.Th>
             </Table.Tr>
