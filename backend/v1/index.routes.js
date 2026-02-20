@@ -8,27 +8,31 @@ import { paymentsRoutes } from "./payments/payments.routes.js";
 import { adminRoutes } from "./admin/admin.routes.js";
 import { debtorsRoutes } from "./debtors/debtors.routes.js";
 import { roomRoutes } from "./rooms/rooms.routes.js";
+import { receptionRoutes } from "./reception/reception.routes.js";
+import { statsRoutes } from "./stats/stats.routes.js";
+// HACK: this is feature stopped 
+// import { metricsRoute } from "./metrics/metrics.routes.js";
+import { newsRoutes } from "./news/news.routes.js";
+import { newStudentRoutes } from "./newStudents/newStudents.routes.js";
+import { receiptRoutes } from "./receipt/receipt.routes.js";
+// middleware
+import { middlewareAdmin } from "../middleware/admin.middleware.js";
+import { validate } from "../middleware/validation.middleware.js";
 // controllers
 import { addNewStudent } from "./newStudents/newStudents.controller.js";
 import { createMessage } from "./messages/messages.controller.js";
 import { getNewGroups } from "./groups/groups.controller.js";
-import { middlewareAdmin } from "../middleware/admin.middleware.js";
 import { getCourseAndTeachers } from "./form/form.controller.js";
 import {
   adminLogin,
   generateSecret,
   Verify2FA,
 } from "./admin/admin.controller.js";
-import { newStudentRoutes } from "./newStudents/newStudents.routes.js";
-import { validate } from "../middleware/validation.middleware.js";
-export const V1Routes = Router();
+// validations
 import { userLoginSchema, userVerifySchema } from "./admin/admin.validation.js";
-import { newsRoutes } from "./news/news.routes.js";
 import { messageSchema } from "./messages/message.validation.js";
 import { newStudentSchema } from "./newStudents/newStudent.validation.js";
-import { receptionRoutes } from "./reception/reception.routes.js";
-import { statsRoutes } from "./stats/stats.routes.js";
-import { metricsRoute } from "./metrics/metrics.routes.js";
+export const V1Routes = Router();
 // without admin middleware routes
 V1Routes.post("/newStudents/add", validate(newStudentSchema), addNewStudent);
 V1Routes.post("/message/create", validate(messageSchema), createMessage);
@@ -50,8 +54,10 @@ V1Routes.use("/reception", middlewareAdmin, receptionRoutes);
 V1Routes.use("/newStudents", middlewareAdmin, newStudentRoutes);
 V1Routes.use("/stats", middlewareAdmin, statsRoutes);
 V1Routes.get("/generate-secret", middlewareAdmin, generateSecret);
-
-// new features
+// TODO: test them new features
+// with middleware
 V1Routes.use("/room", middlewareAdmin, roomRoutes);
+V1Routes.use("/receipt", middlewareAdmin, receiptRoutes);
 
-V1Routes.use('/metrics',metricsRoute)
+// HACK: this is feature stopped 
+// V1Routes.use("/metrics", metricsRoute);
