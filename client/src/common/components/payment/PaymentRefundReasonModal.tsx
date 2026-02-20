@@ -2,20 +2,19 @@ import { Server } from "@/api/api";
 import { useAppSelector } from "@/hooks/redux";
 import { selectUser } from "@/lib/redux/reducer/admin";
 import { IRefund } from "@/types";
-import { Button, Modal, NumberInput, Textarea } from "@mantine/core";
-import { useDisclosure } from "@mantine/hooks";
+import { formatTime } from "@/utils/helper";
+import { Badge, Modal, NumberInput, Text, Textarea } from "@mantine/core";
 import { useQuery } from "@tanstack/react-query";
-import { Eye } from "lucide-react";
 import { useEffect, useState } from "react";
-
 const PaymentRefundReasonModal = ({
-  disabled,
   id,
+  opened,
+  close,
 }: {
-  disabled: boolean;
   id: number;
+  opened: boolean;
+  close: () => void;
 }) => {
-  const [opened, { open, close }] = useDisclosure(false);
   const admin = useAppSelector(selectUser);
   const [values, setValues] = useState({
     reason: "",
@@ -37,17 +36,13 @@ const PaymentRefundReasonModal = ({
   }, [data]);
   return (
     <>
-      <Button
-        disabled={disabled}
-        type="button"
-        size="compact-md"
-        color="red"
-        variant="light"
-        onClick={open}
-      >
-        <Eye size={16} />
-      </Button>
       <Modal opened={opened} onClose={close}>
+        <Text fw={500} className="text-center" mb={20}>
+          Bekor qilingan sana:{" "}
+          <Badge hidden={!data?.createdAt} component="span">
+            {data?.createdAt ? formatTime.DateTimeHours(data?.createdAt) : ""}
+          </Badge>
+        </Text>
         <form>
           <NumberInput
             value={values.amount}
@@ -67,5 +62,4 @@ const PaymentRefundReasonModal = ({
     </>
   );
 };
-
 export default PaymentRefundReasonModal;
