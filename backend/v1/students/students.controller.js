@@ -182,7 +182,7 @@ const createStudent = async (req, res) => {
     });
     return res
       .status(201)
-      .json({ message: "O'quvchi muoffaqiyatli yaratildi." });
+      .json({ message: "O'quvchi muvaffaqiyatli yaratildi." });
   } catch (error) {
     console.log(error);
 
@@ -208,7 +208,7 @@ const updateStudent = async (req, res) => {
     });
     return res
       .status(200)
-      .json({ message: "O'quvchi muoffaqiyatli yangilandi." });
+      .json({ message: "O'quvchi muvaffaqiyatli yangilandi." });
   } catch (error) {
     return res.status(500).json({ error });
   }
@@ -224,7 +224,7 @@ const deleteStudent = async (req, res) => {
     });
     return res
       .status(200)
-      .json({ message: "O'quvchi muoffaqiyatli o'chirildi." });
+      .json({ message: "O'quvchi muvaffaqiyatli o'chirildi." });
   } catch (error) {
     return res.status(500).json({ error });
   }
