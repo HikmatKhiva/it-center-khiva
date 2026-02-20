@@ -4,8 +4,16 @@ import { formatterGroups } from "./group.helper.js";
 // getAll groups
 const getAllGroup = async (req, res) => {
   try {
-    const { name, isGroupFinished, limit = 10, page = 1, year } = req.query;
+    let {
+      name,
+      isGroupFinished,
+      limit = 10,
+      page = 1,
+      year,
+      orderBy,
+    } = req.query;
     const yearFilter = parseInt(year, 10) || new Date().getFullYear();
+    orderBy = orderBy || "asc";
     const groups = await prisma.group.findMany({
       where: {
         name: {
@@ -17,6 +25,9 @@ const getAllGroup = async (req, res) => {
           gte: new Date(yearFilter, 0, 1),
           lte: new Date(yearFilter, 11, 31, 23, 59, 59, 999),
         },
+      },
+      orderBy: {
+        createdAt: orderBy,
       },
       select: {
         id: true,
@@ -63,6 +74,8 @@ const getAllGroup = async (req, res) => {
       totalPages,
     });
   } catch (error) {
+    console.log(error);
+
     return res.status(500).json({ error });
   }
 };
@@ -93,10 +106,10 @@ const createGroup = async (req, res) => {
         },
       },
     });
-    return res.status(201).json({ message: "Guruh muoffaqiyatli yaratildi." });
+    return res.status(201).json({ message: "Guruh muvaffaqiyatli yaratildi." });
   } catch (error) {
     console.log(error);
-    
+
     return res.status(500).json({ error });
   }
 };
@@ -121,7 +134,9 @@ const updateGroup = async (req, res) => {
         },
       },
     });
-    return res.status(200).json({ message: "Guruh muoffaqiyatli yangilandi." });
+    return res
+      .status(200)
+      .json({ message: "Guruh muvaffaqiyatli yangilandi." });
   } catch (error) {
     return res.status(500).json({ error });
   }
@@ -198,7 +213,7 @@ const deleteGroup = async (req, res) => {
       }),
     ]);
 
-    return res.status(200).json({ message: "Guruh muoffaqiyatli o'chirildi" });
+    return res.status(200).json({ message: "Guruh muvaffaqiyatli o'chirildi" });
   } catch (error) {
     return res
       .status(500)
