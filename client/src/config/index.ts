@@ -92,4 +92,12 @@ export const allTime = [
   { value: "T16_00", label: "16:00" },
 ];
 
-export const years: string[] = ["2025", "2026"];
+export const currentYearQuery = new Date().getFullYear().toString();
+export const years: string[] = [
+  "2025",
+  "2026",
+  "2027",
+  "2028",
+  "2029",
+  "2030",
+].filter((year) => parseInt(year) <= parseInt(currentYearQuery));
