@@ -128,7 +128,7 @@ const createRoom = async (req, res) => {
         capacity,
       },
     });
-    return res.status(201).json({ message: "Xona muoffaqiyatli yaratildi." });
+    return res.status(201).json({ message: "Xona muvaffaqiyatli yaratildi." });
   } catch (error) {
     return res.status(500).json({ error });
   }
@@ -146,7 +146,7 @@ const updateRoom = async (req, res) => {
         capacity,
       },
     });
-    return res.status(200).json({ message: "Xona muoffaqiyatli yangilandi." });
+    return res.status(200).json({ message: "Xona muvaffaqiyatli yangilandi." });
   } catch (error) {
     return res.status(500).json({ error });
   }
@@ -169,7 +169,7 @@ const deleteRoom = async (req, res) => {
         id: parseInt(roomId),
       },
     });
-    return res.status(200).json({ message: "Xona muoffaqiyatli o'chirildi" });
+    return res.status(200).json({ message: "Xona muvaffaqiyatli o'chirildi" });
   } catch (error) {
     return res.status(500).json({ error });
   }
