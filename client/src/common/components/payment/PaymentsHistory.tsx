@@ -34,7 +34,7 @@ const PaymentsHistory = ({ id }: { id: number }) => {
     <>
       <Drawer
         opened={opened}
-        size="750px"
+        size="600"
         onClose={close}
       >
         <Group mb="10" justify="space-between" px="20">
