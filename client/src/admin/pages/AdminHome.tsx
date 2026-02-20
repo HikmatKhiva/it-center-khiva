@@ -15,14 +15,14 @@ import {
 import Metrics from "../components/metrics/Metrics";
 import RoomsTab from "@/common/components/rooms/RoomsTab";
 const AdminHome = () => {
-  const [activeTab, setActiveTab] = useState<string | null>("metrics");
+  const [activeTab, setActiveTab] = useState<string | null>("debtors");
   return (
     <section>
       <Text mt="10" mb="20" size="24px">
         IT-Khiva Boshqaruv Paneli
       </Text>
       <Tabs
-        defaultValue="metrics"
+        defaultValue="debtors"
         value={activeTab}
         onChange={setActiveTab}
         mb="20"
