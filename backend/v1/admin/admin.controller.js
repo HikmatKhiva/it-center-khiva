@@ -98,7 +98,7 @@ const Verify2FA = async (req, res) => {
       }
     );
     return res.json({
-      message: "Hisobga kirish muoffaqiyatli amalga oshirildi.",
+      message: "Hisobga kirish muvaffaqiyatli amalga oshirildi.",
       user: {
         id: find.id,
         token: jwToken,
