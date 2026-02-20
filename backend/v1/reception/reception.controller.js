@@ -37,7 +37,7 @@ const deleteReceptionAccount = async (req, res) => {
     });
     return res
       .status(200)
-      .json({ message: "Reception hisob muoffaqiyatli o'chirildi." });
+      .json({ message: "Reception hisob muvaffaqiyatli o'chirildi." });
   } catch (error) {
     return res.status(500).json({ error });
   }
@@ -93,7 +93,7 @@ const updateReceptionStatus = async (req, res) => {
     });
     return res
       .status(200)
-      .json({ message: "Reception status muoffaqiyatli yangilandi!" });
+      .json({ message: "Reception status muvaffaqiyatli yangilandi!" });
   } catch (error) {
     return res.status(500).json({ error });
   }
