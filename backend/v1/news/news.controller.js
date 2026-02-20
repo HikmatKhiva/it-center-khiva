@@ -47,7 +47,7 @@ const createNews = async (req, res) => {
     });
     return res
       .status(201)
-      .json({ message: "Yangilik muoffaqiyatli yaratildi." });
+      .json({ message: "Yangilik muvaffaqiyatli yaratildi." });
   } catch (error) {
     res.status(500).json(error);
   }
@@ -107,7 +107,7 @@ const deleteNews = async (req, res) => {
         id: parseInt(id),
       },
     });
-    return res.status(200).json({ message: "Muoffaqiyatli o'chirildi." });
+    return res.status(200).json({ message: "muvaffaqiyatli o'chirildi." });
   } catch (error) {
     res.status(500).json(error);
   }
@@ -146,7 +146,7 @@ const updateNews = async (req, res) => {
         ...(imageUrl && { photo_url: imageUrl }), // Conditionally add photo_url
       },
     });
-    return res.status(200).json({ message: "Muoffaqiyatli yangilandi." });
+    return res.status(200).json({ message: "muvaffaqiyatli yangilandi." });
   } catch (error) {
     res.status(500).json(error);
   }
