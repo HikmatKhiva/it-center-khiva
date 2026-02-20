@@ -1,4 +1,5 @@
 import { prisma } from "../../app.js";
+import { nanoid, customAlphabet } from "nanoid";
 import {
   calculateCourseDuration,
   calculateTotalPaid,
@@ -14,6 +15,13 @@ const getPayments = async (req, res) => {
       },
       include: {
         refunds: true,
+        // FIXME: add to who created this payment test mode
+        createdBy: {
+          select: {
+            username: true,
+            role: true,
+          },
+        },
       },
     });
     const paymentNotRefund = await prisma.payment.findMany({
@@ -42,9 +50,7 @@ const getPayments = async (req, res) => {
             price: true,
           },
         },
-        Payments: {
-          include: { refunds: true },
-        },
+        Payments: true,
       },
     });
     const { price, duration } = student.Group;
@@ -95,25 +101,41 @@ const uploadPayment = async (req, res) => {
         .status(400)
         .json({ message: "To'lov miqdori qarz miqdoridan yuqori!" });
     }
-    await prisma.$transaction([
-      prisma.student.update({
-        where: {
-          id: parseInt(studentId),
-        },
+    const publicToken = nanoid(32);
+    const generateNumber = customAlphabet("1234567890ABCDEF", 6);
+    await prisma.$transaction(async (tx) => {
+      // 1. Update student
+      const updatedStudent = await tx.student.update({
+        where: { id: parseInt(studentId) },
         data: {
-          debt: parseInt(student.debt) - parseInt(amount),
+          debt: {
+            decrement: parseInt(amount),
+          },
           finishedDate: new Date(),
         },
-      }),
-      prisma.payment.create({
+      });
+      // 2. Create payment
+      const payment = await tx.payment.create({
         data: {
           amount: parseInt(amount),
           studentId: parseInt(studentId),
           createdAt: new Date(paymentDate),
+          createdById: 2,
         },
-      }),
-    ]);
-    return res.status(201).json({ message: "To'lov muoffaqiyatli yuklandi." });
+      });
+      // 3. Create receipt
+      const receipt = await tx.receipt.create({
+        data: {
+          receiptNo: generateNumber(),
+          publicToken,
+          amount: parseInt(amount),
+          paymentId: payment.id, // link to the payment
+          studentId: parseInt(studentId),
+        },
+      });
+      return { updatedStudent, payment, receipt };
+    });
+    return res.status(201).json({ message: "To'lov muvaffaqiyatli yuklandi." });
   } catch (error) {
     return res.status(500).json({ error });
   }
@@ -164,7 +186,7 @@ const paymentRefund = async (req, res) => {
     ]);
     return res
       .status(200)
-      .json({ message: "To'lov muoffaqiyatli bekor qilindi!" });
+      .json({ message: "To'lov muvaffaqiyatli bekor qilindi!" });
   } catch (error) {
     return res.status(500).json({ error });
   }
