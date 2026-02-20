@@ -54,7 +54,7 @@ const createTeacher = async (req, res) => {
         phone,
       },
     });
-    return res.status(201).json({ message: "Ustoz muoffaqiyatli yaratildi." });
+    return res.status(201).json({ message: "Ustoz muvaffaqiyatli yaratildi." });
   } catch (error) {
     return res.status(500).json({ error });
   }
@@ -84,7 +84,7 @@ const updateTeacher = async (req, res) => {
         ...(imageUrl && { photo_url: imageUrl }), // Conditionally add photo_url
       },
     });
-    return res.status(200).json({ message: "Ustoz muoffaqiyatli yangilandi." });
+    return res.status(200).json({ message: "Ustoz muvaffaqiyatli yangilandi." });
   } catch (error) {
     return res.status(500).json({ error });
   }
@@ -98,7 +98,7 @@ const deleteTeacher = async (req, res) => {
         id: parseInt(id),
       },
     });
-    return res.status(200).json({ message: "Ustoz muoffaqiyatli o'chirildi." });
+    return res.status(200).json({ message: "Ustoz muvaffaqiyatli o'chirildi." });
   } catch (error) {
     return res.status(500).json({ error });
   }
@@ -116,7 +116,7 @@ const handleDeleteImage = async (req, res) => {
     });
     return res
       .status(200)
-      .json({ message: "Ustoz surati muoffaqiyatli o'chirildi." });
+      .json({ message: "Ustoz surati muvaffaqiyatli o'chirildi." });
   } catch (error) {
     return res.status(500).json({ error });
   }
