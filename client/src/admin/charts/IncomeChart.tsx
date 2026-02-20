@@ -1,5 +1,5 @@
 import { Server } from "@/api/api";
-import { years } from "@/config";
+import { currentYearQuery, years } from "@/config";
 import { useAppSelector } from "@/hooks/redux";
 import { selectUser } from "@/lib/redux/reducer/admin";
 import { IYearly } from "@/types";
@@ -9,8 +9,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 const IncomeChart = ({ isActive }: { isActive?: boolean }) => {
   const admin = useAppSelector(selectUser);
-  const currentYear = new Date().getFullYear().toString();
-  const [year, setYear] = useState<string>(currentYear || "");
+  const [year, setYear] = useState<string>(currentYearQuery || "");
   const params = new URLSearchParams({
     year,
   });
