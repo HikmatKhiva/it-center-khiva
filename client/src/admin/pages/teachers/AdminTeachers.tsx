@@ -7,6 +7,7 @@ import { useState } from "react";
 import { useAppSelector } from "@/hooks/redux";
 import { selectUser } from "@/lib/redux/reducer/admin";
 import { Server } from "@/api/api";
+import { ITeacherResponse } from "@/types";
 const AdminTeachers = () => {
   const admin = useAppSelector(selectUser);
   const [query, setQuery] = useState({
