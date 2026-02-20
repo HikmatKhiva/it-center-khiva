@@ -18,16 +18,15 @@ import PaymentsHistory from "@/common/components/payment/PaymentsHistory";
 import UploadPayment from "@/common/components/payment/UploadPayment";
 import { Server } from "@/api/api";
 import { IDebtor, IDebtorQuery, IDebtorsResponse } from "@/types";
-import { years } from "@/config";
+import { currentYearQuery, years } from "@/config";
 const DebtorStudentsReception = () => {
   const user = useAppSelector(selectUser);
-  const currentYear = new Date().getFullYear().toString();
   const [query, setQuery] = useState<IDebtorQuery>({
     name: "",
     page: 1,
     limit: 16,
     month: (new Date().getMonth() + 1).toString(),
-    year: currentYear || "",
+    year: currentYearQuery || "",
   });
   const params = new URLSearchParams({
     name: query.name,
