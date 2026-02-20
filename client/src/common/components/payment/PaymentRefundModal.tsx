@@ -10,20 +10,20 @@ import {
 import { paymentRefundValidation } from "@/validation";
 import { Button, Modal, NumberInput, Textarea } from "@mantine/core";
 import { useForm } from "@mantine/form";
-import { useDisclosure } from "@mantine/hooks";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { CircleX, PoundSterling } from "lucide-react";
+import {  PoundSterling } from "lucide-react";
 import { useEffect, useRef } from "react";
 const PaymentRefundModal = ({
   payment,
-  disabled,
   studentId,
+  opened,
+  close,
 }: {
   payment: IPayments;
-  disabled: boolean;
   studentId: number;
+  opened: boolean;
+  close: () => void;
 }) => {
-  const [opened, { open, close }] = useDisclosure(false);
   const admin = useAppSelector(selectUser);
   const idNotification = useRef<string>("");
   const client = useQueryClient();
@@ -67,16 +67,6 @@ const PaymentRefundModal = ({
   };
   return (
     <>
-      <Button
-        disabled={disabled}
-        type="button"
-        size="compact-md"
-        color="red"
-        variant="light"
-        onClick={open}
-      >
-        <CircleX size={16} />
-      </Button>
       <Modal opened={opened} onClose={close}>
         <form onSubmit={form.onSubmit(handleSubmit)}>
           <NumberInput
