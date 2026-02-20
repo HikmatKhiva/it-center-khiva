@@ -1,20 +1,22 @@
-import { ActionIcon, Indicator, Table, Text } from "@mantine/core";
+import { ActionIcon, Group, Indicator, Table, Text } from "@mantine/core";
 import { useLocation, useNavigate } from "react-router-dom";
 import DeleteGroupModal from "./DeleteGroupModal";
 import { formatTime } from "@/utils/helper";
-import { Pencil } from "lucide-react";
+import { ArrowDownUp, Pencil } from "lucide-react";
 import { IGroup } from "@/types";
 const GroupTable = ({
   data,
   isPending,
   status,
+  handleChangeOrder,
 }: {
   data: IGroup[];
   isPending: boolean;
   status: boolean;
+  handleChangeOrder: () => void;
 }) => {
   const location = useLocation();
-  const path = location.pathname.split('/')[1];
+  const path = location.pathname.split("/")[1];
   const navigate = useNavigate();
   const rows = data?.map((group: IGroup) => (
     <Table.Tr key={group.id}>
@@ -57,7 +59,14 @@ const GroupTable = ({
     <Table withTableBorder highlightOnHover>
       <Table.Thead>
         <Table.Tr>
-          <Table.Th>Guruh nomi</Table.Th>
+          <Table.Th onClick={handleChangeOrder}>
+            <Group align="center">
+              <Text fw={700} size="sm">
+                Guruh nomi
+              </Text>
+              <ArrowDownUp size={15} />
+            </Group>
+          </Table.Th>
           <Table.Th>Kurs nomi</Table.Th>
           <Table.Th>O'qituvchisi</Table.Th>
           <Table.Th>Bolalar soni</Table.Th>
