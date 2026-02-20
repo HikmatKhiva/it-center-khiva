@@ -9,8 +9,9 @@ const getNewStudents = async (req, res) => {
       limit = 10,
       page = 1,
       courseId,
+      year,
     } = req.query;
-    const currentYear = new Date().getFullYear();
+    const currentYear = parseInt(year) || new Date().getFullYear();
     const monthNumber = parseInt(month); // Ensure month is an integer
     // Create dates for the start and end of the month
     const startDate = new Date(currentYear, monthNumber - 1, 1);
