@@ -39,8 +39,6 @@ const Metrics = ({ isActive }: { isActive: boolean }) => {
     queryKey: ["metrics"],
     enabled: !!admin?.token && isActive,
   });
-  console.log(data);
-
   return (
     <>
       <Group wrap="wrap" mb={20}>
