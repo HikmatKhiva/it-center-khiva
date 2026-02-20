@@ -39,7 +39,7 @@ const NewStudentsTable = ({ newStudents }: { newStudents: INewStudent[] }) => {
       <Table withTableBorder highlightOnHover>
         <Table.Thead>
           <Table.Tr>
-            <Table.Th>Soni</Table.Th>
+            <Table.Th>N</Table.Th>
             <Table.Th>To'liq ismi</Table.Th>
             <Table.Th>Telefon raqami</Table.Th>
             <Table.Th>Yozilgan sanasi</Table.Th>
