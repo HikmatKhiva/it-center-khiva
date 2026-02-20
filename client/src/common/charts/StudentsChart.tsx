@@ -7,11 +7,10 @@ import { Group, Select, Text } from "@mantine/core";
 import { useQuery } from "@tanstack/react-query";
 import StatCards from "../components/StatCards";
 import { useState } from "react";
-import { years } from "@/config";
+import { currentYearQuery, years } from "@/config";
 const StudentsChart = ({ isActive }: { isActive?: boolean }) => {
   const admin = useAppSelector(selectUser);
-  const currentYear = new Date().getFullYear().toString();
-  const [year, setYear] = useState<string>(currentYear || "");
+  const [year, setYear] = useState<string>(currentYearQuery || "");
   const params = new URLSearchParams({
     year,
   });
