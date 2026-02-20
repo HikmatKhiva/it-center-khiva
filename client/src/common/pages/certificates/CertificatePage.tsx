@@ -14,16 +14,15 @@ import { GraduationCap, LoaderCircle, Search } from "lucide-react";
 import CertificateTable from "@/common/components/CertificateTable";
 import { Server } from "@/api/api";
 import { ICertificateResponse } from "@/types";
-import { years } from "@/config";
+import { currentYearQuery, years } from "@/config";
 const CertificatePage = () => {
   const admin = useAppSelector(selectUser);
-  const currentYear = new Date().getFullYear().toString();
   const [query, setQuery] = useState({
     name: "",
     passportId: "",
     page: 1,
     limit: 10,
-    year: currentYear || "",
+    year: currentYearQuery || "",
   });
   const params = new URLSearchParams({
     name: query.name,
