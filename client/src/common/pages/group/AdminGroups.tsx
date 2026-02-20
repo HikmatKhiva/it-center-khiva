@@ -10,21 +10,21 @@ import {
 import { Filter, LoaderCircle, Search, Users } from "lucide-react";
 import CreateGroupModal from "@/common/components/group/CreateGroupModal";
 import { useQuery } from "@tanstack/react-query";
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import { useAppSelector } from "@/hooks/redux";
 import { Server } from "@/api/api";
 import { selectUser } from "@/lib/redux/reducer/admin";
 import { GroupQueryResponse } from "@/types";
-import { years } from "@/config";
+import { currentYearQuery, years } from "@/config";
 const AdminGroups = () => {
   const admin = useAppSelector(selectUser);
-  const currentYear = new Date().getFullYear().toString();
   const [query, setQuery] = useState({
     name: "",
     page: 1,
     limit: 12,
     isGroupFinished: false,
-    year: currentYear || "",
+    year: currentYearQuery || "",
+    orderBy: "asc",
   });
   const params = new URLSearchParams({
     name: query.name,
@@ -32,6 +32,7 @@ const AdminGroups = () => {
     limit: query.limit.toString(),
     isGroupFinished: query.isGroupFinished.toString(),
     year: query.year,
+    orderBy: query.orderBy,
   });
   const { data, isPending } = useQuery<GroupQueryResponse>({
     queryKey: [
@@ -40,6 +41,7 @@ const AdminGroups = () => {
       query.isGroupFinished,
       query.page,
       query.year,
+      query.orderBy,
     ],
     queryFn: () =>
       Server(`group?${params}`, {
@@ -50,6 +52,12 @@ const AdminGroups = () => {
       }),
     enabled: !!admin?.token,
   });
+  const handleChangeOrder = useCallback(() => {
+    setQuery((prev) => ({
+      ...prev,
+      orderBy: prev.orderBy === "asc" ? "desc" : "asc",
+    }));
+  }, []);
   return (
     <section>
       <Group pb="20" justify="space-between">
@@ -62,7 +70,9 @@ const AdminGroups = () => {
         <Group>
           <Select
             defaultValue="false"
-            rightSection={<Filter />}
+            rightSection={
+              <Filter onClick={() => console.log("clicked icon")} />
+            }
             onChange={(value: string | null) =>
               setQuery((prev) => ({
                 ...prev,
@@ -103,6 +113,7 @@ const AdminGroups = () => {
       </Group>
       <Stack className="h-[calc(100vh_-_150px)]" justify="space-between ">
         <GroupTable
+          handleChangeOrder={handleChangeOrder}
           status={query.isGroupFinished}
           data={data?.groups || []}
           isPending={isPending}
