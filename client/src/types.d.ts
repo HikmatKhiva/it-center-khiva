@@ -109,7 +109,7 @@ interface IGroup {
       time: string;
       roomId: number;
       groupId: number;
-    }
+    },
   ];
 }
 
@@ -133,7 +133,7 @@ interface CreateCardProps {
   photo: string;
   handleFileChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   handleInputChange: (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
   ) => void;
 }
 interface INewsCard {
@@ -154,6 +154,10 @@ interface IPayments extends IDefault {
   studentId: number;
   isRefunded: boolean;
   refundedAt: Date;
+  createdBy: {
+    username: string;
+    role: string;
+  };
 }
 interface IRefund {
   id: number;
@@ -189,6 +193,7 @@ interface IQueryStudent {
   courseTime: string;
   limit: number;
   page: number;
+  year: string;
 }
 interface IOpenedGroup {
   courseName: string;
@@ -494,4 +499,20 @@ interface INewStudentUpdate {
   fullName: string;
   isAttend: string;
   reason: string;
+}
+
+interface IReceipt {
+  id: 1;
+  issuedAt: Date;
+  receiptNo: string;
+  status: string;
+  amount: string;
+  publicToken: string;
+  student: {
+    firstName: string;
+    secondName: string;
+    course: {
+      name: string;
+    };
+  };
 }
