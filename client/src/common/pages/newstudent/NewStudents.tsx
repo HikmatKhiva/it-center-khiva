@@ -13,7 +13,13 @@ import {
   Button,
 } from "@mantine/core";
 import { BookOpenText, CalendarFold, Clock, Filter, Plus } from "lucide-react";
-import { attends, courseTimes, selectMonths } from "@/config";
+import {
+  attends,
+  courseTimes,
+  currentYearQuery,
+  selectMonths,
+  years,
+} from "@/config";
 import { useState } from "react";
 import { useAppSelector } from "@/hooks/redux";
 import useFormData from "@/hooks/useFormData";
@@ -32,6 +38,7 @@ const NewStudents = () => {
     courseId: "",
     limit: 13,
     page: 1,
+    year: currentYearQuery || "",
   });
   const params = new URLSearchParams({
     isAttend: query.isAttend,
@@ -40,6 +47,7 @@ const NewStudents = () => {
     courseId: query.courseId,
     limit: query.limit.toString(),
     page: query.page.toString(),
+    year: query.year,
   });
   const { data, isPending } = useQuery<INewStudentResponse>({
     queryFn: () =>
@@ -55,6 +63,7 @@ const NewStudents = () => {
       query.isAttend,
       query.month,
       query.courseId,
+      query.year
     ],
     enabled: !!user?.token,
   });
@@ -86,14 +95,7 @@ const NewStudents = () => {
             value={query.courseId}
             onChange={(value) => setQuery({ ...query, courseId: value || "" })}
           />
-          <Select
-            size="xs"
-            leftSection={<CalendarFold size="16" />}
-            w={130}
-            data={selectMonths}
-            value={query.month}
-            onChange={(value) => setQuery({ ...query, month: value || "" })}
-          />
+
           <Select
             value={query.courseTime}
             size="xs"
@@ -103,6 +105,23 @@ const NewStudents = () => {
               setQuery({ ...query, courseTime: value || "" })
             }
             data={courseTimes}
+          />
+          <Select
+            size="xs"
+            leftSection={<CalendarFold size="16" />}
+            w={130}
+            data={selectMonths}
+            value={query.month}
+            onChange={(value) => setQuery({ ...query, month: value || "" })}
+          />
+          <Select
+            defaultValue={query.year}
+            size="xs"
+            placeholder="2025"
+            data={years}
+            value={query.year}
+            onChange={(value) => setQuery({ ...query, year: value || "" })}
+            w={90}
           />
           <Button
             size="xs"
