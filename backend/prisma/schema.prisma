@@ -17,6 +17,10 @@ model Admin {
   updatedAt DateTime @updatedAt
   role      Role
   isActive  Boolean  @default(true)
+
+  payments Payment[]
+
+  refunds Refund[]
 }
 
 model Teacher {
@@ -115,6 +119,8 @@ model Student {
   Payments     Payment[]
   course       Course       @relation(fields: [courseId], references: [id])
   Group        Group        @relation(fields: [groupId], references: [id], onDelete: Cascade)
+
+  receipts Receipt[]
 }
 
 model Payment {
@@ -129,16 +135,44 @@ model Payment {
   refundedAt  DateTime?
   Student     Student   @relation(fields: [studentId], references: [id], onDelete: Cascade)
   refunds     Refund[]
+
+  createdBy   Admin @relation(fields: [createdById], references: [id])
+  createdById Int
+
+  receipts Receipt[]
+
+  @@index([studentId])
+}
+
+model Receipt {
+  id          Int           @id @default(autoincrement())
+  receiptNo   String        @unique
+  publicToken String        @unique
+  paymentId   Int           @unique
+  studentId   Int
+  amount      Decimal
+  status      ReceiptStatus @default(ACTIVE)
+  issuedAt    DateTime      @default(now())
+
+  payment Payment @relation(fields: [paymentId], references: [id])
+  student Student @relation(fields: [studentId], references: [id])
+
+  @@index([studentId])
 }
 
 model Refund {
-  id        Int      @id @default(autoincrement())
-  paymentId Int
-  amount    Decimal
-  createdAt DateTime @default(now())
-  reason    String?
-  payment   Payment  @relation(fields: [paymentId], references: [id], onDelete: Cascade)
+  id              Int      @id @default(autoincrement())
+  paymentId       Int
+  amount          Decimal
+  createdAt       DateTime @default(now())
+  reason          String?
+  payment         Payment  @relation(fields: [paymentId], references: [id], onDelete: Cascade)
+  cancelledBy     Admin    @relation(fields: [cancelledByById], references: [id])
+  cancelledByById Int
+
+  @@index([paymentId])
 }
+
 
 model Messages {
   id        Int      @id @default(autoincrement())
@@ -193,6 +227,11 @@ enum Role {
   ADMIN
   TEACHER
   RECEPTION
+}
+
+enum ReceiptStatus {
+  ACTIVE
+  CANCELLED
 }
 
 enum gender {
