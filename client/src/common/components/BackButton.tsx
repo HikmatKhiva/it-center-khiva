@@ -1,7 +1,6 @@
 import { ActionIcon } from "@mantine/core";
 import { ArrowLeft } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-
 const BackButton = ({
   size = "md",
   color = "red",
@@ -25,5 +24,4 @@ const BackButton = ({
     </>
   );
 };
-
 export default BackButton;
