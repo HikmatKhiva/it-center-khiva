@@ -1,6 +1,6 @@
 import { Server } from "@/api/api";
 import StudentsTable from "@/common/components/students/StudentsTable";
-import { years } from "@/config";
+import { currentYearQuery, years } from "@/config";
 import { useAppSelector } from "@/hooks/redux";
 import useFormData from "@/hooks/useFormData";
 import { selectUser } from "@/lib/redux/reducer/admin";
@@ -15,17 +15,16 @@ import {
 } from "@mantine/core";
 import { useQuery } from "@tanstack/react-query";
 import { GraduationCap, LoaderCircle, Search } from "lucide-react";
-import React, { useState } from "react";
+import  { useState } from "react";
 const StudentsPage = () => {
   const admin = useAppSelector(selectUser);
-  const currentYear = new Date().getFullYear().toString();
   const { courses } = useFormData();
   const [query, setQuery] = useState({
     name: "",
     passportId: "",
     page: 1,
     limit: 10,
-    year: currentYear || "",
+    year: currentYearQuery || "",
     courseId: "",
   });
   const params = new URLSearchParams({
@@ -128,5 +127,4 @@ const StudentsPage = () => {
     </section>
   );
 };
-
 export default StudentsPage;
