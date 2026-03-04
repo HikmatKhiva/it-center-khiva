@@ -1,5 +1,6 @@
 import { prisma } from "../../app.js";
-import { calculateDebt, generateStudentCode } from "./students.helper.js";
+import { generateContract } from "../../utils/generateContract.js";
+import { dataConverter, generateStudentCode } from "./students.helper.js";
 // get all students
 const getAllStudents = async (req, res) => {
   try {
@@ -80,11 +81,14 @@ const getGroupStudents = async (req, res) => {
     const { limit = 1, page = 1, name, groupId } = req.query;
     const students = await prisma.student.findMany({
       where: {
-        firstName: {
-          contains: name,
-          mode: "insensitive",
-        },
+        OR: [
+          { firstName: { contains: name, mode: "insensitive" } },
+          { secondName: { contains: name, mode: "insensitive" } },
+        ],
         ...(groupId && { groupId: parseInt(groupId) }),
+      },
+      include: {
+        guarantor: true,
       },
       skip: (page - 1) * limit,
       take: parseInt(limit),
@@ -100,6 +104,8 @@ const getGroupStudents = async (req, res) => {
     const totalPages = Math.ceil(totalCount / limit);
     return res.status(200).json({ students, totalPages });
   } catch (error) {
+    console.log(error);
+
     return res.status(500).json({ error });
   }
 };
@@ -132,6 +138,9 @@ const createStudent = async (req, res) => {
       discount,
       gender,
       phone,
+      guarantor,
+      address,
+      docType,
     } = req.body;
     const group = await prisma.group.findUnique({
       where: {
@@ -141,6 +150,9 @@ const createStudent = async (req, res) => {
     if (!group) return res.status(404).json({ message: "Guruh topilmadi!" });
     if (group.isGroupFinished) {
       return res.status(400).json({ message: "Guruh yakunlangan!" });
+    }
+    if (docType === "BIRTHCERTIFICATE" && !guarantor) {
+      return res.status(500).json({ message: "Vasiy ma'lumotlari shart!" });
     }
     const student = await prisma.student.findUnique({
       where: {
@@ -153,18 +165,14 @@ const createStudent = async (req, res) => {
         .json({ message: "Passport ID ma'lumotlar bazasida mavjud!" });
     }
     const code = await generateStudentCode();
-
     const exists = await prisma.student.findUnique({
       where: { code: code },
     });
     if (exists) {
-      console.log(exists);
       return res
         .status(400)
         .json({ message: "Passport ID ma'lumotlar bazasida mavjud!" });
     }
-    const debt = await calculateDebt(groupId, discount);
-    console.log(code, "code");
     await prisma.student.create({
       data: {
         firstName,
@@ -172,20 +180,25 @@ const createStudent = async (req, res) => {
         passportId,
         groupId,
         courseId,
-        debt,
+        address,
+        docType,
         code,
         discount: parseInt(discount),
         gender: gender.toUpperCase(),
         phone,
         paymentType: "selfPayment",
+        guarantor:
+          docType === "BIRTHCERTIFICATE"
+            ? {
+                create: { ...guarantor },
+              }
+            : undefined,
       },
     });
     return res
       .status(201)
       .json({ message: "O'quvchi muvaffaqiyatli yaratildi." });
   } catch (error) {
-    console.log(error);
-
     return res.status(500).json({ error });
   }
 };
@@ -193,7 +206,19 @@ const createStudent = async (req, res) => {
 const updateStudent = async (req, res) => {
   try {
     const { id } = req.params;
-    const { firstName, secondName, passportId, gender, phone } = req.body;
+    const {
+      firstName,
+      secondName,
+      passportId,
+      gender,
+      phone,
+      docType,
+      address,
+      guarantor,
+    } = req.body;
+    if (docType === "BIRTHCERTIFICATE" && !guarantor) {
+      return res.status(500).json({ message: "Vasiy ma'lumotlari shart!" });
+    }
     await prisma.student.update({
       where: {
         id: parseInt(id),
@@ -204,6 +229,19 @@ const updateStudent = async (req, res) => {
         passportId,
         gender: gender.toUpperCase(),
         phone,
+        docType,
+        address,
+        guarantor:
+          docType === "BIRTHCERTIFICATE"
+            ? {
+                upsert: {
+                  update: { ...guarantor },
+                  create: { ...guarantor },
+                },
+              }
+            : {
+                delete: true,
+              },
       },
     });
     return res
@@ -229,6 +267,47 @@ const deleteStudent = async (req, res) => {
     return res.status(500).json({ error });
   }
 };
+const getContract = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const student = await prisma.student.findUnique({
+      where: {
+        id: parseInt(id),
+        Group: {
+          isActive: true,
+        },
+      },
+      include: {
+        Group: {
+          select: {
+            price: true,
+            duration: true,
+            startTime: true,
+            finishedDate: true,
+          },
+        },
+        course: {
+          select: {
+            name: true,
+          },
+        },
+        guarantor: true,
+      },
+    });
+    if (!student) {
+      return res.status(404).json({ message: "O'quvchi mavjud emas!" });
+    }
+    const data = dataConverter(student);
+    const result = await generateContract(data);
+    if (result) {
+      return res.status(200).json({ message: "Generated" });
+    }
+    return res.status(200).json({ student: data });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ error });
+  }
+};
 export {
   getGroupStudents,
   getAllStudents,
@@ -236,4 +315,6 @@ export {
   createStudent,
   deleteStudent,
   updateStudent,
+  getContract,
 };
+

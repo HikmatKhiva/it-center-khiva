@@ -5,6 +5,7 @@ import {
   ActionIcon,
   Group,
   LoadingOverlay,
+  Button,
 } from "@mantine/core";
 import { useParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
@@ -16,9 +17,10 @@ import { useAppSelector } from "@/hooks/redux";
 import { ChangeEvent, useCallback, useState } from "react";
 import { selectUser } from "@/lib/redux/reducer/admin";
 import GroupIdHeader from "@/common/components/group/GroupIdHeader";
-import { Check, Eye, RefreshCw } from "lucide-react";
+import { Check, Eye, FileDown, RefreshCw } from "lucide-react";
 import { Server } from "@/api/api";
 import { IDefaultQuery, IGroup, IStudentsResponse, IStudent } from "@/types";
+import GuarantorModal from "@/common/components/student/GuarantorModal";
 const AdminGroupId = () => {
   const url = `/site/certificate?code`;
   const admin = useAppSelector(selectUser);
@@ -31,7 +33,7 @@ const AdminGroupId = () => {
     (event: ChangeEvent<HTMLInputElement>): void => {
       setQuery((prev) => ({ ...prev, name: event.target.value }));
     },
-    []
+    [],
   );
   const { id } = useParams();
   const { data: group } = useQuery({
@@ -93,10 +95,10 @@ const AdminGroupId = () => {
           <Eye />
         </ActionIcon>
       </Table.Td>
-      <Table.Td>
+      <Table.Td hidden={!group?.isActive}>
         <PaymentsHistory id={student.id} />
       </Table.Td>
-      <Table.Td>
+      <Table.Td hidden={!group?.isActive}>
         {parseInt(student.debt) === 0 ? (
           <ActionIcon color="teal" variant="light" radius="xl" size="lg">
             <Check size={22} />
@@ -104,6 +106,17 @@ const AdminGroupId = () => {
         ) : (
           <UploadPayment studentId={student.id} />
         )}
+      </Table.Td>
+      <Table.Td>
+        <GuarantorModal
+          guarantor={student?.guarantor}
+          fullName={`${student.firstName} ${student.secondName}`}
+        />
+      </Table.Td>
+      <Table.Td>
+        <Button color="grape" variant="outline" size="xs">
+          <FileDown size="16" />
+        </Button>
       </Table.Td>
     </Table.Tr>
   ));
@@ -129,8 +142,10 @@ const AdminGroupId = () => {
               <Table.Th>O'zgartirish</Table.Th>
               {group?.isGroupFinished && <Table.Th>Certificate URL</Table.Th>}
               <Table.Th>O'chirish</Table.Th>
-              <Table.Th>To'lov tarixi</Table.Th>
-              <Table.Th>To'lov qo'shish</Table.Th>
+              <Table.Th hidden={!group?.isActive}>To'lov tarixi</Table.Th>
+              <Table.Th hidden={!group?.isActive}>To'lov qo'shish</Table.Th>
+              <Table.Th>Vasiy</Table.Th>
+              <Table.Th>Shartnoma</Table.Th>
             </Table.Tr>
           </Table.Thead>
           <Table.Tbody>{rows}</Table.Tbody>

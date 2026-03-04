@@ -3,11 +3,16 @@ import { CalendarOff, CalendarPlus, Search } from "lucide-react";
 import UpdateGroupModal from "./UpdateGroupModal";
 import { formatTime } from "@/utils/helper";
 import CreateStudent from "../student/CreateStudentModal";
-import FinishGroupModal from "./FinishGroupModal";
+// import FinishGroupModal from "./FinishGroupModal";
 import DownloadCertificate from "./DownloadCertificate";
 import { ChangeEvent, memo } from "react";
 import BackButton from "../BackButton";
 import { IGroup } from "@/types";
+import ActivateGroupModal from "./ActivateGroupModal";
+// import ActivateGroupDrawer from "./ActivateGroupDrawer";
+import { useAppSelector } from "@/hooks/redux";
+import { selectUser } from "@/lib/redux/reducer/admin";
+import FinishGroupModal from "./FinishGroupModal";
 const GroupIdHeader = memo(
   ({
     group,
@@ -18,6 +23,7 @@ const GroupIdHeader = memo(
     name: string;
     handleChangeInput: (event: ChangeEvent<HTMLInputElement>) => void;
   }) => {
+    const admin = useAppSelector(selectUser);
     return (
       <Group pb="20" justify="space-between">
         <Group gap="20">
@@ -28,28 +34,30 @@ const GroupIdHeader = memo(
           <Text fz="14">
             Guruh nomi: <b>{group?.name}</b>
           </Text>
-          {group?.createdAt && (
-            <Tooltip label="Boshlangan sana!">
-              <Text className="flex gap-1 items-center" fz="14">
-                <CalendarPlus size="16" />
-                <b>{formatTime.DateTime(group?.createdAt)}</b>
-              </Text>
-            </Tooltip>
-          )}
-          {group?.finishedDate && (
-            <Tooltip
-              label={`${
-                group?.isGroupFinished
-                  ? "Yakunlangan sana!"
-                  : "Yakunlash sanasi!"
-              }`}
-            >
-              <Text className="flex gap-1 items-center" fz="14">
-                <CalendarOff size="16" />
-                <b>{formatTime.DateTime(group?.finishedDate)}</b>
-              </Text>
-            </Tooltip>
-          )}
+          <Group hidden={!group.isActive}>
+            {group?.startTime && (
+              <Tooltip label="Boshlangan sana!">
+                <Text className="flex gap-1 items-center" fz="14">
+                  <CalendarPlus size="16" />
+                  <b>{formatTime.DateTime(group?.startTime)}</b>
+                </Text>
+              </Tooltip>
+            )}
+            {group?.finishedDate && (
+              <Tooltip
+                label={`${
+                  group?.isGroupFinished
+                    ? "Yakunlangan sana!"
+                    : "Yakunlash sanasi!"
+                }`}
+              >
+                <Text className="flex gap-1 items-center" fz="14">
+                  <CalendarOff size="16" />
+                  <b>{formatTime.DateTime(group?.finishedDate)}</b>
+                </Text>
+              </Tooltip>
+            )}
+          </Group>
         </Group>
         <Group>
           <TextInput
@@ -65,15 +73,18 @@ const GroupIdHeader = memo(
               groupId={group?.id}
             />
           )}
-          {!group?.isGroupFinished && group?.Students.length !== 0 && (
-            <FinishGroupModal id={group?.id} />
+          {admin?.role == "ADMIN" && !group.isActive && (
+            <ActivateGroupModal id={group.id} duration={group.duration} />
           )}
+          {!group?.isGroupFinished &&
+            group?.Students.length !== 0 &&
+            group.isActive && <FinishGroupModal id={group?.id} />}
           {group?.isGroupFinished && (
             <DownloadCertificate name={group.name} id={group?.id} />
           )}
         </Group>
       </Group>
     );
-  }
+  },
 );
 export default GroupIdHeader;

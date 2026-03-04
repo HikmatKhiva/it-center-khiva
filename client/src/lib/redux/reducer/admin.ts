@@ -1,5 +1,6 @@
 import { PayloadAction, createSlice } from "@reduxjs/toolkit";
 import { RootState } from "../app";
+import { IAdmin, InitialStateAdmin } from "@/types";
 const initialState: InitialStateAdmin = {
   admin: null,
 };

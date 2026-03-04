@@ -1,22 +1,4 @@
 import { prisma } from "../../app.js";
-export const calculateDebt = async (groupId, discount) => {
-  try {
-    const group = await prisma.group.findUnique({
-      where: {
-        id: parseInt(groupId),
-      },
-    });
-    if (!group) {
-      throw new Error("Guruh topilmadi.");
-    }
-    const { price, duration } = group;
-    const originalPrice = price * parseInt(duration);
-    const discountAmount = (originalPrice * discount) / 100;
-    return originalPrice - discountAmount;
-  } catch (error) {
-    throw error;
-  }
-};
 export const generateStudentCode = async () => {
   const latest = await prisma.student.findFirst({
     orderBy: {
@@ -44,4 +26,27 @@ export const generateStudentCode = async () => {
     // Reset the second part if the year has changed
     return `${newFirstPart}/100-001`;
   }
+};
+
+export const dataConverter = (student) => {
+  return {
+    fullName: `${student?.firstName} ${student?.secondName}`,
+    phone: student?.phone,
+    passportId: student?.passportId,
+    monthlyPrice: student?.Group?.price,
+    courseDuration: student?.Group?.duration,
+    docType: student?.docType,
+    totalPrice: Math.floor(
+      parseInt(student?.Group?.price) * parseInt(student?.Group?.duration),
+    ),
+    startTime: student?.Group?.startTime,
+    finishedDate: student?.Group?.finishedDate,
+    courseName: student?.course?.name,
+    address: student?.address,
+    guarantor: {
+      fullName: `${student?.guarantor?.firstName} ${student?.guarantor?.secondName}`,
+      passportId: student?.guarantor?.passportId,
+      phone: student?.guarantor?.phone,
+    },
+  };
 };

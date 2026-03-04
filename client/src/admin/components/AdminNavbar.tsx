@@ -1,4 +1,4 @@
-import { Divider, Group } from "@mantine/core";
+import { Divider, Group, NavLink as MantineNavLink } from "@mantine/core";
 import {
   BookOpenText,
   ConciergeBell,
@@ -10,6 +10,7 @@ import {
   User,
   UserRoundPlus,
   Users,
+  Settings
 } from "lucide-react";
 import { NavLink } from "react-router-dom";
 import { graduateMen } from "../assets/svg";
@@ -36,7 +37,44 @@ const AdminNavbar = ({ close }: { close: () => void }) => {
         <Users />
         Guruhlar
       </NavLink>
-
+      <MantineNavLink label="Sozlamalar" leftSection={<Settings />} href="/admin/settings">
+        <MantineNavLink
+          component={NavLink}
+          to="/admin/teachers"
+          label="O'qituvchilar"
+          leftSection={<User  />}
+        />
+        <MantineNavLink
+          component={NavLink}
+          to="/admin/students"
+          label="Talabalar"
+          leftSection={<img src={graduateMen} alt="graduateMen" width={28} />}
+        />
+        <MantineNavLink
+          component={NavLink}
+          to="/admin/course"
+          label="Kurslar"
+          leftSection={<BookOpenText />}
+        />
+        <MantineNavLink
+          component={NavLink}
+          to="/admin/reception"
+          label="Reception"
+          leftSection={<ConciergeBell />}
+        />
+        <MantineNavLink
+          component={NavLink}
+          to="/admin/certificate"
+          label="Tayor Sertificatlar"
+          leftSection={<GraduationCap />}
+        />
+        <MantineNavLink
+          component={NavLink}
+          to="/admin/rooms"
+          label="Xonalar"
+          leftSection={<DoorClosed />}
+        />
+      </MantineNavLink>
       <NavLink
         onClick={close}
         className="w-full py-2 px-4 flex items-center gap-2  text-lg"
@@ -45,22 +83,22 @@ const AdminNavbar = ({ close }: { close: () => void }) => {
         <Newspaper />
         Yangiliklar
       </NavLink>
-      <NavLink
+      {/* <NavLink
         onClick={close}
         className="w-full py-2 px-4 flex items-center gap-2  text-lg"
         to="/admin/course"
       >
         <BookOpenText />
         Kurslar
-      </NavLink>
-      <NavLink
+      </NavLink> */}
+      {/* <NavLink
         onClick={close}
         className="w-full py-2 px-4 flex items-center gap-2  text-lg"
         to="/admin/teachers"
       >
         <User />
         O'qituvchilar
-      </NavLink>
+      </NavLink> */}
       <NavLink
         onClick={close}
         className="w-full py-2 px-4 flex items-center gap-2  text-lg"
@@ -77,38 +115,38 @@ const AdminNavbar = ({ close }: { close: () => void }) => {
         <UserRoundPlus />
         Yangi o'quvchilar
       </NavLink>
-      <NavLink
+      {/* <NavLink
         onClick={close}
         className="w-full py-2 px-4 flex items-center gap-2  text-lg"
         to="/admin/reception"
       >
         <ConciergeBell />
         Reception
-      </NavLink>
-      <NavLink
+      </NavLink> */}
+      {/* <NavLink
         onClick={close}
         className="w-full py-2 px-4 flex items-center gap-2  text-lg"
         to="/admin/certificate"
       >
         <GraduationCap />
         Tayor Sertificatlar
-      </NavLink>
-      <NavLink
+      </NavLink> */}
+      {/* <NavLink
         onClick={close}
         className="w-full py-2 px-4 flex items-center gap-2  text-lg"
         to="/admin/rooms"
       >
         <DoorClosed />
         Xonalar
-      </NavLink>
-      <NavLink
+      </NavLink> */}
+      {/* <NavLink
         onClick={close}
         className="w-full py-2 px-4 flex items-center gap-2  text-lg"
         to="/admin/students"
       >
         <img src={graduateMen} alt="graduateMen" width={28} />
         O'quvchilar
-      </NavLink>
+      </NavLink> */}
     </div>
   );
 };

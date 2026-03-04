@@ -80,3 +80,9 @@ yangi
 
 group yaratishini yaxshilab test qilish 
 reception ga yangi imkoniyatlarni qo'shish
+
+
+HACK Test contract generate
+FIXME Test all features
+FIXME receipt generate 
+FIXME payment who paid and refund who canceled

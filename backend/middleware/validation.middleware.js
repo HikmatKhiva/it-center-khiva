@@ -1,7 +1,9 @@
 import Ajv from "ajv";
-import apply from "ajv-formats-draft2019";
+// import addFormats from "ajv-formats-draft2019";
+// FIXME Test mode
+import addFormats from "ajv-formats";
 const ajv = new Ajv({ allErrors: true });
-apply(ajv);
+addFormats(ajv);
 export const validate = (schema) => {
   const validate = ajv.compile(schema);
   return (req, res, next) => {
@@ -9,7 +11,7 @@ export const validate = (schema) => {
     if (!isValid) {
       const error = validate.errors ? validate.errors : "Validation failed";
       console.log(error);
-      
+
       return res
         .status(400)
         .json({ message: `${error[0].instancePath} ${error[0].message}` });

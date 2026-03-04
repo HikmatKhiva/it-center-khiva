@@ -40,7 +40,7 @@ export async function getTeacherMonthlyReport(teacherId, year, month) {
     const totalPaid = paymentsThisMonth.reduce((total, payment) => {
       const refundedAmount = payment.refunds.reduce(
         (sum, refund) => sum + Number(refund.amount),
-        0
+        0,
       );
       return total + (Number(payment.amount) - refundedAmount);
     }, 0);
@@ -79,12 +79,12 @@ export async function getTeacherMonthlyReport(teacherId, year, month) {
       const groupStartMonth = new Date(
         groupStart.getFullYear(),
         groupStart.getMonth(),
-        1
+        1,
       );
       const lastActiveMonth = new Date(
         groupStart.getFullYear(),
         groupStart.getMonth() + duration - 1,
-        1
+        1,
       );
 
       // Check if group was active this month
@@ -99,7 +99,7 @@ export async function getTeacherMonthlyReport(teacherId, year, month) {
           const studentMonthlyPrice = Number(group.price) * discountFactor;
           return groupTotal + studentMonthlyPrice;
         },
-        0
+        0,
       );
       // Teacher gets 50% of expected income
       expectedSalary += monthlyExpectedIncome * 0.5;
@@ -147,10 +147,10 @@ export async function calculateAllTeachersSalaries(filterYear, filterMonth) {
     const results = await Promise.all(
       teachers.map(async (teacher) => {
         return await getTeacherMonthlyReport(teacher.id, year, month);
-      })
+      }),
     );
     return results.filter(
-      (report) => report.totalPaid > 0 || report.expectedSalary > 0
+      (report) => report.totalPaid > 0 || report.expectedSalary > 0,
     );
   } catch (error) {
     console.error("Error in calculateAllTeachersSalaries:", error);
@@ -200,12 +200,12 @@ export async function calculateIncomeForYear(filterYear) {
         const groupStartMonth = new Date(
           groupStart.getFullYear(),
           groupStart.getMonth(),
-          1
+          1,
         );
         const lastActiveMonth = new Date(
           groupStart.getFullYear(),
           groupStart.getMonth() + duration - 1,
-          1
+          1,
         );
 
         const isGroupActiveThisMonth =
@@ -239,7 +239,7 @@ export async function calculateIncomeForYear(filterYear) {
       const paidThisMonth = paymentsThisMonth.reduce((total, payment) => {
         const refundedAmount = payment.refunds.reduce(
           (sum, refund) => sum + Number(refund.amount),
-          0
+          0,
         );
         return total + (Number(payment.amount) - refundedAmount);
       }, 0);
@@ -271,6 +271,7 @@ export async function calculateStats(filterYear) {
   try {
     const yearFilter = parseInt(filterYear) || new Date().getFullYear();
     const stats = await prisma.$transaction([
+      //  Active Groups
       prisma.group.count({
         where: {
           isGroupFinished: false,
@@ -280,6 +281,7 @@ export async function calculateStats(filterYear) {
           },
         },
       }),
+      // finished Groups
       prisma.group.count({
         where: {
           isGroupFinished: true,
@@ -289,6 +291,7 @@ export async function calculateStats(filterYear) {
           },
         },
       }),
+      // total Teachers
       prisma.teacher.count({
         where: {
           // createdAt: {
@@ -297,6 +300,7 @@ export async function calculateStats(filterYear) {
           // },
         },
       }),
+      // total Courses
       prisma.course.count({
         where: {
           // createdAt: {
@@ -305,10 +309,12 @@ export async function calculateStats(filterYear) {
           // },
         },
       }),
+      // active Students
       prisma.student.count({
         where: {
           Group: {
             isGroupFinished: false,
+            isActive: true,
             createdAt: {
               gte: new Date(yearFilter, 0, 1),
               lte: new Date(yearFilter, 11, 31, 23, 59, 59, 999),
@@ -316,15 +322,18 @@ export async function calculateStats(filterYear) {
           },
         },
       }),
+      // total Debtors
       prisma.student.count({
         where: {
           debt: { gt: 0 },
+          Group: { isActive: true },
           createdAt: {
             gte: new Date(yearFilter, 0, 1),
             lte: new Date(yearFilter, 11, 31, 23, 59, 59, 999),
           },
         },
       }),
+      // finished Students
       prisma.student.count({
         where: {
           Group: {
@@ -337,6 +346,7 @@ export async function calculateStats(filterYear) {
           debt: 0,
         },
       }),
+      // total students
       prisma.student.count({
         where: {
           Group: {
@@ -348,6 +358,7 @@ export async function calculateStats(filterYear) {
           },
         },
       }),
+      // total students MALE
       prisma.student.count({
         where: {
           gender: "MALE",
@@ -358,6 +369,7 @@ export async function calculateStats(filterYear) {
           },
         },
       }),
+      // total students FEMALE
       prisma.student.count({
         where: {
           gender: "FEMALE",
@@ -368,6 +380,7 @@ export async function calculateStats(filterYear) {
           },
         },
       }),
+      // total finished students FEMALE
       prisma.student.count({
         where: {
           gender: "FEMALE",
@@ -379,6 +392,7 @@ export async function calculateStats(filterYear) {
           },
         },
       }),
+      // total finished students MALE
       prisma.student.count({
         where: {
           gender: "MALE",
@@ -390,6 +404,7 @@ export async function calculateStats(filterYear) {
           },
         },
       }),
+      // total new students NOT_CAME
       prisma.newStudent.count({
         where: {
           isAttend: "NOT_CAME",
@@ -399,6 +414,7 @@ export async function calculateStats(filterYear) {
           },
         },
       }),
+      // total new students CAME
       prisma.newStudent.count({
         where: {
           isAttend: "CAME",
@@ -408,6 +424,7 @@ export async function calculateStats(filterYear) {
           },
         },
       }),
+      // total new students PENDING
       prisma.newStudent.count({
         where: {
           isAttend: "PENDING",
@@ -417,6 +434,7 @@ export async function calculateStats(filterYear) {
           },
         },
       }),
+      // total new students
       prisma.newStudent.count({
         where: {
           createdAt: {

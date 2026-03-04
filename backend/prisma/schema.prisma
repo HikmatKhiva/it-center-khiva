@@ -8,19 +8,17 @@ datasource db {
 }
 
 model Admin {
-  id        Int      @id @default(autoincrement())
-  username  String   @unique @db.VarChar(50)
-  password  String   @db.VarChar(255)
-  photo_url String?  @db.VarChar(255)
-  secret    String   @db.VarChar(255)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id        Int       @id @default(autoincrement())
+  username  String    @unique @db.VarChar(50)
+  password  String    @db.VarChar(255)
+  photo_url String?   @db.VarChar(255)
+  secret    String    @db.VarChar(255)
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
   role      Role
-  isActive  Boolean  @default(true)
-
-  payments Payment[]
-
-  refunds Refund[]
+  isActive  Boolean   @default(true)
+  payments  Payment[]
+  refunds   Refund[]
 }
 
 model Teacher {
@@ -63,6 +61,8 @@ model Group {
   teacherId       Int
   course          Course     @relation(fields: [courseId], references: [id])
   teacher         Teacher    @relation(fields: [teacherId], references: [id])
+  startTime       DateTime?
+  isActive        Boolean    @default(false)
   schedules       Schedule[]
   Students        Student[]
 }
@@ -105,8 +105,10 @@ model Student {
   secondName   String       @db.VarChar(50)
   passportId   String?      @unique @db.VarChar(10)
   paymentType  PaymentType  @default(selfPayment)
+  address      String       @db.VarChar(255)
   gender       gender
   debt         Decimal      @default(0.00)
+  debtStatus   DebtStatus   @default(PENDING)
   code         String       @unique
   discount     Decimal      @default(0.00)
   createdAt    DateTime     @default(now())
@@ -117,10 +119,23 @@ model Student {
   groupId      Int
   attendances  Attendance[]
   Payments     Payment[]
+  docType      DocType
+  receipts     Receipt[]
   course       Course       @relation(fields: [courseId], references: [id])
   Group        Group        @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  guarantor    Guarantor?
 
-  receipts Receipt[]
+  @@index([groupId, courseId])
+}
+
+model Guarantor {
+  id         Int     @id @default(autoincrement())
+  firstName  String  @db.VarChar(50)
+  secondName String  @db.VarChar(50)
+  passportId String  @unique @db.VarChar(10)
+  phone      String  @db.VarChar(50)
+  student    Student @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  studentId  Int     @unique
 }
 
 model Payment {
@@ -133,13 +148,11 @@ model Payment {
   studentId   Int
   isRefunded  Boolean   @default(false)
   refundedAt  DateTime?
-  Student     Student   @relation(fields: [studentId], references: [id], onDelete: Cascade)
-  refunds     Refund[]
-
-  createdBy   Admin @relation(fields: [createdById], references: [id])
   createdById Int
-
-  receipts Receipt[]
+  createdBy   Admin     @relation(fields: [createdById], references: [id])
+  Student     Student   @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  receipts    Receipt?
+  refunds     Refund[]
 
   @@index([studentId])
 }
@@ -153,26 +166,24 @@ model Receipt {
   amount      Decimal
   status      ReceiptStatus @default(ACTIVE)
   issuedAt    DateTime      @default(now())
-
-  payment Payment @relation(fields: [paymentId], references: [id])
-  student Student @relation(fields: [studentId], references: [id])
+  payment     Payment       @relation(fields: [paymentId], references: [id])
+  student     Student       @relation(fields: [studentId], references: [id])
 
   @@index([studentId])
 }
 
 model Refund {
-  id              Int      @id @default(autoincrement())
-  paymentId       Int
-  amount          Decimal
-  createdAt       DateTime @default(now())
-  reason          String?
-  payment         Payment  @relation(fields: [paymentId], references: [id], onDelete: Cascade)
-  cancelledBy     Admin    @relation(fields: [cancelledByById], references: [id])
-  cancelledByById Int
+  id            Int      @id @default(autoincrement())
+  amount        Decimal
+  createdAt     DateTime @default(now())
+  reason        String
+  payment       Payment  @relation(fields: [paymentId], references: [id], onDelete: Cascade)
+  paymentId     Int
+  cancelledBy   Admin    @relation(fields: [cancelledById], references: [id])
+  cancelledById Int
 
   @@index([paymentId])
 }
-
 
 model Messages {
   id        Int      @id @default(autoincrement())
@@ -269,4 +280,15 @@ enum LessonTime {
   T11_00
   T14_00
   T16_00
+}
+
+enum DocType {
+  PASSPORT
+  BIRTHCERTIFICATE
+}
+
+enum DebtStatus {
+  PENDING
+  ACTIVE
+  PAID
 }

@@ -55,9 +55,12 @@ export const groupUpdateSchema = {
   required: ["teacherId"],
   additionalProperties: false,
 };
-//  teacherId: data?.teacher.id.toString() || "",
-//       schedules: {
-//         weekType: "",
-//         time: "",
-//         roomId: "",
-//       },
+export const groupActivateSchema = {
+  type: "object",
+  properties: {
+    startTime: { type: "string", format: "date-time" },
+    finishedDate: { type: "string", format: "date-time" },
+  },
+  required: ["startTime", "finishedDate"],
+  additionalProperties: false,
+};

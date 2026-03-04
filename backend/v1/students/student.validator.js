@@ -8,7 +8,23 @@ export const studentSchema = {
     courseId: { type: "number" },
     discount: { type: "string" },
     gender: { type: "string" },
+    address: { type: "string" },
+    docType: {
+      type: "string",
+      enum: ["PASSPORT", "BIRTHCERTIFICATE"],
+    },
     phone: { type: "string" },
+    guarantor: {
+      type: "object",
+      properties: {
+        firstName: { type: "string" },
+        secondName: { type: "string" },
+        passportId: { type: "string" },
+        phone: { type: "string" },
+      },
+      required: ["firstName", "secondName", "passportId", "phone"],
+      additionalProperties: false,
+    },
   },
   required: [
     "firstName",
@@ -18,6 +34,8 @@ export const studentSchema = {
     "courseId",
     "discount",
     "gender",
+    "address",
+    "docType",
   ],
   additionalProperties: false,
 };
@@ -29,7 +47,30 @@ export const studentUpdateSchema = {
     passportId: { type: "string" },
     gender: { type: "string" },
     phone: { type: "string" },
+    address: { type: "string" },
+    docType: {
+      type: "string",
+      enum: ["PASSPORT", "BIRTHCERTIFICATE"],
+    },
+    guarantor: {
+      type: "object",
+      properties: {
+        firstName: { type: "string" },
+        secondName: { type: "string" },
+        passportId: { type: "string" },
+        phone: { type: "string" },
+      },
+      required: ["firstName", "secondName", "passportId", "phone"],
+      additionalProperties: false,
+    },
   },
-  required: ["firstName", "secondName", "passportId", "gender"],
+  required: [
+    "firstName",
+    "secondName",
+    "passportId",
+    "gender",
+    "docType",
+    "address",
+  ],
   additionalProperties: false,
 };

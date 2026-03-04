@@ -24,9 +24,8 @@ const getAllMonthlyDebtors = async (req, res) => {
     const endIndex = page * limit;
     const students = await prisma.student.findMany({
       where: {
-        debt: {
-          gt: 0,
-        },
+        debt: { gt: 0 }, 
+        Group: { isActive: true },
         createdAt: {
           gte: new Date(yearFilter, 0, 1),
           lte: new Date(yearFilter, 11, 31, 23, 59, 59, 999),
@@ -39,12 +38,13 @@ const getAllMonthlyDebtors = async (req, res) => {
         passportId: true,
         createdAt: true,
         debt: true,
-        discount:true,
+        discount: true,
         Group: {
           select: {
             id: true,
             name: true,
             price: true,
+            startTime: true, // include startTime
             teacher: {
               select: {
                 firstName: true,
@@ -53,11 +53,7 @@ const getAllMonthlyDebtors = async (req, res) => {
             },
           },
         },
-        course: {
-          select: {
-            name: true,
-          },
-        },
+        course: { select: { name: true } },
         Payments: {
           where: {
             createdAt: {
@@ -83,6 +79,8 @@ const getAllMonthlyDebtors = async (req, res) => {
       count: debtors.length,
     });
   } catch (error) {
+    console.log(error);
+
     return res
       .status(500)
       .json({ error: "An error occurred while fetching data." });

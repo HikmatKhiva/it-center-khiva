@@ -85,8 +85,16 @@ export const studentValidation = {
       return "Familiya harflar 3 dan ko'p bo'lishi kerak!";
     return null;
   },
+  address: (value: string) => {
+    if (!value) return "Manzil bo'lishi shart!";
+    if (typeof value !== "string") return "Ismni harflar bilan kiriting!";
+    if (value?.length <= 3) return "Manzil harflar 3 dan ko'p bo'lishi kerak!";
+    return null;
+  },
   gender: (value: string) =>
     !["male", "female"].includes(value) ? "Iltimos jinsni tanlang!" : null,
+  docType: (value: string) =>
+    !["PASSPORT", "BIRTHCERTIFICATE"].includes(value) ? "Iltimos xujjat turini tanlang!" : null,
 };
 export const tokenValidation = {
   token: (token: string) =>

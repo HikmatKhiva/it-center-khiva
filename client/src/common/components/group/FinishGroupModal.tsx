@@ -51,7 +51,7 @@ const FinishGroupModal = memo(({ id }: { id: number }) => {
         },
       }),
     onSuccess(success) {
-      client.invalidateQueries({ queryKey: ["group", id] });
+      client.invalidateQueries({ queryKey: ["group", String(id)] });
       frame();
       showSuccessNotification(idNotification.current, success?.message);
       close();

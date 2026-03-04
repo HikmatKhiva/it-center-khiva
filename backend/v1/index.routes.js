@@ -10,7 +10,7 @@ import { debtorsRoutes } from "./debtors/debtors.routes.js";
 import { roomRoutes } from "./rooms/rooms.routes.js";
 import { receptionRoutes } from "./reception/reception.routes.js";
 import { statsRoutes } from "./stats/stats.routes.js";
-// HACK: this is feature stopped 
+// HACK: this is feature stopped
 // import { metricsRoute } from "./metrics/metrics.routes.js";
 import { newsRoutes } from "./news/news.routes.js";
 import { newStudentRoutes } from "./newStudents/newStudents.routes.js";
@@ -32,6 +32,7 @@ import {
 import { userLoginSchema, userVerifySchema } from "./admin/admin.validation.js";
 import { messageSchema } from "./messages/message.validation.js";
 import { newStudentSchema } from "./newStudents/newStudent.validation.js";
+import { getContract } from "./students/students.controller.js";
 export const V1Routes = Router();
 // without admin middleware routes
 V1Routes.post("/newStudents/add", validate(newStudentSchema), addNewStudent);
@@ -59,5 +60,6 @@ V1Routes.get("/generate-secret", middlewareAdmin, generateSecret);
 V1Routes.use("/room", middlewareAdmin, roomRoutes);
 V1Routes.use("/receipt", middlewareAdmin, receiptRoutes);
 
-// HACK: this is feature stopped 
+V1Routes.get("/contract/:id", getContract);
+// HACK: this is feature stopped
 // V1Routes.use("/metrics", metricsRoute);

@@ -18,3 +18,22 @@ export const formatterGroups = (groups) => {
     };
   });
 };
+// 
+export const calculateDebt = async (groupId, discount) => {
+  try {
+    const group = await prisma.group.findUnique({
+      where: {
+        id: parseInt(groupId),
+      },
+    });
+    if (!group) {
+      throw new Error("Guruh topilmadi.");
+    }
+    const { price, duration } = group;
+    const originalPrice = parseInt(price) * parseInt(duration);
+    const discountAmount = (originalPrice * discount) / 100;
+    return originalPrice - discountAmount;
+  } catch (error) {
+    throw error;
+  }
+};

@@ -38,9 +38,26 @@ interface IStudentCreate {
   secondName: string;
   passportId: string;
   gender: string;
+  address: string;
   courseId: number;
   groupId: number;
   phone: string;
+  docType: "PASSPORT" | "BIRTHCERTIFICATE";
+  guarantor: IGuarantorCreate;
+}
+interface IGuarantorCreate {
+  firstName: string;
+  secondName: string;
+  phone: string;
+  passportId: string;
+}
+interface IGuarantor {
+  id: number;
+  firstName: string;
+  secondName: string;
+  phone: string;
+  passportId: string;
+  studentId: number;
 }
 interface IStudent extends IDefault {
   firstName: string;
@@ -48,20 +65,24 @@ interface IStudent extends IDefault {
   passportId: string;
   gender: string;
   courseId: number;
+  address: string;
   code: string;
   groupId: number;
   certificate_url?: string;
   phone: null | string;
   debt: string;
   discount: string;
+  docType: "PASSPORT" | "BIRTHCERTIFICATE";
   Certificate: {
     id: number;
     certificateUrl: string;
   };
   Group: {
     duration: number;
-    price: string;
+
+    startTime: null | Date;
   };
+  guarantor: IGuarantor;
 }
 interface IStudents extends IDefault {
   firstName: string;
@@ -97,11 +118,15 @@ interface IGroup {
   teacher: ITeacher;
   course: ICourse;
   Students: [];
+  isActive: boolean;
   price: number;
   duration: number;
   finishedDate: Date;
   groupTime: string;
   createdAt: Date;
+  startTime: Date | null;
+  price: string;
+  isActive: boolean;
   schedules: [
     {
       id: number;
@@ -111,6 +136,10 @@ interface IGroup {
       groupId: number;
     },
   ];
+}
+interface IGroupActivate {
+  startTime: Date;
+  finishedDate: Date;
 }
 
 interface INewCourse {

@@ -1,6 +1,6 @@
 import { Prisma } from "@prisma/client";
 import { prisma } from "../../app.js";
-import { formatterGroups } from "./group.helper.js";
+import { formatterGroups, calculateDebt } from "./group.helper.js";
 // getAll groups
 const getAllGroup = async (req, res) => {
   try {
@@ -32,7 +32,7 @@ const getAllGroup = async (req, res) => {
       select: {
         id: true,
         name: true,
-        groupTime: true,
+        // groupTime: true,
         duration: true,
         finishedDate: true,
         Students: true,
@@ -87,15 +87,12 @@ const createGroup = async (req, res) => {
     if (duration > 13) {
       return res.status(400).json({ message: "Oy xato kiritildi." });
     }
-    let currentDate = new Date();
-    currentDate.setMonth(currentDate.getMonth() + duration);
     await prisma.group.create({
       data: {
         teacherId: parseInt(teacherId, 10),
         name,
         courseId: parseInt(courseId, 10),
         duration: duration,
-        finishedDate: currentDate,
         price: new Prisma.Decimal(price),
         schedules: {
           create: {
@@ -108,8 +105,6 @@ const createGroup = async (req, res) => {
     });
     return res.status(201).json({ message: "Guruh muvaffaqiyatli yaratildi." });
   } catch (error) {
-    console.log(error);
-
     return res.status(500).json({ error });
   }
 };
@@ -152,7 +147,9 @@ const getGroup = async (req, res) => {
       select: {
         id: true,
         name: true,
-        groupTime: true,
+        // groupTime: true,
+        isActive: true,
+        startTime: true,
         duration: true,
         finishedDate: true,
         Students: true,
@@ -181,6 +178,7 @@ const getGroup = async (req, res) => {
     }
     return res.status(200).json(group);
   } catch (error) {
+    console.log(error);
     return res.status(500).json({ error });
   }
 };
@@ -264,6 +262,56 @@ const getNewGroups = async (req, res) => {
     return res.status(500).json({ error });
   }
 };
+// activate a  group
+const activateGroup = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const groupId = parseInt(id);
+    const { startTime, finishedDate } = req.body;
+    const group = await prisma.group.findUnique({
+      where: { id: groupId },
+    });
+    if (!group) {
+      return res.status(404).json({ message: "Guruh topilmadi." });
+    }
+    await prisma.$transaction(async (tx) => {
+      // 1️⃣ Activate the group
+      const group = await tx.group.update({
+        where: { id: groupId },
+        data: {
+          isActive: true,
+          startTime: startTime,
+          finishedDate: finishedDate,
+        },
+      });
+
+      // 2️⃣ Fetch students in the group
+      const students = await tx.student.findMany({ where: { groupId } });
+      // 3️⃣ Calculate and update debt for each student
+      const updates = students.map((student) => {
+        const debt =
+          parseInt(group.price) *
+          parseInt(group.duration) *
+          (1 - student.discount / 100);
+        return tx.student.update({
+          where: { id: student.id },
+          data: { debt, debtStatus: "ACTIVE", createdAt: startTime },
+        });
+      });
+
+      // Run all updates in parallel inside transaction
+      await Promise.all(updates);
+
+      return { group, updatedStudents: students.length };
+    });
+
+    return res.status(200).json({ message: "Guruh faollashtirildi!" });
+  } catch (error) {
+    console.log(error);
+
+    return res.status(500).json({ error });
+  }
+};
 // finish a group
 const finishGroup = async (req, res) => {
   try {
@@ -302,4 +350,5 @@ export {
   getNewGroups,
   updateGroup,
   finishGroup,
+  activateGroup,
 };

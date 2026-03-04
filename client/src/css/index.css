@@ -69,3 +69,7 @@ html[data-mantine-color-scheme="light"] .tabular-nums {
   border-color: red;
   color: red;
 }
+
+.mantine-NavLink-label {
+  font-size: 18px !important;
+}

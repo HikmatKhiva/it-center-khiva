@@ -1,4 +1,15 @@
-import { Button, Modal, Stack, TextInput, Select } from "@mantine/core";
+import {
+  Button,
+  Modal,
+  Stack,
+  TextInput,
+  Select,
+  CheckIcon,
+  Radio,
+  Text,
+  Group,
+  Box,
+} from "@mantine/core";
 import { useForm } from "@mantine/form";
 import { useDisclosure } from "@mantine/hooks";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
@@ -36,10 +47,18 @@ const CreateStudent = memo(
         secondName: "",
         passportId: "",
         gender: "",
+        address: "",
         courseId: courseId,
         groupId: groupId,
         phone: "",
         discount: "0",
+        docType: "PASSPORT",
+        guarantor: {
+          firstName: "",
+          secondName: "",
+          phone: "",
+          passportId: "",
+        },
       } as IStudentCreate,
       validate: studentValidation,
     });
@@ -77,7 +96,12 @@ const CreateStudent = memo(
         >
           Yangi O'quvchi Qo'shish
         </Button>
-        <Modal opened={opened} onClose={close} title=" Yangi O'quvchi Qo'shish">
+        <Modal
+          opened={opened}
+          size="md"
+          onClose={close}
+          title=" Yangi O'quvchi Qo'shish"
+        >
           <form onSubmit={form.onSubmit(handleSubmit)}>
             <Stack>
               <TextInput
@@ -88,8 +112,8 @@ const CreateStudent = memo(
                 error={form.errors.firstName}
                 label="Ismini kiriting!"
                 placeholder="Xudayshukur"
-                size="md"
-                radius="md"
+                size="sm"
+                radius="sm"
               />
               <TextInput
                 onChange={(e) =>
@@ -99,15 +123,15 @@ const CreateStudent = memo(
                 error={form.errors.secondName}
                 label="Familiyasini kiriting!"
                 placeholder="Polvonov"
-                size="md"
-                radius="md"
+                size="sm"
+                radius="sm"
               />
               <InputMask
                 mask="+99 (8__) ___-__-__"
                 replacement={{ _: /\d/ }}
                 autoComplete="off"
                 placeholder="+99 (8__) ___-__-__"
-                label="Telefon raqamini kiriting!"
+                label="Telefon raqamini kiriting! (ixtiyori)"
                 component={TextInput}
                 error={form.errors.phone}
                 value={form.values.phone}
@@ -115,48 +139,143 @@ const CreateStudent = memo(
                   form.setFieldValue("phone", event.target.value);
                 }}
               />
-              <TextInput
-                label="Passport seriyasini kiriting!"
-                placeholder="FA 123456"
-                maxLength={10}
-                onChange={(e) =>
-                  form.setFieldValue(
-                    "passportId",
-                    e.target.value.trim().toUpperCase()
-                  )
-                }
-                error={form.errors.passportId}
-                value={form.values.passportId}
-                size="md"
-                radius="md"
-              />
-
               <Select
                 label="Jinsni Tanlang!"
                 placeholder="Erkak"
                 error={form.errors.gender}
+                size="sm"
+                radius="sm"
                 {...form.getInputProps("gender")}
                 data={[
                   { value: "male", label: "Erkak" },
                   { value: "female", label: "Ayol" },
                 ]}
               />
+              <TextInput
+                label="Yashash manzilini kiriting!"
+                placeholder="Manzil..."
+                maxLength={70}
+                onChange={(e) => form.setFieldValue("address", e.target.value)}
+                error={form.errors.address}
+                value={form.values.address}
+                size="sm"
+                radius="sm"
+              />
+              <Text>Hujjat turini belgilang!</Text>
+              <Group>
+                <Radio
+                  icon={CheckIcon}
+                  label="Passport"
+                  {...form.getInputProps("docType")}
+                  name="document"
+                  value="PASSPORT"
+                  defaultChecked
+                />
+                <Radio
+                  icon={CheckIcon}
+                  label="Vasiy"
+                  {...form.getInputProps("docType")}
+                  name="document"
+                  value="BIRTHCERTIFICATE"
+                />
+              </Group>
+              <TextInput
+                label={`${form.values.docType === "PASSPORT" ? "Passport" : "Guvohnoma"} seriyasini kiriting!`}
+                placeholder={`${form.values.docType === "PASSPORT" ? "FA" : "INN"} 123456`}
+                maxLength={10}
+                onChange={(e) =>
+                  form.setFieldValue(
+                    "passportId",
+                    e.target.value.trim().toUpperCase(),
+                  )
+                }
+                error={form.errors.passportId}
+                value={form.values.passportId}
+                size="sm"
+                radius="sm"
+              />
+              <Text fw="700" hidden={form.values.docType === "PASSPORT"}>
+                Vasiyni ma'lumotlarini kiriting!
+              </Text>
+              <Box hidden={form.values.docType === "PASSPORT"}>
+                <TextInput
+                  label="Passport seriyasini kiriting!"
+                  placeholder="FA 123456"
+                  flex="2"
+                  maxLength={10}
+                  onChange={(e) =>
+                    form.setFieldValue(
+                      "guarantor.passportId",
+                      e.target.value.trim().toUpperCase(),
+                    )
+                  }
+                  // error={form.errors.guarantor?.passportId || ''}
+                  value={form.values.guarantor.passportId}
+                  size="sm"
+                  radius="sm"
+                />
+                <Group>
+                  <TextInput
+                    onChange={(e) =>
+                      form.setFieldValue(
+                        "guarantor.firstName",
+                        e.target.value.trim(),
+                      )
+                    }
+                    value={form.values.guarantor.firstName}
+                    // error={form.errors.guarantor.firstName}
+                    label="Ismi!"
+                    placeholder="Xudayshukur"
+                    size="sm"
+                    radius="sm"
+                  />
+                  <TextInput
+                    onChange={(e) =>
+                      form.setFieldValue(
+                        "guarantor.secondName",
+                        e.target.value.trim(),
+                      )
+                    }
+                    value={form.values.guarantor.secondName}
+                    // error={form.errors.guarantorSecondName}
+                    label="Familiyasi!"
+                    placeholder="Polvonov"
+                    size="sm"
+                    radius="sm"
+                  />
+                </Group>
+                <InputMask
+                  mask="+99 (8__) ___-__-__"
+                  replacement={{ _: /\d/ }}
+                  autoComplete="off"
+                  placeholder="+99 (8__) ___-__-__"
+                  label="Telefon raqamini kiriting!"
+                  component={TextInput}
+                  // error={form.errors.gr}
+                  value={form.values.guarantor.phone}
+                  onChange={(event) => {
+                    form.setFieldValue("guarantor.phone", event.target.value);
+                  }}
+                />
+              </Box>
               <Select
                 label="Chegirmani belgilang!"
                 placeholder="10%"
                 error={form.errors.discount}
                 {...form.getInputProps("discount")}
                 data={discounts}
+                size="sm"
+                radius="sm"
               />
             </Stack>
             <Button
               loading={isPending}
               disabled={isPending}
-              size="md"
               mt="15"
               color="green"
               type="submit"
-              radius="md"
+              size="sm"
+              radius="sm"
             >
               Qo'shish
             </Button>
@@ -164,6 +283,6 @@ const CreateStudent = memo(
         </Modal>
       </>
     );
-  }
+  },
 );
 export default CreateStudent;

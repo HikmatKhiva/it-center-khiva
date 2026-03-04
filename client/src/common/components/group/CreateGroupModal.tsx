@@ -177,17 +177,6 @@ const CreateGroupModal = () => {
                 />
               </Grid.Col>
             </Grid>
-            {/* <TextInput
-              label="Guruh vaqtini kiriting"
-              placeholder="Juft 14:00"
-              size="sm"
-              value={form.values.groupTime}
-              onChange={(event) =>
-                form.setFieldValue("groupTime", event.target.value)
-              }
-              error={form.errors?.groupTime}
-              radius="md"
-            /> */}
             <Select
               label="Kursni tanlang!"
               disabled={loading}
