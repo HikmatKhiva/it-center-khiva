@@ -1,5 +1,11 @@
 import { Outlet, useNavigate } from "react-router-dom";
-import { ActionIcon, AppShell, Burger, Group, Menu } from "@mantine/core";
+import {
+  ActionIcon,
+  AppShell,
+  Burger,
+  Group,
+  Menu,
+} from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
 import { motion } from "motion/react";
 import { AdminIcon } from "@/assets";
@@ -22,13 +28,13 @@ const Admin = () => {
     <AppShell
       header={{ height: 60 }}
       navbar={{
-        width: { base: 300 },
+        width: { base: 280 },
         breakpoint: "sm",
         collapsed: { mobile: !opened },
       }}
       padding="md"
     >
-      <AppShell.Header >
+      <AppShell.Header>
         <Group align="center" justify="space-between" h="100%" px="md">
           <div className="flex items-center gap-4">
             <Burger

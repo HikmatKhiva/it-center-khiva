@@ -8,10 +8,15 @@ export async function generateReceipt(receipt, baseUrl) {
     status,
     amount,
     publicToken,
+    cancelledAt,
     student: { firstName, secondName, course },
   } = receipt;
   const formattedDate = formatDate(issuedAt);
+  const formattedCancelledDate = cancelledAt ? formatDate(cancelledAt) : null;
   try {
+    const isCancelled = status === "CANCELLED" && cancelledAt;
+    console.log(isCancelled);
+    
     const pdfDoc = await PDFDocument.create();
     const page = pdfDoc.addPage([250, 400]);
     const { width, height } = page.getSize();
@@ -74,16 +79,35 @@ export async function generateReceipt(receipt, baseUrl) {
       size: 12,
       font: fontRegular,
     });
-    page.drawText(`Chek xolati: ${status ? "Active" : "Bekor qilingan!"}`, {
-      x: 20,
-      y: height - 170,
-      size: 12,
-      font: fontRegular,
-    });
+    page.drawText(
+      `Chek xolati: ${status === "ACTIVE" ? "Active" : "Bekor qilingan!"}`,
+      {
+        x: 20,
+        y: height - 170,
+        size: 12,
+        font: fontRegular,
+      },
+    );
+    if (isCancelled) {
+      page.drawText(`Bekor qilingan sana: ${formattedCancelledDate}`, {
+        x: 20,
+        y: height - 190,
+        size: 12,
+        font: fontRegular,
+        // color: rgb(1, 0, 0), // Use red for cancelled status [web:5]
+      });
+    }
+
+    // page.drawText(`Bekor qilingan sana: ${formattedCancelledDate}`, {
+    //   x: isCancelled ? 20 : 0,
+    //   y: isCancelled ? height - 190 : 10000,
+    //   size: isCancelled ? 12 : 0,
+    //   font: fontRegular,
+    // });
     // Draw the QR code image on the PDF
     page.drawImage(qrCodeImage, {
       x: (width - qrSize) / 2,
-      y: 20,
+      y: isCancelled ? 5 : 20,
       width: qrSize,
       height: qrSize,
     });

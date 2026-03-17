@@ -34,7 +34,7 @@ const getAllTeacher = async (req, res) => {
   }
 };
 // create a teacher
-const createTeacher = async (req, res) => {
+const createTeacher = async (req, res, next) => {
   try {
     const { firstName, secondName, phone } = req.body;
     let imageUrl;
@@ -56,11 +56,11 @@ const createTeacher = async (req, res) => {
     });
     return res.status(201).json({ message: "Ustoz muvaffaqiyatli yaratildi." });
   } catch (error) {
-    return res.status(500).json({ error });
+    next(error);
   }
 };
 // update a teacher
-const updateTeacher = async (req, res) => {
+const updateTeacher = async (req, res, next) => {
   try {
     const { firstName, secondName, phone } = req.body;
     const { id } = req.params;
@@ -84,13 +84,15 @@ const updateTeacher = async (req, res) => {
         ...(imageUrl && { photo_url: imageUrl }), // Conditionally add photo_url
       },
     });
-    return res.status(200).json({ message: "Ustoz muvaffaqiyatli yangilandi." });
+    return res
+      .status(200)
+      .json({ message: "Ustoz muvaffaqiyatli yangilandi." });
   } catch (error) {
-    return res.status(500).json({ error });
+    next(error);
   }
 };
 // delete a teacher
-const deleteTeacher = async (req, res) => {
+const deleteTeacher = async (req, res, next) => {
   try {
     const { id } = req.params;
     await prisma.teacher.delete({
@@ -98,12 +100,14 @@ const deleteTeacher = async (req, res) => {
         id: parseInt(id),
       },
     });
-    return res.status(200).json({ message: "Ustoz muvaffaqiyatli o'chirildi." });
+    return res
+      .status(200)
+      .json({ message: "Ustoz muvaffaqiyatli o'chirildi." });
   } catch (error) {
-    return res.status(500).json({ error });
+    next(error);
   }
 };
-const handleDeleteImage = async (req, res) => {
+const handleDeleteImage = async (req, res, next) => {
   try {
     const { id } = req.params;
     await prisma.teacher.update({
@@ -118,7 +122,7 @@ const handleDeleteImage = async (req, res) => {
       .status(200)
       .json({ message: "Ustoz surati muvaffaqiyatli o'chirildi." });
   } catch (error) {
-    return res.status(500).json({ error });
+    next(error);
   }
 };
 export {

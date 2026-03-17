@@ -75,7 +75,7 @@ const getNewStudents = async (req, res) => {
   }
 };
 // add new student
-const addNewStudent = async (req, res) => {
+const addNewStudent = async (req, res, next) => {
   try {
     const { fullName, phone, courseId, courseTime } = req.body;
     await prisma.newStudent.create({
@@ -90,11 +90,11 @@ const addNewStudent = async (req, res) => {
       message: "Ma'lumotlaringiz bazaga joylandi biz siz bilan bog'lanamiz!",
     });
   } catch (error) {
-    return res.status(500).json({ error });
+    next(error);
   }
 };
 // update new student status
-const updateNewStudent = async (req, res) => {
+const updateNewStudent = async (req, res, next) => {
   try {
     const { id } = req.params;
     const { courseId, fullName, isAttend, reason } = req.body;
@@ -119,11 +119,11 @@ const updateNewStudent = async (req, res) => {
     });
     res.status(200).json({ message: "Ma'lumotlar yangilandi." });
   } catch (error) {
-    return res.status(500).json({ error });
+    next(error);
   }
 };
 // delete new student
-const deleteNewStudent = async (req, res) => {
+const deleteNewStudent = async (req, res, next) => {
   try {
     const { id } = req.params;
     await prisma.newStudent.delete({
@@ -134,7 +134,7 @@ const deleteNewStudent = async (req, res) => {
     });
     res.status(200).json({ message: "Ma'lumotlar o'chirildi." });
   } catch (error) {
-    return res.status(500).json({ error });
+    next(error);
   }
 };
 export { getNewStudents, addNewStudent, updateNewStudent, deleteNewStudent };

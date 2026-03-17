@@ -13,10 +13,24 @@ const getAllStudents = async (req, res) => {
           mode: "insensitive",
         },
         ...(courseId && { courseId: parseInt(courseId) }),
-        passportId: {
-          contains: passportId,
-          mode: "insensitive",
-        },
+        ...(passportId && {
+          OR: [
+            {
+              passportId: {
+                contains: passportId,
+                mode: "insensitive",
+              },
+            },
+            {
+              guarantor: {
+                passportId: {
+                  contains: passportId,
+                  mode: "insensitive",
+                },
+              },
+            },
+          ],
+        }),
         createdAt: {
           gte: new Date(yearFilter, 0, 1),
           lte: new Date(yearFilter, 11, 31, 23, 59, 59, 999),
@@ -30,10 +44,11 @@ const getAllStudents = async (req, res) => {
         code: true,
         passportId: true,
         finishedDate: true,
+        guarantor: true,
         Group: {
           select: {
             name: true,
-            isGroupFinished: true,
+            isActive: true,
           },
         },
         course: {
@@ -72,6 +87,8 @@ const getAllStudents = async (req, res) => {
     const totalPages = Math.ceil(totalCount / limit);
     return res.status(200).json({ students, totalPages });
   } catch (error) {
+    console.log(error);
+
     return res.status(500).json({ error });
   }
 };
@@ -127,7 +144,7 @@ const getAStudent = async (req, res) => {
   }
 };
 // create a student
-const createStudent = async (req, res) => {
+const createStudent = async (req, res, next) => {
   try {
     const {
       firstName,
@@ -148,9 +165,11 @@ const createStudent = async (req, res) => {
       },
     });
     if (!group) return res.status(404).json({ message: "Guruh topilmadi!" });
-    if (group.isGroupFinished) {
+    if (group.isActive === "FINISHED") {
       return res.status(400).json({ message: "Guruh yakunlangan!" });
     }
+    let debt;
+    let finishedDate;
     if (docType === "BIRTHCERTIFICATE" && !guarantor) {
       return res.status(500).json({ message: "Vasiy ma'lumotlari shart!" });
     }
@@ -159,6 +178,11 @@ const createStudent = async (req, res) => {
         passportId,
       },
     });
+    if (group.isActive === "ACTIVE") {
+      debt =
+        parseInt(group.price) * parseInt(group.duration) * (1 - discount / 100);
+      finishedDate = group.finishedDate;
+    }
     if (student) {
       return res
         .status(400)
@@ -171,7 +195,22 @@ const createStudent = async (req, res) => {
     if (exists) {
       return res
         .status(400)
-        .json({ message: "Passport ID ma'lumotlar bazasida mavjud!" });
+        .json({ message: "Student Code ma'lumotlar bazasida mavjud!" });
+    }
+    let guarantorId = null;
+    if (docType === "BIRTHCERTIFICATE") {
+      const g = await prisma.guarantor.upsert({
+        where: { passportId: guarantor.passportId },
+        update: {},
+        create: {
+          firstName: guarantor.firstName,
+          secondName: guarantor.secondName,
+          passportId: guarantor.passportId,
+          phone: guarantor.phone,
+        },
+      });
+
+      guarantorId = g.id;
     }
     await prisma.student.create({
       data: {
@@ -183,27 +222,24 @@ const createStudent = async (req, res) => {
         address,
         docType,
         code,
+        debt: debt ? debt : undefined,
+        finishedDate: finishedDate ? finishedDate : undefined,
         discount: parseInt(discount),
         gender: gender.toUpperCase(),
         phone,
         paymentType: "selfPayment",
-        guarantor:
-          docType === "BIRTHCERTIFICATE"
-            ? {
-                create: { ...guarantor },
-              }
-            : undefined,
+        guarantorId,
       },
     });
     return res
       .status(201)
       .json({ message: "O'quvchi muvaffaqiyatli yaratildi." });
   } catch (error) {
-    return res.status(500).json({ error });
+    next(error);
   }
 };
 // update student
-const updateStudent = async (req, res) => {
+const updateStudent = async (req, res, next) => {
   try {
     const { id } = req.params;
     const {
@@ -219,6 +255,21 @@ const updateStudent = async (req, res) => {
     if (docType === "BIRTHCERTIFICATE" && !guarantor) {
       return res.status(500).json({ message: "Vasiy ma'lumotlari shart!" });
     }
+    let guarantorId = null;
+    if (docType === "BIRTHCERTIFICATE") {
+      const g = await prisma.guarantor.upsert({
+        where: { passportId: guarantor.passportId },
+        update: {},
+        create: {
+          firstName: guarantor.firstName,
+          secondName: guarantor.secondName,
+          passportId: guarantor.passportId,
+          phone: guarantor.phone,
+        },
+      });
+
+      guarantorId = g.id;
+    }
     await prisma.student.update({
       where: {
         id: parseInt(id),
@@ -231,28 +282,18 @@ const updateStudent = async (req, res) => {
         phone,
         docType,
         address,
-        guarantor:
-          docType === "BIRTHCERTIFICATE"
-            ? {
-                upsert: {
-                  update: { ...guarantor },
-                  create: { ...guarantor },
-                },
-              }
-            : {
-                delete: true,
-              },
+        guarantorId,
       },
     });
     return res
       .status(200)
       .json({ message: "O'quvchi muvaffaqiyatli yangilandi." });
   } catch (error) {
-    return res.status(500).json({ error });
+    next(error);
   }
 };
 // delete a student
-const deleteStudent = async (req, res) => {
+const deleteStudent = async (req, res, next) => {
   try {
     const { id } = req.params;
     await prisma.student.delete({
@@ -264,7 +305,7 @@ const deleteStudent = async (req, res) => {
       .status(200)
       .json({ message: "O'quvchi muvaffaqiyatli o'chirildi." });
   } catch (error) {
-    return res.status(500).json({ error });
+    next(error);
   }
 };
 const getContract = async (req, res) => {
@@ -274,7 +315,9 @@ const getContract = async (req, res) => {
       where: {
         id: parseInt(id),
         Group: {
-          isActive: true,
+          isActive: {
+            in: ["ACTIVE", "FINISHED"],
+          },
         },
       },
       include: {
@@ -298,13 +341,35 @@ const getContract = async (req, res) => {
       return res.status(404).json({ message: "O'quvchi mavjud emas!" });
     }
     const data = dataConverter(student);
-    const result = await generateContract(data);
-    if (result) {
-      return res.status(200).json({ message: "Generated" });
-    }
-    return res.status(200).json({ student: data });
+    // ✅ generate DOCX buffer
+    const docxBuffer = await generateContract(data);
+
+    // ❗ IMPORTANT: send file instead of JSON
+    res.setHeader(
+      "Content-Type",
+      "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+    );
+    res.setHeader(
+      "Content-Disposition",
+      `attachment; filename="contract-${student.firstName}-${student.secondName}.docx"`,
+    );
+    return res.send(docxBuffer);
   } catch (error) {
     console.log(error);
+    res.status(500).json({ error });
+  }
+};
+const getGuarantor = async (req, res) => {
+  try {
+    const { passportId } = req.params;
+    const guarantor = await prisma.guarantor.findUnique({
+      where: { passportId },
+    });
+    if (!guarantor) {
+      return res.status(404).json({ message: "Vasiy topilmadi!" });
+    }
+    return res.status(200).json(guarantor);
+  } catch (error) {
     res.status(500).json({ error });
   }
 };
@@ -316,5 +381,5 @@ export {
   deleteStudent,
   updateStudent,
   getContract,
+  getGuarantor,
 };
-

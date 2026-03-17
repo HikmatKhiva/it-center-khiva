@@ -7,7 +7,7 @@ import {
   Stack,
   Pagination,
 } from "@mantine/core";
-import { Filter, LoaderCircle, Search, Users } from "lucide-react";
+import { LoaderCircle, Search, Users } from "lucide-react";
 import CreateGroupModal from "@/common/components/group/CreateGroupModal";
 import { useQuery } from "@tanstack/react-query";
 import { useCallback, useState } from "react";
@@ -22,7 +22,7 @@ const AdminGroups = () => {
     name: "",
     page: 1,
     limit: 12,
-    isGroupFinished: false,
+    isActive: "ACTIVE",
     year: currentYearQuery || "",
     orderBy: "asc",
   });
@@ -30,7 +30,7 @@ const AdminGroups = () => {
     name: query.name,
     page: query.page.toString(),
     limit: query.limit.toString(),
-    isGroupFinished: query.isGroupFinished.toString(),
+    isActive: query.isActive,
     year: query.year,
     orderBy: query.orderBy,
   });
@@ -38,7 +38,7 @@ const AdminGroups = () => {
     queryKey: [
       "groups",
       query.name,
-      query.isGroupFinished,
+      query.isActive,
       query.page,
       query.year,
       query.orderBy,
@@ -69,23 +69,23 @@ const AdminGroups = () => {
         </Group>
         <Group>
           <Select
-            defaultValue="false"
-            rightSection={
-              <Filter onClick={() => console.log("clicked icon")} />
-            }
+            defaultValue="ACTIVE"
+            w={160}
+            size="sm"
             onChange={(value: string | null) =>
               setQuery((prev) => ({
                 ...prev,
-                isGroupFinished: value === "true",
+                isActive: value || "",
               }))
             }
             data={[
-              { value: "true", label: "Yakunlangan Guruhlar" },
-              { value: "false", label: "Aktiv Guruhlar" },
+              { value: "FINISHED", label: "Yakunlangan" },
+              { value: "ACTIVE", label: "Aktiv" },
+              { value: "PENDING", label: "Faollashtirilmagan" },
             ]}
           />
           <TextInput
-            w={230}
+            w={180}
             value={query.name}
             fz="xs"
             rightSection={
@@ -98,9 +98,11 @@ const AdminGroups = () => {
             onChange={(event) =>
               setQuery((prev) => ({ ...prev, name: event.target.value }))
             }
-            placeholder="Guruh nomi orqali qidirish..."
+            size="sm"
+            placeholder="Guruh nomi..."
           />
           <Select
+            size="sm"
             defaultValue={query.year}
             placeholder="2025"
             data={years}
@@ -114,7 +116,6 @@ const AdminGroups = () => {
       <Stack className="h-[calc(100vh_-_150px)]" justify="space-between ">
         <GroupTable
           handleChangeOrder={handleChangeOrder}
-          status={query.isGroupFinished}
           data={data?.groups || []}
           isPending={isPending}
         />

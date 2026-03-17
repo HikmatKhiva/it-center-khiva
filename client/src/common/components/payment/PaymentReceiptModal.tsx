@@ -48,6 +48,8 @@ const PaymentReceiptModal = ({
   const handleCopy = () => {
     clipboard.copy(qrUrl);
   };
+  console.log(data?.cancelledAt);
+
   return (
     <>
       <Modal opened={opened} onClose={close} w={300}>
@@ -76,6 +78,14 @@ const PaymentReceiptModal = ({
               <List.Item>
                 Chek xolati:{" "}
                 {data?.status === "ACTIVE" ? "Active" : "Bekor qilingan!"}
+              </List.Item>
+              <List.Item
+                hidden={data?.cancelledAt == null && data?.status === "ACTIVE"}
+              >
+                Bekor qilingan sana:{" "}
+                {formatTime.DateTimeHours(
+                  data?.cancelledAt ? data.cancelledAt : new Date(),
+                )}
               </List.Item>
             </List>
             <QRCode size={200} value={qrUrl} className="mx-auto" />

@@ -54,6 +54,7 @@ const getRoom = async (req, res) => {
             group: {
               select: {
                 name: true,
+                isActive: true,
                 teacher: {
                   select: {
                     firstName: true,
@@ -119,7 +120,7 @@ const getRoomTime = async (req, res) => {
     return res.status(500).json({ error });
   }
 };
-const createRoom = async (req, res) => {
+const createRoom = async (req, res, next) => {
   try {
     const { name, capacity } = req.body;
     await prisma.room.create({
@@ -130,10 +131,10 @@ const createRoom = async (req, res) => {
     });
     return res.status(201).json({ message: "Xona muvaffaqiyatli yaratildi." });
   } catch (error) {
-    return res.status(500).json({ error });
+    next(error);
   }
 };
-const updateRoom = async (req, res) => {
+const updateRoom = async (req, res, next) => {
   try {
     const { id } = req.params;
     const { name, capacity } = req.body;
@@ -148,10 +149,10 @@ const updateRoom = async (req, res) => {
     });
     return res.status(200).json({ message: "Xona muvaffaqiyatli yangilandi." });
   } catch (error) {
-    return res.status(500).json({ error });
+    next(error);
   }
 };
-const deleteRoom = async (req, res) => {
+const deleteRoom = async (req, res, next) => {
   try {
     const { id } = req.params;
     const roomId = parseInt(id);
@@ -171,7 +172,7 @@ const deleteRoom = async (req, res) => {
     });
     return res.status(200).json({ message: "Xona muvaffaqiyatli o'chirildi" });
   } catch (error) {
-    return res.status(500).json({ error });
+    next(error);
   }
 };
 export { createRoom, deleteRoom, getRoom, getRooms, updateRoom, getRoomTime };

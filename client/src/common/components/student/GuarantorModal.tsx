@@ -1,5 +1,5 @@
 import { IGuarantor } from "@/types";
-import { Button, Grid, Group, Modal, TextInput } from "@mantine/core";
+import { Button, Modal, Table } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
 import { UserRound } from "lucide-react";
 const GuarantorModal = ({
@@ -21,8 +21,31 @@ const GuarantorModal = ({
       >
         <UserRound size="18" />
       </Button>
-      <Modal opened={opened} onClose={close} title={fullName}>
-        <Grid justify="center">
+      <Modal
+        size="lg"
+        opened={opened}
+        onClose={close}
+        title={`O'quvchi: ${fullName}`}
+      >
+        <Table striped>
+          <Table.Thead>
+            <Table.Tr>
+              <Table.Th>Ism</Table.Th>
+              <Table.Th>Familiya</Table.Th>
+              <Table.Th>Telefon</Table.Th>
+              <Table.Th>Passport Id</Table.Th>
+            </Table.Tr>
+          </Table.Thead>
+          <Table.Tbody>
+            <Table.Tr key={guarantor?.id}>
+              <Table.Td>{guarantor?.firstName}</Table.Td>
+              <Table.Td>{guarantor?.secondName}</Table.Td>
+              <Table.Td>{guarantor?.phone}</Table.Td>
+              <Table.Td>{guarantor?.passportId}</Table.Td>
+            </Table.Tr>
+          </Table.Tbody>
+        </Table>
+        {/* <Grid justify="center">
           <Grid.Col span={6}>
             <TextInput
               value={guarantor?.firstName}
@@ -55,7 +78,7 @@ const GuarantorModal = ({
               readOnly
             />
           </Grid.Col>
-        </Grid>
+        </Grid> */}
       </Modal>
     </>
   );

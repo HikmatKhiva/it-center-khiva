@@ -105,3 +105,28 @@ export async function downloadCertificate(
     throw new Error(errorMessage);
   }
 }
+export async function downloadContract(
+  id: number,
+  fullName: string,
+  token: string
+) {
+  try {
+    const response = await fetch(`${API_URL}/contract/${id}`, {
+      method: "GET",
+      headers: {
+        authorization: `Bearer ${token}`,
+      },
+    });
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.message);
+    }
+    const blob = await response.blob();
+    saveAs(blob, fullName);
+  } catch (error: unknown) {
+    const errorMessage =
+      error instanceof Error ? error.message : "An unexpected error occurred.";
+    customErrorNotification(errorMessage || "try again! ");
+    throw new Error(errorMessage);
+  }
+}

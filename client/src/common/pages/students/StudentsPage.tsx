@@ -94,7 +94,7 @@ const StudentsPage = () => {
             onChange={(event) =>
               setQuery({ ...query, passportId: event.target.value })
             }
-            placeholder="O'quvchi passportId..."
+            placeholder="PassportId..."
           />
           <Select
             defaultValue={query.courseId}

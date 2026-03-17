@@ -49,7 +49,7 @@ const CreateGroupModal = () => {
           `room/time/${roomId}?=${params}`,
           {
             method: "GET",
-          }
+          },
         );
         if (request?.slots) {
           setSlots(request.slots);
@@ -110,7 +110,7 @@ const CreateGroupModal = () => {
         rightSection={<Pencil size={16} />}
         variant="filled"
       >
-        Guruh Yaratish
+        Yaratish
       </Button>
       <Modal opened={opened} onClose={close} title="Guruh yaratish">
         <form onSubmit={form.onSubmit(handleSubmit)}>

@@ -1,6 +1,6 @@
 import { prisma } from "../../app.js";
 // save a Message
-const createMessage = async (req, res) => {
+const createMessage = async (req, res, next) => {
   try {
     const { fullName, message } = req.body;
     await prisma.messages.create({
@@ -13,7 +13,7 @@ const createMessage = async (req, res) => {
       .status(201)
       .json({ message: "Xabar muffaqiyatli yozib olindi." });
   } catch (error) {
-    return res.status(500).json({ error });
+    next(error);
   }
 };
 // get all Messages
@@ -42,7 +42,7 @@ const getMessages = async (req, res) => {
   }
 };
 // delete a Message
-const deleteMessage = async (req, res) => {
+const deleteMessage = async (req, res, next) => {
   try {
     const { id } = req.params;
     await prisma.messages.delete({
@@ -52,7 +52,7 @@ const deleteMessage = async (req, res) => {
     });
     return res.status(200).json({ message: "Xabar o'chirildi." });
   } catch (error) {
-    return res.status(500).json({ error });
+    next(error);
   }
 };
 export { createMessage, getMessages, deleteMessage };

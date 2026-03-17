@@ -1,9 +1,21 @@
 import { ISchedules } from "@/types";
-import { Table, Indicator, Text } from "@mantine/core";
+import { Table, Indicator, Text, Badge } from "@mantine/core";
 const RoomGroup = ({ schedules }: { schedules: ISchedules[] }) => {
   const rows = schedules.map((schedule, index: number) => (
     <Table.Tr key={index}>
-      <Table.Td>{schedule.name}</Table.Td>
+      <Table.Td>
+        <Badge
+          color={
+            schedule?.isActive === "FINISHED"
+              ? "red"
+              : schedule?.isActive === "ACTIVE"
+                ? "green"
+                : "grape"
+          }
+        >
+          {schedule.name}
+        </Badge>
+      </Table.Td>
       <Table.Td>{schedule.teacher}</Table.Td>
       <Table.Td>{schedule.countStudents}</Table.Td>
       <Table.Td>

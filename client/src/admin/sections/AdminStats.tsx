@@ -11,6 +11,7 @@ import StatsCardSkeleton from "@/admin/loading/StatsCardSkeleton";
 import { useAppSelector } from "@/hooks/redux";
 import { Server } from "@/api/api";
 import { selectUser } from "@/lib/redux/reducer/admin";
+import { IStats } from "@/types";
 const AdminStats = () => {
   const admin = useAppSelector(selectUser);
   const { data, isLoading } = useQuery<IStats>({

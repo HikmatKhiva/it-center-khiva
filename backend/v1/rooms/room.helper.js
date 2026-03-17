@@ -4,7 +4,7 @@ export const formatSchedules = (room) => {
     name: room.name,
     capacity: room.capacity,
     schedules: room.schedules.map((schedule) => {
-      const { teacher, _count, name } = schedule.group;
+      const { teacher, _count, name, isActive } = schedule.group;
       const { time, weekType } = schedule;
       return {
         name,
@@ -12,6 +12,7 @@ export const formatSchedules = (room) => {
         weekType,
         teacher: `${teacher.firstName} ${teacher.secondName}`,
         countStudents: _count.Students,
+        isActive,
       };
     }),
   };
@@ -31,7 +32,7 @@ export const formatSchedulesByDay = (rooms) => {
       {
         ODD: { time: [] },
         EVEN: { time: [] },
-      }
+      },
     ),
   }));
   return result;

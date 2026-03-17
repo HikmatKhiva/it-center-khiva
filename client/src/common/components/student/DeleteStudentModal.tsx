@@ -5,6 +5,7 @@ import { useAppSelector } from "@/hooks/redux";
 import { Server } from "@/api/api";
 import { selectUser } from "@/lib/redux/reducer/admin";
 import { memo } from "react";
+import { Trash2 } from "lucide-react";
 const DeleteStudentModal = memo(({ id }: { id: number }) => {
   const admin = useAppSelector(selectUser);
   const [opened, { open, close }] = useDisclosure(false);
@@ -27,16 +28,16 @@ const DeleteStudentModal = memo(({ id }: { id: number }) => {
   return (
     <>
       <Button onClick={open} color="red" size="xs" variant="outline">
-        O'chirish 🗑️
+        <Trash2 size="16" />
       </Button>
       <Modal
         centered
         opened={opened}
         onClose={close}
-        title="O'qituvchini o'chirish" // Optional title for clarity
+        title="O'quvchini o'chirish" // Optional title for clarity
       >
         <Text size="md" className="text-center">
-          Siz ushbu o'qituvchini o'chirishni xohlaysizmi?
+          Siz ushbu o'quvchini o'chirishni xohlaysizmi?
         </Text>
         {/* Confirmation message */}
         <Group mt={20} justify="end" gap="10">

@@ -53,7 +53,7 @@ const getACourse = async (req, res) => {
   }
 };
 // create a course
-const createCourse = async (req, res) => {
+const createCourse = async (req, res, next) => {
   try {
     const { name, teacherId, nameCertificate } = req.body;
     await prisma.course.create({
@@ -65,11 +65,11 @@ const createCourse = async (req, res) => {
     });
     return res.status(201).json({ message: "Kurs muffaqiyatli yaratildi." });
   } catch (error) {
-    return res.status(500).json({ error });
+    next(error);
   }
 };
 // update a course
-const updateCourse = async (req, res) => {
+const updateCourse = async (req, res, next) => {
   try {
     const { id } = req.params;
     const { name, teacherId, nameCertificate } = req.body;
@@ -87,11 +87,11 @@ const updateCourse = async (req, res) => {
       message: "Kurs muffaqiyatli yangilandi.",
     });
   } catch (error) {
-    return res.status(500).json({ error });
+    next(error);
   }
 };
 // delete a course
-const deleteCourse = async (req, res) => {
+const deleteCourse = async (req, res, next) => {
   try {
     const { id } = req.params;
     await prisma.course.delete({
@@ -101,7 +101,7 @@ const deleteCourse = async (req, res) => {
     });
     return res.status(200).json({ message: "Kurs muffaqiyatli o'chirildi." });
   } catch (error) {
-    return res.status(500).json({ error });
+    next(error);
   }
 };
 export { getAllCourse, getACourse, createCourse, deleteCourse, updateCourse };

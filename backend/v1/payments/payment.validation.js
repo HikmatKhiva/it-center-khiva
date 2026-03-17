@@ -13,7 +13,7 @@ export const refundSchema = {
   type: "object",
   properties: {
     amount: { type: "number" },
-    reason: { type: "string" },
+    reason: { type: "string", minLength: 10 },
   },
   required: ["amount", "reason"],
   additionalProperties: false,

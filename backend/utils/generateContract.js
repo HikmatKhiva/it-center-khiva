@@ -13,7 +13,6 @@ function angularParser(tag) {
 
 export const generateContract = async (student) => {
   try {
-    const name = "Hikmatbek Bekturdiev";
     const template = fs.readFileSync(
       path.resolve(__dirname, "template", "docs", "2-ways-contract.docx"),
       "binary",
@@ -37,10 +36,9 @@ export const generateContract = async (student) => {
     });
 
     const buffer = doc.getZip().generate({ type: "nodebuffer" });
-    const outputFileName = `Contract_${student.fullName}.docx`;
-    fs.writeFileSync(outputFileName, buffer);
-    console.log(`Generated: ${outputFileName}`);
-    return true;
+    // const outputFileName = `Contract_${student.fullName}.docx`;
+    // fs.writeFileSync(outputFileName, buffer);
+    return buffer;
   } catch (error) {
     throw error;
   }

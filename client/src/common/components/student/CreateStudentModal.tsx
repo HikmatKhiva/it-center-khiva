@@ -12,11 +12,11 @@ import {
 } from "@mantine/core";
 import { useForm } from "@mantine/form";
 import { useDisclosure } from "@mantine/hooks";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { Pencil } from "lucide-react";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { Loader, LoaderCircle, Pencil } from "lucide-react";
 import { studentValidation } from "@/validation";
 import { useAppSelector } from "@/hooks/redux";
-import { memo, useRef } from "react";
+import { memo, useEffect, useMemo, useRef } from "react";
 import {
   createNotification,
   showErrorNotification,
@@ -26,16 +26,16 @@ import { selectUser } from "@/lib/redux/reducer/admin";
 import { discounts } from "@/config";
 import { InputMask } from "@react-input/mask";
 import { Server } from "@/api/api";
-import { IStudentCreate, IMessageResponse } from "@/types";
+import { IStudentCreate, IMessageResponse, IGuarantor } from "@/types";
 const CreateStudent = memo(
   ({
     courseId,
     groupId,
-    isGroupFinished,
+    isActive,
   }: {
     courseId: number;
     groupId: number;
-    isGroupFinished: boolean;
+    isActive: boolean;
   }) => {
     const admin = useAppSelector(selectUser);
     const idNotification = useRef<string>("");
@@ -85,11 +85,32 @@ const CreateStudent = memo(
       idNotification.current = createNotification(isPending);
       mutateAsync(student);
     };
+    const passport = form.values.guarantor.passportId;
+
+    const { data: guarantor, isLoading } = useQuery<IGuarantor>({
+      queryKey: ["guarantor", passport],
+      queryFn: () =>
+        Server(`/guarantor/${passport}`, {
+          method: "GET",
+          headers: {
+            authorization: `Bearer ${admin?.token}`,
+          },
+        }),
+      enabled: passport.length >= 7,
+      retry: false,
+    });
+    useEffect(() => {
+      if (guarantor) {
+        form.setFieldValue("guarantor.firstName", guarantor?.firstName);
+        form.setFieldValue("guarantor.secondName", guarantor?.secondName);
+        form.setFieldValue("guarantor.phone", guarantor?.phone);
+      }
+    }, [guarantor]);
     return (
       <>
         <Button
           onClick={open}
-          hidden={isGroupFinished}
+          hidden={isActive}
           fz="xs"
           rightSection={<Pencil size={14} />}
           color="green"
@@ -184,10 +205,7 @@ const CreateStudent = memo(
                 placeholder={`${form.values.docType === "PASSPORT" ? "FA" : "INN"} 123456`}
                 maxLength={10}
                 onChange={(e) =>
-                  form.setFieldValue(
-                    "passportId",
-                    e.target.value.trim().toUpperCase(),
-                  )
+                  form.setFieldValue("passportId", e.target.value.toUpperCase())
                 }
                 error={form.errors.passportId}
                 value={form.values.passportId}
@@ -206,10 +224,15 @@ const CreateStudent = memo(
                   onChange={(e) =>
                     form.setFieldValue(
                       "guarantor.passportId",
-                      e.target.value.trim().toUpperCase(),
+                      e.target.value.toUpperCase(),
                     )
                   }
                   // error={form.errors.guarantor?.passportId || ''}
+                  rightSection={
+                    isLoading ? (
+                      <LoaderCircle size={16} className="animate-spin" />
+                    ) : null
+                  }
                   value={form.values.guarantor.passportId}
                   size="sm"
                   radius="sm"
@@ -224,6 +247,7 @@ const CreateStudent = memo(
                     }
                     value={form.values.guarantor.firstName}
                     // error={form.errors.guarantor.firstName}
+                    // disabled={isLoading || !!guarantor?.firstName}
                     label="Ismi!"
                     placeholder="Xudayshukur"
                     size="sm"
@@ -240,6 +264,7 @@ const CreateStudent = memo(
                     // error={form.errors.guarantorSecondName}
                     label="Familiyasi!"
                     placeholder="Polvonov"
+                    // disabled={isLoading || !!guarantor?.secondName}
                     size="sm"
                     radius="sm"
                   />
@@ -251,6 +276,7 @@ const CreateStudent = memo(
                   placeholder="+99 (8__) ___-__-__"
                   label="Telefon raqamini kiriting!"
                   component={TextInput}
+                  // disabled={isLoading || !!guarantor?.phone}
                   // error={form.errors.gr}
                   value={form.values.guarantor.phone}
                   onChange={(event) => {

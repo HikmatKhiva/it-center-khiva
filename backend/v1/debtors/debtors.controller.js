@@ -24,8 +24,12 @@ const getAllMonthlyDebtors = async (req, res) => {
     const endIndex = page * limit;
     const students = await prisma.student.findMany({
       where: {
-        debt: { gt: 0 }, 
-        Group: { isActive: true },
+        debt: { gt: 0 },
+        Group: {
+          isActive: {
+            in: ["ACTIVE", "FINISHED"],
+          },
+        },
         createdAt: {
           gte: new Date(yearFilter, 0, 1),
           lte: new Date(yearFilter, 11, 31, 23, 59, 59, 999),
@@ -56,6 +60,7 @@ const getAllMonthlyDebtors = async (req, res) => {
         course: { select: { name: true } },
         Payments: {
           where: {
+            isRefunded: false,
             createdAt: {
               gte: firstDayOfMonth,
               lte: lastDayOfMonth,

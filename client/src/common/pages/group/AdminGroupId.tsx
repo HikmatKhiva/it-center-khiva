@@ -8,7 +8,7 @@ import {
   Button,
 } from "@mantine/core";
 import { useParams } from "react-router-dom";
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import DeleteStudentModal from "@/common/components/student/DeleteStudentModal";
 import UpdateStudentModal from "@/common/components/student/UpdateStudentModal";
 import PaymentsHistory from "@/common/components/payment/PaymentsHistory";
@@ -18,7 +18,7 @@ import { ChangeEvent, useCallback, useState } from "react";
 import { selectUser } from "@/lib/redux/reducer/admin";
 import GroupIdHeader from "@/common/components/group/GroupIdHeader";
 import { Check, Eye, FileDown, RefreshCw } from "lucide-react";
-import { Server } from "@/api/api";
+import { downloadContract, Server } from "@/api/api";
 import { IDefaultQuery, IGroup, IStudentsResponse, IStudent } from "@/types";
 import GuarantorModal from "@/common/components/student/GuarantorModal";
 const AdminGroupId = () => {
@@ -67,6 +67,20 @@ const AdminGroupId = () => {
       }),
     enabled: !!admin?.token && !!group?.id,
   });
+  const { mutateAsync } = useMutation({
+    mutationFn: ({ id, fullName }: { id: number; fullName: string }) =>
+      downloadContract(id, `${fullName}`, admin?.token || ""),
+    mutationKey: ["download", "contract"],
+  });
+  const handleDownloadContract = async ({
+    id,
+    fullName,
+  }: {
+    id: number;
+    fullName: string;
+  }) => {
+    await mutateAsync({ id, fullName });
+  };
   const rows = data?.students?.map((student: IStudent, index: number) => (
     <Table.Tr key={student.id}>
       <Table.Td>{index + 1}</Table.Td>
@@ -85,20 +99,24 @@ const AdminGroupId = () => {
       <Table.Td>
         <DeleteStudentModal id={student?.id} />
       </Table.Td>
-      <Table.Td hidden={!group?.isGroupFinished}>
+      <Table.Td hidden={group?.isActive === "PENDING"}>
         <ActionIcon
+          disabled={parseInt(student.debt) !== 0}
           component="a"
           target="_blank"
           href={`${url}=${student?.code}`}
           size="lg"
+          onClick={(e) => {
+            if (parseInt(student.debt) !== 0) e.preventDefault();
+          }}
         >
-          <Eye />
+          <Eye size="16" />
         </ActionIcon>
       </Table.Td>
-      <Table.Td hidden={!group?.isActive}>
+      <Table.Td hidden={group?.isActive === "PENDING"}>
         <PaymentsHistory id={student.id} />
       </Table.Td>
-      <Table.Td hidden={!group?.isActive}>
+      <Table.Td hidden={group?.isActive === "PENDING"}>
         {parseInt(student.debt) === 0 ? (
           <ActionIcon color="teal" variant="light" radius="xl" size="lg">
             <Check size={22} />
@@ -114,12 +132,24 @@ const AdminGroupId = () => {
         />
       </Table.Td>
       <Table.Td>
-        <Button color="grape" variant="outline" size="xs">
+        <Button
+          disabled={group?.isActive === "PENDING"}
+          color="grape"
+          variant="outline"
+          size="xs"
+          onClick={() =>
+            handleDownloadContract({
+              id: student.id,
+              fullName: `${student.firstName} ${student.secondName}`,
+            })
+          }
+        >
           <FileDown size="16" />
         </Button>
       </Table.Td>
     </Table.Tr>
   ));
+
   return (
     <section>
       {group && (
@@ -140,10 +170,16 @@ const AdminGroupId = () => {
               <Table.Th>Telefon</Table.Th>
               <Table.Th>Jins</Table.Th>
               <Table.Th>O'zgartirish</Table.Th>
-              {group?.isGroupFinished && <Table.Th>Certificate URL</Table.Th>}
               <Table.Th>O'chirish</Table.Th>
-              <Table.Th hidden={!group?.isActive}>To'lov tarixi</Table.Th>
-              <Table.Th hidden={!group?.isActive}>To'lov qo'shish</Table.Th>
+              <Table.Th hidden={group?.isActive === "PENDING"}>
+                Certificate URL
+              </Table.Th>
+              <Table.Th hidden={group?.isActive === "PENDING"}>
+                To'lov tarixi
+              </Table.Th>
+              <Table.Th hidden={group?.isActive === "PENDING"}>
+                To'lov qo'shish
+              </Table.Th>
               <Table.Th>Vasiy</Table.Th>
               <Table.Th>Shartnoma</Table.Th>
             </Table.Tr>

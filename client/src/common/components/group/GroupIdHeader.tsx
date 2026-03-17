@@ -28,13 +28,13 @@ const GroupIdHeader = memo(
       <Group pb="20" justify="space-between">
         <Group gap="20">
           <BackButton />
-          {group && !group.isGroupFinished && (
+          {group && group.isActive !== "FINISHED" && (
             <UpdateGroupModal id={group?.id} />
           )}
           <Text fz="14">
             Guruh nomi: <b>{group?.name}</b>
           </Text>
-          <Group hidden={!group.isActive}>
+          <Group hidden={group.isActive !== "PENDING"}>
             {group?.startTime && (
               <Tooltip label="Boshlangan sana!">
                 <Text className="flex gap-1 items-center" fz="14">
@@ -44,13 +44,7 @@ const GroupIdHeader = memo(
               </Tooltip>
             )}
             {group?.finishedDate && (
-              <Tooltip
-                label={`${
-                  group?.isGroupFinished
-                    ? "Yakunlangan sana!"
-                    : "Yakunlash sanasi!"
-                }`}
-              >
+              <Tooltip label="Yakunlangan sana!">
                 <Text className="flex gap-1 items-center" fz="14">
                   <CalendarOff size="16" />
                   <b>{formatTime.DateTime(group?.finishedDate)}</b>
@@ -69,17 +63,19 @@ const GroupIdHeader = memo(
           {group?.course?.id && group?.id && (
             <CreateStudent
               courseId={group?.course?.id}
-              isGroupFinished={group.isGroupFinished}
+              isActive={group.isActive === "FINISHED"}
               groupId={group?.id}
             />
           )}
-          {admin?.role == "ADMIN" && !group.isActive && (
-            <ActivateGroupModal id={group.id} duration={group.duration} />
+          {admin?.role == "ADMIN" &&
+            group.isActive !== "ACTIVE" &&
+            group.isActive !== "FINISHED" && (
+              <ActivateGroupModal id={group.id} duration={group.duration} />
+            )}
+          {group?.Students.length !== 0 && group.isActive === "ACTIVE" && (
+            <FinishGroupModal id={group?.id} />
           )}
-          {!group?.isGroupFinished &&
-            group?.Students.length !== 0 &&
-            group.isActive && <FinishGroupModal id={group?.id} />}
-          {group?.isGroupFinished && (
+          {group?.isActive === "FINISHED" && (
             <DownloadCertificate name={group.name} id={group?.id} />
           )}
         </Group>

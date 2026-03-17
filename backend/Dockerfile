@@ -16,4 +16,5 @@ RUN npx prisma generate
 COPY . .
 EXPOSE 5000
 # Build the app
-CMD [ "npm", "run", "server" ]
+CMD [ "npm", "run", "server","&&", "npx", "prisma", "migrate", "deploy" ]
+# CMD npx prisma migrate deploy && npm run server

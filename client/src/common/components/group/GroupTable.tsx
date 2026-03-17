@@ -1,18 +1,16 @@
-import { ActionIcon, Group, Indicator, Table, Text } from "@mantine/core";
+import { Badge, Button, Group, Indicator, Table, Text } from "@mantine/core";
 import { useLocation, useNavigate } from "react-router-dom";
 import DeleteGroupModal from "./DeleteGroupModal";
 import { formatTime } from "@/utils/helper";
-import { ArrowDownUp, Pencil } from "lucide-react";
+import { ArrowDownUp, List } from "lucide-react";
 import { IGroup } from "@/types";
 const GroupTable = ({
   data,
   isPending,
-  status,
   handleChangeOrder,
 }: {
   data: IGroup[];
   isPending: boolean;
-  status: boolean;
   handleChangeOrder: () => void;
 }) => {
   const location = useLocation();
@@ -29,30 +27,45 @@ const GroupTable = ({
         <div className="relative w-fit h-fit">
           <Indicator
             withBorder
-            color={group.isGroupFinished ? "red" : "green"}
-            processing={!group.isGroupFinished}
+            color={
+              group?.isActive === "FINISHED"
+                ? "red"
+                : group?.isActive === "ACTIVE"
+                  ? "green"
+                  : "grape"
+            }
+            processing={group?.isActive !== "FINISHED"}
           >
-            <Text>
-              {group.isGroupFinished === false ? "Active" : "Finished"}
-            </Text>
+            <Badge
+              color={
+                group?.isActive === "FINISHED"
+                  ? "red"
+                  : group?.isActive === "ACTIVE"
+                    ? "green"
+                    : "grape"
+              }
+            >
+              {group?.isActive}
+            </Badge>
           </Indicator>
         </div>
       </Table.Td>
       <Table.Td>
-        <ActionIcon
+        <Button
           onClick={() => navigate(`/${path}/group/${group.id}`)}
           variant="outline"
-          size="md"
+          size="compact-md"
           color="grape"
         >
-          <Pencil size="16" />
-        </ActionIcon>
+          <List size="16" />
+        </Button>
       </Table.Td>
-      {!group?.isGroupFinished && (
-        <Table.Td>
-          <DeleteGroupModal disabled={group?.isGroupFinished} id={group.id} />
-        </Table.Td>
-      )}
+      <Table.Td>
+        <DeleteGroupModal
+          disabled={group?.isActive === "FINISHED"}
+          id={group.id}
+        />
+      </Table.Td>
     </Table.Tr>
   ));
   return (
@@ -72,8 +85,8 @@ const GroupTable = ({
           <Table.Th>Bolalar soni</Table.Th>
           <Table.Th>Boshlangan sana</Table.Th>
           <Table.Th>Guruh holati</Table.Th>
-          <Table.Th>Sozlash</Table.Th>
-          {!status && <Table.Th>O'chirish</Table.Th>}
+          <Table.Th>Ro'yxati</Table.Th>
+          <Table.Th>O'chirish</Table.Th>
         </Table.Tr>
       </Table.Thead>
       <Table.Tbody>{!isPending && rows}</Table.Tbody>

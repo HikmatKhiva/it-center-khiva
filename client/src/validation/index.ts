@@ -94,15 +94,17 @@ export const studentValidation = {
   gender: (value: string) =>
     !["male", "female"].includes(value) ? "Iltimos jinsni tanlang!" : null,
   docType: (value: string) =>
-    !["PASSPORT", "BIRTHCERTIFICATE"].includes(value) ? "Iltimos xujjat turini tanlang!" : null,
+    !["PASSPORT", "BIRTHCERTIFICATE"].includes(value)
+      ? "Iltimos xujjat turini tanlang!"
+      : null,
 };
 export const tokenValidation = {
   token: (token: string) =>
     !/^\d*$/.test(token)
       ? "Iltmos faqat raqam kiriting!"
       : token?.length !== 6
-      ? "Code to'liq kiriting!"
-      : null,
+        ? "Code to'liq kiriting!"
+        : null,
 };
 export const adminValidate = {
   password: (val: string) =>
@@ -135,5 +137,10 @@ export const updateNewStudentValidation = {
 };
 
 export const paymentRefundValidation = {
-  amount:(val:number)=>val < 10000 ? "Qiymat 10000 dan katta bo'lishi kerak!":null, 
-}
+  amount: (val: number) =>
+    val < 10000 ? "Qiymat 10000 dan katta bo'lishi kerak!" : null,
+  reason: (val: string) =>
+    val.trim().length <= 10
+      ? `Sababini kiriting eng kamida 10 ta harf... yana(${10 - val.trim().length} harf)`
+      : null,
+};

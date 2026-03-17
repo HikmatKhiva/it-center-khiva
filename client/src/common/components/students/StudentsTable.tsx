@@ -2,6 +2,7 @@ import { IStudents } from "@/types";
 import { formatTime } from "@/utils/helper";
 import { Indicator, Table, Tooltip } from "@mantine/core";
 import PaymentsHistory from "../payment/PaymentsHistory";
+import GuarantorModal from "../student/GuarantorModal";
 const StudentsTable = ({ students }: { students: IStudents[] }) => {
   const rows =
     Array.isArray(students) &&
@@ -13,11 +14,19 @@ const StudentsTable = ({ students }: { students: IStudents[] }) => {
         <Table.Td>
           <Tooltip
             label={
-              !student.Group.isGroupFinished
+              student.Group.isActive == "ACTIVE"
                 ? "Guruh yakunlanmagan!"
-                : "Guruh yakunlangan!"
+                : student.Group.isActive === "PENDING"
+                  ? "Guruh faollashtirilmagan!"
+                  : "Guruh yakunlangan!"
             }
-            color={!student.Group.isGroupFinished ? "green" : "red"}
+            color={
+              student.Group?.isActive === "FINISHED"
+                ? "red"
+                : student.Group?.isActive === "ACTIVE"
+                  ? "green"
+                  : "grape"
+            }
           >
             <Indicator
               inline
@@ -26,7 +35,13 @@ const StudentsTable = ({ students }: { students: IStudents[] }) => {
               zIndex={0}
               processing={true}
               position="top-end"
-              color={!student.Group.isGroupFinished ? "green" : "red"}
+              color={
+                student.Group?.isActive === "FINISHED"
+                  ? "red"
+                  : student.Group?.isActive === "ACTIVE"
+                    ? "green"
+                    : "grape"
+              }
             >
               {student.Group.name}
             </Indicator>
@@ -42,11 +57,19 @@ const StudentsTable = ({ students }: { students: IStudents[] }) => {
         <Table.Td>
           <PaymentsHistory id={student.id} />
         </Table.Td>
+        <Table.Td>
+          <GuarantorModal
+            guarantor={student?.guarantor}
+            fullName={`${student.firstName} ${student.secondName}`}
+          />
+        </Table.Td>
         <Table.Td>{formatTime.DateTime(student?.createdAt)}</Table.Td>
         <Table.Td>
-          {student?.finishedDate
-            ? formatTime.DateTime(student?.finishedDate)
-            : "Yakunlamagan!"}
+          {student.Group?.isActive === "PENDING"
+            ? "Faollashtirilmagan!"
+            : student?.finishedDate
+              ? formatTime.DateTime(student?.finishedDate)
+              : "Yakunlamagan!"}
         </Table.Td>
       </Table.Tr>
     ));
@@ -63,6 +86,7 @@ const StudentsTable = ({ students }: { students: IStudents[] }) => {
             <Table.Th>O'qituvchi</Table.Th>
             <Table.Th>Kurs</Table.Th>
             <Table.Th>To'lov tarixi</Table.Th>
+            <Table.Th>Vasiy</Table.Th>
             <Table.Th>Qo'shilgan vaqti</Table.Th>
             <Table.Th>Yakunlash vaqti </Table.Th>
           </Table.Tr>

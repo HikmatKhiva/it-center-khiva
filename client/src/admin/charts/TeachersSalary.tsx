@@ -12,7 +12,7 @@ const TeachersSalary = ({ isActive }: { isActive?: boolean }) => {
   const current = new Date();
   const [query, setQuery] = useState({
     year: current.getFullYear().toString() || "",
-    month: current.getMonth() + (1).toString() || "",
+    month: String(current.getMonth() + 1) || "",
   });
   const params = new URLSearchParams({
     year: query.year,

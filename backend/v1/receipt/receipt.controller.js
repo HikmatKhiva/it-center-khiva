@@ -4,7 +4,7 @@ import { generateReceipt } from "../../utils/generateReceipt.js";
 const findReceipt = async (req, res) => {
   try {
     const { token } = req.params;
-    const baseUrl = `${req.protocol}://${req.get('host')}`;
+    const baseUrl = `${req.protocol}://${req.get("host")}`;
     const receipt = await prisma.receipt.findUnique({
       where: { publicToken: token },
       select: {
@@ -12,7 +12,8 @@ const findReceipt = async (req, res) => {
         receiptNo: true,
         status: true,
         amount: true,
-        publicToken:true,
+        publicToken: true,
+        cancelledAt: true,
         student: {
           select: {
             firstName: true,
@@ -29,7 +30,7 @@ const findReceipt = async (req, res) => {
     if (!receipt) {
       return res.status(404).json({ message: "Chek Topilmadi!" });
     }
-    const pdfBytes = await generateReceipt(receipt,baseUrl);
+    const pdfBytes = await generateReceipt(receipt, baseUrl);
     res.setHeader("Content-Type", "application/pdf");
     res.setHeader(
       "Content-Disposition",
@@ -55,6 +56,7 @@ const getReceipt = async (req, res) => {
         status: true,
         amount: true,
         publicToken: true,
+        cancelledAt: true,
         student: {
           select: {
             firstName: true,

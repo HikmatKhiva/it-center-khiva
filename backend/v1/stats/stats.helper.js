@@ -1,3 +1,4 @@
+// import { IsActive } from "@prisma/client";
 import { prisma } from "../../app.js";
 export async function getTeacherMonthlyReport(teacherId, year, month) {
   try {
@@ -49,7 +50,7 @@ export async function getTeacherMonthlyReport(teacherId, year, month) {
     const groups = await prisma.group.findMany({
       where: {
         teacherId,
-        isGroupFinished: false, // Only active groups
+        isActive: "ACTIVE", // Only active groups
         createdAt: {
           lt: endOfMonth, // Group must have started by end of month
         },
@@ -122,10 +123,14 @@ export async function getTeacherMonthlyReport(teacherId, year, month) {
   }
 }
 export async function calculateAllTeachersSalaries(filterYear, filterMonth) {
+  console.log(filterMonth, "filterMonth");
+  // console.log(filterYear);
+
   try {
     const now = new Date();
     const year = parseInt(filterYear, 10) || now.getFullYear();
     const month = parseInt(filterMonth, 10) || now.getMonth() + 1;
+    console.log(month);
 
     if (typeof year !== "number" || year < 0) {
       throw new Error("Invalid year");
@@ -163,7 +168,7 @@ export async function calculateIncomeForYear(filterYear) {
     const year = filterYear || new Date().getFullYear();
 
     const activeGroups = await prisma.group.findMany({
-      where: { isGroupFinished: false },
+      where: { isActive: "ACTIVE" },
       select: {
         id: true,
         price: true,
@@ -274,7 +279,7 @@ export async function calculateStats(filterYear) {
       //  Active Groups
       prisma.group.count({
         where: {
-          isGroupFinished: false,
+          isActive: "ACTIVE",
           createdAt: {
             gte: new Date(yearFilter, 0, 1),
             lte: new Date(yearFilter, 11, 31, 23, 59, 59, 999),
@@ -284,7 +289,7 @@ export async function calculateStats(filterYear) {
       // finished Groups
       prisma.group.count({
         where: {
-          isGroupFinished: true,
+          isActive: "FINISHED",
           createdAt: {
             gte: new Date(yearFilter, 0, 1),
             lte: new Date(yearFilter, 11, 31, 23, 59, 59, 999),
@@ -313,8 +318,7 @@ export async function calculateStats(filterYear) {
       prisma.student.count({
         where: {
           Group: {
-            isGroupFinished: false,
-            isActive: true,
+            isActive: "ACTIVE",
             createdAt: {
               gte: new Date(yearFilter, 0, 1),
               lte: new Date(yearFilter, 11, 31, 23, 59, 59, 999),
@@ -326,7 +330,9 @@ export async function calculateStats(filterYear) {
       prisma.student.count({
         where: {
           debt: { gt: 0 },
-          Group: { isActive: true },
+          Group: {
+            isActive: "ACTIVE",
+          },
           createdAt: {
             gte: new Date(yearFilter, 0, 1),
             lte: new Date(yearFilter, 11, 31, 23, 59, 59, 999),
@@ -337,7 +343,7 @@ export async function calculateStats(filterYear) {
       prisma.student.count({
         where: {
           Group: {
-            isGroupFinished: true,
+            isActive: "FINISHED",
             finishedDate: {
               gte: new Date(yearFilter, 0, 1),
               lte: new Date(yearFilter, 11, 31, 23, 59, 59, 999),
@@ -350,7 +356,7 @@ export async function calculateStats(filterYear) {
       prisma.student.count({
         where: {
           Group: {
-            isGroupFinished: false,
+            isActive: "ACTIVE",
           },
           createdAt: {
             gte: new Date(yearFilter, 0, 1),
@@ -362,7 +368,10 @@ export async function calculateStats(filterYear) {
       prisma.student.count({
         where: {
           gender: "MALE",
-          Group: { isGroupFinished: false, ...yearFilter },
+          Group: {
+            isActive: "ACTIVE",
+            ...yearFilter,
+          },
           createdAt: {
             gte: new Date(yearFilter, 0, 1),
             lte: new Date(yearFilter, 11, 31, 23, 59, 59, 999),
@@ -373,7 +382,9 @@ export async function calculateStats(filterYear) {
       prisma.student.count({
         where: {
           gender: "FEMALE",
-          Group: { isGroupFinished: false },
+          Group: {
+            isActive: "ACTIVE",
+          },
           createdAt: {
             gte: new Date(yearFilter, 0, 1),
             lte: new Date(yearFilter, 11, 31, 23, 59, 59, 999),
@@ -384,7 +395,9 @@ export async function calculateStats(filterYear) {
       prisma.student.count({
         where: {
           gender: "FEMALE",
-          Group: { isGroupFinished: true },
+          Group: {
+            isActive: "FINISHED",
+          },
           debt: 0,
           createdAt: {
             gte: new Date(yearFilter, 0, 1),
@@ -396,7 +409,9 @@ export async function calculateStats(filterYear) {
       prisma.student.count({
         where: {
           gender: "MALE",
-          Group: { isGroupFinished: true },
+          Group: {
+            isActive: "FINISHED",
+          },
           debt: 0,
           createdAt: {
             gte: new Date(yearFilter, 0, 1),
@@ -443,6 +458,18 @@ export async function calculateStats(filterYear) {
           },
         },
       }),
+      // total new students pending
+      // prisma.student.count({
+      //   where: {
+      //     Group: {
+      //       isActive: "PENDING",
+      //     },
+      //     createdAt: {
+      //       gte: new Date(yearFilter, 0, 1),
+      //       lte: new Date(yearFilter, 11, 31, 23, 59, 59, 999),
+      //     },
+      //   },
+      // }),
     ]);
     const [
       activeGroups,
@@ -461,9 +488,8 @@ export async function calculateStats(filterYear) {
       totalNewstudentCAME,
       totalNewstudentPENDING,
       totalNewstudent,
+      // totalPendingStudent,
     ] = stats;
-    console.log(finishedStudents);
-
     return {
       stat: "Statistika",
       yearFilter,
@@ -483,8 +509,11 @@ export async function calculateStats(filterYear) {
       totalNewstudentCAME,
       totalNewstudent,
       totalNewstudentPENDING,
+      // totalPendingStudent
     };
   } catch (error) {
+    console.log(error);
+
     throw error;
   }
 }

@@ -12,18 +12,18 @@ import {
   TextInput,
 } from "@mantine/core";
 import { useForm } from "@mantine/form";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useAppSelector } from "@/hooks/redux";
 import { selectUser } from "@/lib/redux/reducer/admin";
 import { InputMask } from "@react-input/mask";
-import { memo, useRef } from "react";
+import { memo, useEffect, useRef } from "react";
 import {
   createNotification,
   showSuccessNotification,
 } from "@/utils/notification";
-import { Pencil } from "lucide-react";
+import { Pencil, UserRoundPen } from "lucide-react";
 import { Server } from "@/api/api";
-import { IStudent, IMessageResponse } from "@/types";
+import { IStudent, IMessageResponse, IGuarantor } from "@/types";
 const UpdateStudentModal = memo(({ student }: { student: IStudent }) => {
   const client = useQueryClient();
   const admin = useAppSelector(selectUser);
@@ -65,16 +65,31 @@ const UpdateStudentModal = memo(({ student }: { student: IStudent }) => {
     mutateAsync(data);
     idNotification.current = createNotification(isPending);
   };
+  const passport = form.values.guarantor.passportId;
+
+  const { data: guarantor, isLoading } = useQuery<IGuarantor>({
+    queryKey: ["guarantor", passport],
+    queryFn: () =>
+      Server(`/guarantor/${passport}`, {
+        method: "GET",
+        headers: {
+          authorization: `Bearer ${admin?.token}`,
+        },
+      }),
+    enabled: passport.length >= 7,
+    retry: false,
+  });
+  useEffect(() => {
+    if (guarantor) {
+      form.setFieldValue("guarantor.firstName", guarantor?.firstName);
+      form.setFieldValue("guarantor.secondName", guarantor?.secondName);
+      form.setFieldValue("guarantor.phone", guarantor?.phone);
+    }
+  }, [guarantor]);
   return (
     <>
-      <Button
-        onClick={open}
-        rightSection={<Pencil size="16" />}
-        color="green"
-        size="xs"
-        variant="outline"
-      >
-        O'zgartirish
+      <Button onClick={open} color="green" size="xs" variant="outline">
+        <UserRoundPen size="16" />
       </Button>
       <Modal opened={opened} onClose={close} title="O'quvchini o'zgartirish">
         <form onSubmit={form.onSubmit(handleSubmit)}>

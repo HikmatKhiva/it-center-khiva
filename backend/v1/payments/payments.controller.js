@@ -73,7 +73,7 @@ const getPayments = async (req, res) => {
   }
 };
 // upload payment a student
-const uploadPayment = async (req, res) => {
+const uploadPayment = async (req, res, next) => {
   try {
     const { studentId, amount, paymentDate } = req.body;
     // const username = req.admin.username;
@@ -120,7 +120,7 @@ const uploadPayment = async (req, res) => {
           amount: parseInt(amount),
           studentId: parseInt(studentId),
           createdAt: new Date(paymentDate),
-          createdById: 2,
+          createdById: 1,
         },
       });
       // 3. Create receipt
@@ -137,10 +137,10 @@ const uploadPayment = async (req, res) => {
     });
     return res.status(201).json({ message: "To'lov muvaffaqiyatli yuklandi." });
   } catch (error) {
-    return res.status(500).json({ error });
+    next(error);
   }
 };
-const paymentRefund = async (req, res) => {
+const paymentRefund = async (req, res, next) => {
   try {
     const { paymentId } = req.params;
     const { reason, amount } = req.body;
@@ -164,7 +164,7 @@ const paymentRefund = async (req, res) => {
         where: { id: payment.studentId },
         data: {
           debt: {
-            increment: amount,
+            increment: payment?.amount,
           },
         },
       }),
@@ -176,11 +176,21 @@ const paymentRefund = async (req, res) => {
           refundedAt: new Date(),
         },
       }),
+      prisma.receipt.update({
+        where: {
+          paymentId: parsedPaymentId,
+        },
+        data: {
+          status: "CANCELLED",
+          cancelledAt: new Date(),
+        },
+      }),
       prisma.refund.create({
         data: {
           reason,
           amount: amount,
           paymentId: parsedPaymentId,
+          cancelledById: 1,
         },
       }),
     ]);
@@ -188,7 +198,7 @@ const paymentRefund = async (req, res) => {
       .status(200)
       .json({ message: "To'lov muvaffaqiyatli bekor qilindi!" });
   } catch (error) {
-    return res.status(500).json({ error });
+    next(error);
   }
 };
 const getRefund = async (req, res) => {

@@ -11,7 +11,7 @@ import { paymentRefundValidation } from "@/validation";
 import { Button, Modal, NumberInput, Textarea } from "@mantine/core";
 import { useForm } from "@mantine/form";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import {  PoundSterling } from "lucide-react";
+import { PoundSterling } from "lucide-react";
 import { useEffect, useRef } from "react";
 const PaymentRefundModal = ({
   payment,
@@ -72,8 +72,9 @@ const PaymentRefundModal = ({
           <NumberInput
             flex="1"
             placeholder="10000"
-            label="Summani Kiriting!"
+            label="Summa !"
             value={form.values.amount}
+            readOnly={true}
             rightSection={<PoundSterling size="16" />}
             error={form.errors.amount}
             {...form.getInputProps("amount")}

@@ -49,22 +49,20 @@ model Course {
 }
 
 model Group {
-  id              Int        @id @default(autoincrement())
-  name            String     @unique @db.VarChar(60)
-  isGroupFinished Boolean    @default(false)
-  createdAt       DateTime   @default(now())
-  finishedDate    DateTime?
-  price           Decimal    @db.Decimal
-  duration        Int
-  groupTime       String?    @db.VarChar(20)
-  courseId        Int
-  teacherId       Int
-  course          Course     @relation(fields: [courseId], references: [id])
-  teacher         Teacher    @relation(fields: [teacherId], references: [id])
-  startTime       DateTime?
-  isActive        Boolean    @default(false)
-  schedules       Schedule[]
-  Students        Student[]
+  id           Int        @id @default(autoincrement())
+  name         String     @unique @db.VarChar(60)
+  createdAt    DateTime   @default(now())
+  finishedDate DateTime?
+  price        Decimal    @db.Decimal
+  duration     Int
+  courseId     Int
+  teacherId    Int
+  course       Course     @relation(fields: [courseId], references: [id])
+  teacher      Teacher    @relation(fields: [teacherId], references: [id])
+  startTime    DateTime?
+  isActive     IsActive   @default(PENDING)
+  schedules    Schedule[]
+  Students     Student[]
 }
 
 model Room {
@@ -123,19 +121,19 @@ model Student {
   receipts     Receipt[]
   course       Course       @relation(fields: [courseId], references: [id])
   Group        Group        @relation(fields: [groupId], references: [id], onDelete: Cascade)
-  guarantor    Guarantor?
+  guarantorId  Int?
+  guarantor    Guarantor?   @relation(fields: [guarantorId], references: [id], onDelete: Cascade)
 
   @@index([groupId, courseId])
 }
 
 model Guarantor {
-  id         Int     @id @default(autoincrement())
-  firstName  String  @db.VarChar(50)
-  secondName String  @db.VarChar(50)
-  passportId String  @unique @db.VarChar(10)
-  phone      String  @db.VarChar(50)
-  student    Student @relation(fields: [studentId], references: [id], onDelete: Cascade)
-  studentId  Int     @unique
+  id         Int       @id @default(autoincrement())
+  firstName  String    @db.VarChar(50)
+  secondName String    @db.VarChar(50)
+  passportId String    @unique @db.VarChar(10)
+  phone      String    @db.VarChar(50)
+  students   Student[]
 }
 
 model Payment {
@@ -166,8 +164,9 @@ model Receipt {
   amount      Decimal
   status      ReceiptStatus @default(ACTIVE)
   issuedAt    DateTime      @default(now())
-  payment     Payment       @relation(fields: [paymentId], references: [id])
-  student     Student       @relation(fields: [studentId], references: [id])
+  payment     Payment       @relation(fields: [paymentId], references: [id], onDelete: Cascade)
+  student     Student       @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  cancelledAt DateTime?
 
   @@index([studentId])
 }
@@ -291,4 +290,10 @@ enum DebtStatus {
   PENDING
   ACTIVE
   PAID
+}
+
+enum IsActive {
+  FINISHED
+  ACTIVE
+  PENDING
 }

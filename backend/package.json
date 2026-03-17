@@ -49,8 +49,7 @@
     "rate-limiter-flexible": "^5.0.5",
     "slugify": "^1.6.6",
     "systeminformation": "^5.27.14",
-    "validator": "^13.15.0",
-    "xlsx": "^0.18.5"
+    "validator": "^13.15.0"
   },
   "devDependencies": {
     "@eslint/js": "^9.20.0",

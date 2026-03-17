@@ -57,7 +57,7 @@ interface IGuarantor {
   secondName: string;
   phone: string;
   passportId: string;
-  studentId: number;
+  // studentId: number;
 }
 interface IStudent extends IDefault {
   firstName: string;
@@ -90,10 +90,10 @@ interface IStudents extends IDefault {
   code: string;
   passportId: string;
   finishedDate: Date | null;
+  guarantor: IGuarantor ;
   Group: {
     name: string;
-
-    isGroupFinished: boolean;
+    isActive: "PENDING" | "ACTIVE" | "FINISHED";
   };
   course: {
     name: string;
@@ -114,11 +114,9 @@ interface ISelect {
 interface IGroup {
   id: number;
   name: string;
-  isGroupFinished: boolean;
   teacher: ITeacher;
   course: ICourse;
   Students: [];
-  isActive: boolean;
   price: number;
   duration: number;
   finishedDate: Date;
@@ -126,7 +124,7 @@ interface IGroup {
   createdAt: Date;
   startTime: Date | null;
   price: string;
-  isActive: boolean;
+  isActive: "PENDING" | "ACTIVE" | "FINISHED";
   schedules: [
     {
       id: number;
@@ -388,7 +386,6 @@ interface IGroupQuery {
   name: string;
   page: number;
   limit: number;
-  isGroupFinished: boolean;
 }
 interface GroupQueryResponse {
   groups: IGroup[];
@@ -400,6 +397,7 @@ interface ISchedules {
   weekType: string;
   teacher: string;
   countStudents: number;
+  isActive: "PENDING" | "ACTIVE" | "FINISHED";
 }
 interface RoomsQueryResponse {
   rooms: IRoom[];
@@ -537,6 +535,7 @@ interface IReceipt {
   status: string;
   amount: string;
   publicToken: string;
+  cancelledAt: Date | null;
   student: {
     firstName: string;
     secondName: string;

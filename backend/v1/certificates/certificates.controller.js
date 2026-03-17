@@ -38,7 +38,7 @@ const findCertificate = async (req, res) => {
     res.setHeader("Content-Type", "application/pdf");
     res.setHeader(
       "Content-Disposition",
-      `inline; filename="${student.code}-${student.firstName}-${student.secondName}.pdf"`
+      `inline; filename="${student.code}-${student.firstName}-${student.secondName}.pdf"`,
     );
     // Send the PDF bytes directly in the response
     return res.send(Buffer.from(pdfBytes));
@@ -131,7 +131,7 @@ const downloadGroupCertificateZip = async (req, res) => {
     const group = await prisma.group.findFirst({
       where: {
         id: parseInt(id),
-        isGroupFinished: true, // Filter condition, not part of unique key
+        isActive: "FINISHED", // Filter condition, not part of unique key
       },
       select: {
         name: true, // You use group.name later, so select it here
@@ -172,7 +172,7 @@ const downloadGroupCertificateZip = async (req, res) => {
     for (const student of group.Students) {
       const certPath = path.join(
         certificatesDir,
-        `${student.firstName}_${student.secondName}_certificate.pdf`
+        `${student.firstName}_${student.secondName}_certificate.pdf`,
       );
       const pdfBytes = await createPdf(student, student.course.nameCertificate);
       fs.writeFileSync(certPath, pdfBytes);
@@ -239,7 +239,7 @@ const downloadCertificate = async (req, res) => {
     res.setHeader("Content-Type", "application/pdf");
     res.setHeader(
       "Content-Disposition",
-      `inline; filename="${student.code}-${student.firstName}-${student.secondName}.pdf"`
+      `inline; filename="${student.code}-${student.firstName}-${student.secondName}.pdf"`,
     );
     return res.send(Buffer.from(pdfBytes));
   } catch (error) {
