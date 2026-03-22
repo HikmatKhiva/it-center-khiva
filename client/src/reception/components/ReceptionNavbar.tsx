@@ -1,8 +1,8 @@
-import { graduateMen } from "@/admin/assets/svg";
 import { Divider, Group } from "@mantine/core";
 import {
   GraduationCap,
   House,
+  UserRound,
   UserRoundPlus,
   Users,
   UsersRoundIcon,
@@ -61,7 +61,7 @@ const ReceptionNavbar = ({ close }: { close: () => void }) => {
         className="w-full py-2 px-4 flex items-center gap-2  text-lg"
         to="/reception/students"
       >
-        <img src={graduateMen} alt="graduateMen" width={28} />
+        <UserRound />
         O'quvchilar
       </NavLink>
     </div>

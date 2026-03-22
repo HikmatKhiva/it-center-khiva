@@ -11,12 +11,11 @@ import {
   Box,
 } from "@mantine/core";
 import { useForm } from "@mantine/form";
-import { useDisclosure } from "@mantine/hooks";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Loader, LoaderCircle, Pencil } from "lucide-react";
+import { LoaderCircle } from "lucide-react";
 import { studentValidation } from "@/validation";
 import { useAppSelector } from "@/hooks/redux";
-import { memo, useEffect, useMemo, useRef } from "react";
+import { memo, useEffect, useRef } from "react";
 import {
   createNotification,
   showErrorNotification,
@@ -31,15 +30,17 @@ const CreateStudent = memo(
   ({
     courseId,
     groupId,
-    isActive,
+    opened,
+    close,
   }: {
     courseId: number;
     groupId: number;
-    isActive: boolean;
+    opened: boolean;
+    close: () => void;
   }) => {
     const admin = useAppSelector(selectUser);
     const idNotification = useRef<string>("");
-    const [opened, { open, close }] = useDisclosure(false);
+    // const [opened, { open, close }] = useDisclosure(false);
     const client = useQueryClient();
     const form = useForm({
       initialValues: {
@@ -96,7 +97,7 @@ const CreateStudent = memo(
             authorization: `Bearer ${admin?.token}`,
           },
         }),
-      enabled: passport.length >= 7,
+      enabled: passport.length >= 7 && opened,
       retry: false,
     });
     useEffect(() => {
@@ -108,15 +109,6 @@ const CreateStudent = memo(
     }, [guarantor]);
     return (
       <>
-        <Button
-          onClick={open}
-          hidden={isActive}
-          fz="xs"
-          rightSection={<Pencil size={14} />}
-          color="green"
-        >
-          Yangi O'quvchi Qo'shish
-        </Button>
         <Modal
           opened={opened}
           size="md"

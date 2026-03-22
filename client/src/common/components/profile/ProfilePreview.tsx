@@ -1,32 +1,37 @@
-import { Button, Divider, Group, Text } from "@mantine/core";
+import { Button, Divider, Group, Modal, Text } from "@mantine/core";
 import {
   Clipboard,
   Eye,
   EyeOff,
-  LogOut,
+  // LogOut,
   SquareAsterisk,
   UserRound,
 } from "lucide-react";
 import { useState } from "react";
 import { useClipboard } from "@mantine/hooks";
 import ProfileQrCode from "./ProfileQrCode";
-import { useAppDispatch } from "@/hooks/redux";
-import { logout } from "@/lib/redux/reducer/admin";
+// import { useAppDispatch } from "@/hooks/redux";
+// import { logout } from "@/lib/redux/reducer/admin";
+import { IUserProfile } from "@/types";
 const ProfilePreview = ({
   profile,
+  opened,
+  close,
 }: {
   profile: IUserProfile | undefined;
+  opened: boolean;
+  close: () => void;
 }) => {
   const [visible, setVisible] = useState<boolean>(false);
-  const dispatch = useAppDispatch();
+  // const dispatch = useAppDispatch();
   const clipboard = useClipboard({ timeout: 500 });
   const handleVisible = () => setVisible(!visible);
   const handleClickCopy = () => {
     clipboard.copy(profile?.secret || "");
   };
-  const handleLogout = () => dispatch(logout());
+  // const handleLogout = () => dispatch(logout());
   return (
-    <div>
+    <Modal opened={opened} onClose={close}>
       <Group mb="5">
         <UserRound />
         <Text className="capitalize ">{profile?.username}</Text>
@@ -56,15 +61,15 @@ const ProfilePreview = ({
           </Button>
         </Group>
       </Group>
-      <Divider mb={20} />
+      {/* <Divider mb={20} />
       <Button
         onClick={handleLogout}
         color="violet"
         rightSection={<LogOut size="18" />}
       >
         Hisobdan chiqish
-      </Button>
-    </div>
+      </Button> */}
+    </Modal>
   );
 };
 export default ProfilePreview;

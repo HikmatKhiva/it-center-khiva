@@ -6,7 +6,6 @@ async function getMetrics(req, res) {
     // io.emit("metrics", result);
     res.json(result);
   } catch (err) {
-    console.error(err);
     res.status(500).json({ error: "Failed to get metrics" });
   }
 }

@@ -56,7 +56,7 @@ const UploadPayment = ({ studentId }: { studentId: number }) => {
   };
   return (
     <>
-      <Button type="button" size="xs" onClick={open}>
+      <Button type="button" color="indigo" size="xs" onClick={open}>
         <Wallet size={16} />
       </Button>
       <Modal opened={opened} onClose={close} title="To'lovlarni kiritish!">

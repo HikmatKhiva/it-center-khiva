@@ -2,6 +2,7 @@ import Pizzip from "pizzip";
 import path from "path";
 import fs from "fs";
 import DocxTemplater from "docxtemplater";
+import { getMonthName } from "./util.js";
 const __dirname = path.resolve();
 function angularParser(tag) {
   return {
@@ -13,6 +14,8 @@ function angularParser(tag) {
 
 export const generateContract = async (student) => {
   try {
+    const startDate = new Date(student.startTime);
+    const finishedDate = new Date(student.finishedDate);
     const template = fs.readFileSync(
       path.resolve(__dirname, "template", "docs", "2-ways-contract.docx"),
       "binary",
@@ -24,6 +27,10 @@ export const generateContract = async (student) => {
       parser: angularParser,
     });
     doc.render({
+      startYear: startDate.getFullYear(),
+      startMonth: getMonthName(startDate.getMonth() + 1),
+      startDay: startDate.getDay(),
+
       fullName: student.fullName,
       courseName: student.courseName,
       courseDuration: student.courseDuration,

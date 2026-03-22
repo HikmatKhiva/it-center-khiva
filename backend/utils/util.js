@@ -9,3 +9,23 @@ export function formatDate(dateString) {
 
   return `${year} ${month} ${day} ${hours}:${minutes}`;
 }
+
+export const currentYear = new Date().getFullYear();
+export const currentMonth = new Date().getMonth() + 1;
+export function getMonthName(monthNumber) {
+  const months = [
+    "Yanvar",
+    "Fevral",
+    "Mart",
+    "Aprel",
+    "May",
+    "Iyun",
+    "Iyul",
+    "Avgust",
+    "Sentabr",
+    "Oktabr",
+    "Noyabr",
+    "Dekabr",
+  ];
+  return months[monthNumber - 1]; 
+}

@@ -1,8 +1,10 @@
 import { IStudents } from "@/types";
 import { formatTime } from "@/utils/helper";
-import { Indicator, Table, Tooltip } from "@mantine/core";
+import { ActionIcon, Indicator, Table, Tooltip } from "@mantine/core";
 import PaymentsHistory from "../payment/PaymentsHistory";
 import GuarantorModal from "../student/GuarantorModal";
+import UploadPayment from "../payment/UploadPayment";
+import { Check } from "lucide-react";
 const StudentsTable = ({ students }: { students: IStudents[] }) => {
   const rows =
     Array.isArray(students) &&
@@ -58,6 +60,15 @@ const StudentsTable = ({ students }: { students: IStudents[] }) => {
           <PaymentsHistory id={student.id} />
         </Table.Td>
         <Table.Td>
+          {parseInt(student?.debt) === 0 ? (
+            <ActionIcon color="teal" variant="light" radius="xl" size="lg">
+              <Check size={22} />
+            </ActionIcon>
+          ) : (
+            <UploadPayment studentId={student.id} />
+          )}
+        </Table.Td>
+        <Table.Td>
           <GuarantorModal
             guarantor={student?.guarantor}
             fullName={`${student.firstName} ${student.secondName}`}
@@ -86,6 +97,7 @@ const StudentsTable = ({ students }: { students: IStudents[] }) => {
             <Table.Th>O'qituvchi</Table.Th>
             <Table.Th>Kurs</Table.Th>
             <Table.Th>To'lov tarixi</Table.Th>
+            <Table.Th>To'lov qo'shish</Table.Th>
             <Table.Th>Vasiy</Table.Th>
             <Table.Th>Qo'shilgan vaqti</Table.Th>
             <Table.Th>Yakunlash vaqti </Table.Th>

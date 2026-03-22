@@ -16,8 +16,9 @@ const GroupTable = ({
   const location = useLocation();
   const path = location.pathname.split("/")[1];
   const navigate = useNavigate();
-  const rows = data?.map((group: IGroup) => (
+  const rows = data?.map((group: IGroup, index: number) => (
     <Table.Tr key={group.id}>
+      <Table.Td>{index + 1}</Table.Td>
       <Table.Td>{group.name}</Table.Td>
       <Table.Td>{group.course.name}</Table.Td>
       <Table.Td>{group.teacher.firstName}</Table.Td>
@@ -72,6 +73,7 @@ const GroupTable = ({
     <Table withTableBorder highlightOnHover>
       <Table.Thead>
         <Table.Tr>
+        <Table.Th>N</Table.Th>
           <Table.Th onClick={handleChangeOrder}>
             <Group align="center">
               <Text fw={700} size="sm">

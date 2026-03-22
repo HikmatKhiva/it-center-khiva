@@ -26,13 +26,13 @@ const findCertificate = async (req, res) => {
         course: true,
       },
     });
-    if (student.debt > 0) {
+    if (!student) {
+      return res.status(404).json({ message: "O'quvchi topilmadi!" });
+    }
+    if (student?.debt > 0) {
       return res
         .status(400)
         .json({ message: "O'quvchi qarzli!", debt: student?.debt });
-    }
-    if (!student) {
-      return res.status(404).json({ message: "O'quvchi topilmadi!" });
     }
     const pdfBytes = await createPdf(student, student.course.nameCertificate);
     res.setHeader("Content-Type", "application/pdf");
@@ -49,15 +49,13 @@ const findCertificate = async (req, res) => {
 const getAllCertificates = async (req, res) => {
   try {
     const {
-      limit = 10,
+      limit = 12,
       page = 1,
       name = "",
       year,
       passportId = "",
     } = req.query;
     const yearFilter = parseInt(year, 10) || new Date().getFullYear();
-
-    // Shared where clause to avoid duplication
     const whereClause = {
       passportId: {
         contains: passportId,
@@ -123,18 +121,16 @@ const getAllCertificates = async (req, res) => {
     return res.status(500).json({ error: error.message });
   }
 };
-
 const downloadGroupCertificateZip = async (req, res) => {
   try {
     const { id } = req.params;
-    // Use findFirst instead of findUnique to filter by multiple fields
     const group = await prisma.group.findFirst({
       where: {
         id: parseInt(id),
-        isActive: "FINISHED", // Filter condition, not part of unique key
+        isActive: "FINISHED",
       },
       select: {
-        name: true, // You use group.name later, so select it here
+        name: true,
         Students: {
           where: {
             debt: 0,
@@ -179,29 +175,24 @@ const downloadGroupCertificateZip = async (req, res) => {
     }
     await zipFolder(certificatesDir, group.name);
     const zipFilePath = path.join(__dirname, "temp", `${group.name}.zip`);
-    // 2. Stream the zip file to the response
     const fileStream = fs.createReadStream(zipFilePath);
     res.set("Content-Disposition", `attachment; filename="${group.name}.zip"`);
     res.set("Content-Type", "application/zip");
     res.status(200);
-    fileStream.pipe(res); // Pipe the file stream to the response
-    // 3. Handle stream completion and errors
+    fileStream.pipe(res); 
     fileStream.on("end", async () => {
       try {
-        await unlinkAsync(zipFilePath); // Use await with promisified unlink
+        await unlinkAsync(zipFilePath);
         fs.rmSync(certificatesDir, { recursive: true, force: true });
         console.log("Temporary files deleted.");
         console.log(`Successfully deleted ${zipFilePath}`);
       } catch (unlinkError) {
         const sanitizedPath = validator.escape(zipFilePath);
         console.error(`Error deleting ${sanitizedPath}:`, unlinkError);
-        // Log the error but don't throw, as the response has already been sent.
       }
     });
     fileStream.on("error", (streamError) => {
       console.error("Error streaming file:", streamError);
-      // If an error occurs during streaming, you can't change the headers or status code.
-      // You can log the error and potentially send a generic error message to the client if possible.
       if (!res.headersSent) {
         res.status(500).send("Error streaming file.");
       }
@@ -214,12 +205,9 @@ const downloadGroupCertificateZip = async (req, res) => {
 const downloadCertificate = async (req, res) => {
   try {
     const { id } = req.params;
-    // Validate the ID
     if (!id || isNaN(parseInt(id))) {
       return res.status(400).json({ message: "Invalid certificate ID" });
     }
-
-    // Fetch certificate information from database
     const student = await prisma.student.findFirst({
       where: {
         id: parseInt(id),
@@ -229,13 +217,10 @@ const downloadCertificate = async (req, res) => {
         course: true,
       },
     });
-
     if (!student) {
       return res.status(404).json({ message: "Certificate not found" });
     }
-    // Generate PDF
     const pdfBytes = await createPdf(student, student.course.nameCertificate);
-
     res.setHeader("Content-Type", "application/pdf");
     res.setHeader(
       "Content-Disposition",

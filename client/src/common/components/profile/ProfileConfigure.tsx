@@ -1,41 +1,17 @@
-import {
-  Modal,
-  Avatar,
-  Tabs,
-  FloatingIndicator,
-  Group,
-  FileButton,
-  Button,
-  ActionIcon,
-  Stack,
-} from "@mantine/core";
-import { useDisclosure } from "@mantine/hooks";
+import { Avatar, ActionIcon, Menu } from "@mantine/core";
 import { useAppSelector } from "@/hooks/redux";
-import { useRef, useState } from "react";
-import classes from "@/css/tabs.module.css";
+import { useState } from "react";
 import ProfilePreview from "./ProfilePreview";
 import ProfileUpdate from "./ProfileUpdate";
-import { Check, X } from "lucide-react";
+import { DoorOpen } from "lucide-react";
 import { selectUser } from "@/lib/redux/reducer/admin";
-import { useMutation, useQuery } from "@tanstack/react-query";
-import {
-  createNotification,
-  showErrorNotification,
-  showSuccessNotification,
-} from "@/utils/notification";
-import ProfilePhotoDelete from "./ProfilePhotoDelete";
+import { useQuery } from "@tanstack/react-query";
 import { Server } from "@/api/api";
+import { IUserProfile } from "@/types";
+import ProfileLogout from "./ProfileLogout";
 const ProfileConfigure = () => {
-  const [opened, { open, close }] = useDisclosure(false);
   const profile = useAppSelector(selectUser);
-  const idNotification = useRef<string>("");
-  const [rootRef, setRootRef] = useState<HTMLDivElement | null>(null);
-  const [value, setValue] = useState<string | null>("1");
-  const [file, setFile] = useState<File | null>();
-  const [controlsRefs, setControlsRefs] = useState<
-    Record<string, HTMLButtonElement | null>
-  >({});
-  const { data, refetch } = useQuery<IUserProfile>({
+  const { data } = useQuery<IUserProfile>({
     queryKey: ["profile"],
     queryFn: () =>
       Server(`admin/profile/${profile?.id}`, {
@@ -46,114 +22,58 @@ const ProfileConfigure = () => {
       }),
     enabled: !!profile?.token && !!profile.id,
   });
-  const { mutateAsync, isPending } = useMutation({
-    mutationFn: (data: FormData) =>
-      Server<IMessageResponse>(`admin/upload-image`, {
-        method: "POST",
-        headers: {
-          authorization: `Bearer ${profile?.token || ""}`,
-        },
-        data: data,
-      }),
-    onSuccess: (success) => {
-      showSuccessNotification(idNotification.current, success?.message);
-      refetch();
-      setFile(null);
-    },
-    onError: (error) => {
-      showErrorNotification(idNotification.current, error.message);
-    },
-  });
-  const setControlRef = (val: string) => (node: HTMLButtonElement) => {
-    controlsRefs[val] = node;
-    setControlsRefs(controlsRefs);
-  };
-  const clearFile = () => setFile(null);
-  const handleSaveImage = async () => {
-    idNotification.current = createNotification(isPending);
-    if (file) {
-      const form = new FormData();
-      form.append("image", file);
-      mutateAsync(form);
-    }
-  };
+  const [modalProfileUpdate, setModalProfileUpdate] = useState<boolean>(false);
+  const [modalProfileLogout, setModalProfileLogout] = useState<boolean>(false);
+  const [modalProfilePreview, setModalProfilePreview] =
+    useState<boolean>(false);
   return (
     <>
-      <ActionIcon onClick={open} variant="default" size="lg">
-        <Avatar size={28} src={data?.photo_url} alt={data?.username}>
-          {data?.username.charAt(0).toUpperCase()}
-        </Avatar>
-      </ActionIcon>
-      <Modal opened={opened} onClose={close}>
-        <Group justify="center">
-          <Stack gap="5" justify="center" align="center" mb={10}>
-            <FileButton onChange={setFile} accept="image/png,image/jpeg">
-              {(props) => (
-                <Avatar
-                  {...props}
-                  size={60}
-                  className="shadow"
-                  src={file ? URL.createObjectURL(file) : data?.photo_url}
-                  alt={data?.username}
-                >
-                  {data?.username.charAt(0).toUpperCase()}
-                </Avatar>
-              )}
-            </FileButton>
-            <ProfilePhotoDelete photo={data?.photo_url ?? null} />
-          </Stack>
-        </Group>
-        <Group hidden={!file} justify="center" gap="1" mb="10">
-          <Button
-            onClick={handleSaveImage}
-            disabled={isPending}
-            loading={isPending}
-            size="xs"
-            color="green"
-            variant="outline"
+      <Menu trigger="click-hover" openDelay={100} closeDelay={400}>
+        <Menu.Target>
+          <ActionIcon variant="default" size="lg">
+            <Avatar size={28} src={data?.photo_url} alt={data?.username}>
+              {data?.username.charAt(0).toUpperCase()}
+            </Avatar>
+          </ActionIcon>
+        </Menu.Target>
+        <Menu.Dropdown>
+          <Menu.Item
+            disabled={!data}
+            onClick={() => setModalProfilePreview(true)}
           >
-            <Check size="16" />
-          </Button>
-          <Button
-            disabled={isPending}
-            onClick={clearFile}
-            size="xs"
+            Hisob
+          </Menu.Item>
+          <Menu.Item
+            disabled={!data}
+            onClick={() => setModalProfileUpdate(true)}
+          >
+            Hisobni yangilash
+          </Menu.Item>
+          <Menu.Divider />
+          <Menu.Label>Danger zone</Menu.Label>
+          <Menu.Item
             color="red"
-            variant="outline"
+            onClick={() => setModalProfileLogout(true)}
+            rightSection={<DoorOpen size="16" />}
           >
-            <X size="16" />
-          </Button>
-        </Group>
-        <Tabs variant="none" value={value} onChange={setValue}>
-          <Tabs.List ref={setRootRef} className={classes.list}>
-            <Tabs.Tab
-              value="1"
-              ref={setControlRef("1")}
-              className={classes.tab}
-            >
-              Hisob
-            </Tabs.Tab>
-            <Tabs.Tab
-              value="2"
-              ref={setControlRef("2")}
-              className={classes.tab}
-            >
-              Yangilash
-            </Tabs.Tab>
-            <FloatingIndicator
-              target={value ? controlsRefs[value] : null}
-              parent={rootRef}
-              className={classes.indicator}
-            />
-          </Tabs.List>
-          <Tabs.Panel value="1">
-            <ProfilePreview profile={data} />
-          </Tabs.Panel>
-          <Tabs.Panel value="2">
-            <ProfileUpdate profile={data} />
-          </Tabs.Panel>
-        </Tabs>
-      </Modal>
+            Chiqish
+          </Menu.Item>
+        </Menu.Dropdown>
+      </Menu>
+      <ProfileUpdate
+        profile={data}
+        opened={modalProfileUpdate}
+        close={() => setModalProfileUpdate(false)}
+      />
+      <ProfilePreview
+        opened={modalProfilePreview}
+        close={() => setModalProfilePreview(false)}
+        profile={data}
+      />
+      <ProfileLogout
+        close={() => setModalProfileLogout(false)}
+        opened={modalProfileLogout}
+      />
     </>
   );
 };

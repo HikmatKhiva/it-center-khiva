@@ -3,6 +3,7 @@ import ReceptionTable from "@/admin/components/reception/ReceptionTable";
 import { Server } from "@/api/api";
 import { useAppSelector } from "@/hooks/redux";
 import { selectUser } from "@/lib/redux/reducer/admin";
+import { IReceptionResponse } from "@/types";
 import { Group, Text } from "@mantine/core";
 import { useQuery } from "@tanstack/react-query";
 import { ConciergeBell } from "lucide-react";

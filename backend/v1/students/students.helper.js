@@ -50,3 +50,27 @@ export const dataConverter = (student) => {
     },
   };
 };
+export const studentsConverter = (students) => {
+  return students.map((student) => {
+    return {
+      fullName: `${student?.firstName} ${student?.secondName}`,
+      phone: student?.phone,
+      passportId: student?.passportId,
+      monthlyPrice: student?.Group?.price,
+      courseDuration: student?.Group?.duration,
+      docType: student?.docType,
+      totalPrice: Math.floor(
+        parseInt(student?.Group?.price) * parseInt(student?.Group?.duration),
+      ),
+      startTime: student?.Group?.startTime,
+      finishedDate: student?.Group?.finishedDate,
+      courseName: student?.course?.name,
+      address: student?.address,
+      guarantor: {
+        fullName: `${student?.guarantor?.firstName} ${student?.guarantor?.secondName}`,
+        passportId: student?.guarantor?.passportId,
+        phone: student?.guarantor?.phone,
+      },
+    };
+  });
+};

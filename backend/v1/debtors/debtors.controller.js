@@ -48,7 +48,7 @@ const getAllMonthlyDebtors = async (req, res) => {
             id: true,
             name: true,
             price: true,
-            startTime: true, // include startTime
+            startTime: true,
             teacher: {
               select: {
                 firstName: true,
@@ -76,7 +76,6 @@ const getAllMonthlyDebtors = async (req, res) => {
     const debtors = await filterStudents(students, name);
     const paginatedDebtors = debtors.slice(startIndex, endIndex);
     const totalPages = Math.ceil(debtors.length / limit);
-    // Return the filtered students in the response
     res.status(200).json({
       debtors: paginatedDebtors,
       totalPages,
@@ -84,8 +83,6 @@ const getAllMonthlyDebtors = async (req, res) => {
       count: debtors.length,
     });
   } catch (error) {
-    console.log(error);
-
     return res
       .status(500)
       .json({ error: "An error occurred while fetching data." });

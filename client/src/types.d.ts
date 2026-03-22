@@ -90,7 +90,8 @@ interface IStudents extends IDefault {
   code: string;
   passportId: string;
   finishedDate: Date | null;
-  guarantor: IGuarantor ;
+  guarantor: IGuarantor;
+  debt: string;
   Group: {
     name: string;
     isActive: "PENDING" | "ACTIVE" | "FINISHED";
@@ -134,6 +135,31 @@ interface IGroup {
       groupId: number;
     },
   ];
+}
+interface IGroupResponse {
+  id: number;
+  name: string;
+  teacher: ITeacher;
+  course: ICourse;
+  Students: [];
+  price: number;
+  duration: number;
+  finishedDate: Date;
+  groupTime: string;
+  createdAt: Date;
+  startTime: Date | null;
+  price: string;
+  isActive: "PENDING" | "ACTIVE" | "FINISHED";
+  schedules: [
+    {
+      id: number;
+      weekType: string;
+      time: string;
+      roomId: number;
+      groupId: number;
+    },
+  ];
+  totalPages: number;
 }
 interface IGroupActivate {
   startTime: Date;
@@ -192,6 +218,9 @@ interface IRefund {
   amount: string;
   createdAt: Date;
   reason: string;
+  cancelledBy: {
+    role: string;
+  };
 }
 interface INewStudentCreate {
   fullName: string;
@@ -503,6 +532,7 @@ interface IRoomQuery {
 }
 interface ICertificateResponse extends IDefaultResponse {
   students: ICertificateStudents[];
+  totalCount: number;
 }
 interface IReceptionResponse {
   receptions: IUserProfile[];

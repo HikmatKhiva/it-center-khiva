@@ -6,7 +6,17 @@ import { selectUser } from "@/lib/redux/reducer/admin";
 import { downloadGroupCertificate } from "@/api/api";
 import { memo } from "react";
 const DownloadCertificate = memo(
-  ({ id, name }: { id: number; name: string }) => {
+  ({
+    id,
+    name,
+    opened,
+    close,
+  }: {
+    id: number;
+    name: string;
+    opened: boolean;
+    close: () => void;
+  }) => {
     const admin = useAppSelector(selectUser);
     const { mutateAsync, isPending } = useMutation({
       mutationFn: (id: number) =>
@@ -28,6 +38,6 @@ const DownloadCertificate = memo(
         </Button>
       </>
     );
-  }
+  },
 );
 export default DownloadCertificate;

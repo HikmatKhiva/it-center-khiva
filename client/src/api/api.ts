@@ -130,3 +130,44 @@ export async function downloadContract(
     throw new Error(errorMessage);
   }
 }
+
+// download groups  certificate
+export async function downloadGroupContract(
+  id: number,
+  token: string,
+  name: string
+) {
+  try {
+    const response = await fetch(
+      `${API_URL}/contracts/${id}`,
+      {
+        method: "GET",
+        headers: {
+          authorization: `Bearer ${token}`,
+        },
+      }
+    );
+    if (!response.ok) {
+      // Handle non-2xx responses (e.g., 404, 500)
+      const { message } = await response.json(); // Or response.json() if the server sends JSON errors
+      throw new Error(`${message}`);
+    }
+    const blob = await response.blob(); // Get the response as a Blob
+    const contentDisposition = response.headers.get("content-disposition");
+    let filename = `${name}.zip`; // Default filename
+
+    if (contentDisposition) {
+      const filenameMatch = contentDisposition.match(/filename="?([^"]*)"?/);
+      if (filenameMatch && filenameMatch.length > 1) {
+        filename = filenameMatch[1];
+      }
+    }
+    saveAs(blob, filename); // Trigger the download
+    return { success: true }; // Indicate successful download (optional)
+  } catch (error: unknown) {
+    const errorMessage =
+      error instanceof Error ? error.message : "An unexpected error occurred.";
+    customErrorNotification(errorMessage || "try again!");
+    throw new Error(errorMessage);
+  }
+}

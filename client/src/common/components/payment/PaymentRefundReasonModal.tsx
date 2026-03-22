@@ -3,7 +3,15 @@ import { useAppSelector } from "@/hooks/redux";
 import { selectUser } from "@/lib/redux/reducer/admin";
 import { IRefund } from "@/types";
 import { formatTime } from "@/utils/helper";
-import { Badge, Modal, NumberInput, Text, Textarea } from "@mantine/core";
+import {
+  Badge,
+  Group,
+  Modal,
+  NumberInput,
+  Stack,
+  Text,
+  Textarea,
+} from "@mantine/core";
 import { useQuery } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 const PaymentRefundReasonModal = ({
@@ -37,12 +45,24 @@ const PaymentRefundReasonModal = ({
   return (
     <>
       <Modal opened={opened} onClose={close}>
-        <Text fw={500} className="text-center" mb={20}>
-          Bekor qilingan sana:{" "}
-          <Badge hidden={!data?.createdAt} component="span">
-            {data?.createdAt ? formatTime.DateTimeHours(data?.createdAt) : ""}
-          </Badge>
-        </Text>
+        <Stack align="center" mb={20}>
+          <Group gap="5" align="end">
+            <Text fw={500} className="text-center">
+              Kim tomonidan bekor qilingan:
+            </Text>
+            <Badge component="span" color="red">
+              {String(data?.cancelledBy?.role)}
+            </Badge>
+          </Group>
+          <Group align="end" gap="5">
+            <Text fw={500} className="text-center">
+              Bekor qilingan sana:
+            </Text>
+            <Badge hidden={!data?.createdAt} component="span">
+              {data?.createdAt ? formatTime.DateTimeHours(data?.createdAt) : ""}
+            </Badge>
+          </Group>
+        </Stack>
         <form>
           <NumberInput
             value={values.amount}

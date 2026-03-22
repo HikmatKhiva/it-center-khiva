@@ -18,6 +18,6 @@ adminRoutes.get(
   downloadGroupCertificateZip
 );
 adminRoutes.post("/upload-image", upload.single("image"), uploadImage);
-adminRoutes.put("/update", updateProfile);
+adminRoutes.put("/profile/update", updateProfile);
 adminRoutes.get("/profile/:id", userProfile);
 adminRoutes.delete("/photo-delete", deleteImage);

@@ -32,7 +32,7 @@ import {
 import { userLoginSchema, userVerifySchema } from "./admin/admin.validation.js";
 import { messageSchema } from "./messages/message.validation.js";
 import { newStudentSchema } from "./newStudents/newStudent.validation.js";
-import { getContract, getGuarantor } from "./students/students.controller.js";
+import { downloadAllContracts, getContract, getGuarantor } from "./students/students.controller.js";
 export const V1Routes = Router();
 // without admin middleware routes
 V1Routes.post("/newStudents/add", validate(newStudentSchema), addNewStudent);
@@ -61,5 +61,6 @@ V1Routes.use("/room", middlewareAdmin, roomRoutes);
 V1Routes.use("/receipt", middlewareAdmin, receiptRoutes);
 V1Routes.get("/guarantor/:passportId", middlewareAdmin, getGuarantor);
 V1Routes.get("/contract/:id", getContract);
+V1Routes.get("/contracts/:id", downloadAllContracts);
 // HACK: this is feature stopped
 // V1Routes.use("/metrics", metricsRoute);

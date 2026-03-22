@@ -123,22 +123,16 @@ export async function getTeacherMonthlyReport(teacherId, year, month) {
   }
 }
 export async function calculateAllTeachersSalaries(filterYear, filterMonth) {
-  console.log(filterMonth, "filterMonth");
-  // console.log(filterYear);
-
   try {
     const now = new Date();
     const year = parseInt(filterYear, 10) || now.getFullYear();
     const month = parseInt(filterMonth, 10) || now.getMonth() + 1;
-    console.log(month);
-
     if (typeof year !== "number" || year < 0) {
       throw new Error("Invalid year");
     }
     if (typeof month !== "number" || month < 1 || month > 12) {
       throw new Error("Invalid month");
     }
-
     const teachers = await prisma.teacher.findMany({
       select: { id: true, firstName: true, secondName: true },
       // where: {
@@ -175,7 +169,7 @@ export async function calculateIncomeForYear(filterYear) {
         Students: {
           select: {
             id: true,
-            discount: true, // Include discount for calculation
+            discount: true, 
             Payments: {
               where: {
                 isRefunded: false,
@@ -195,8 +189,6 @@ export async function calculateIncomeForYear(filterYear) {
       const startOfMonth = new Date(year, month, 1, 0, 0, 0, 0);
       const endOfMonth = new Date(year, month + 1, 0, 23, 59, 59, 999);
       const currentMonth = new Date(year, month, 1);
-
-      // FIXED: Calculate expected income with student discounts applied
       const expectedIncome = activeGroups.reduce((acc, group) => {
         const groupStart = new Date(group.createdAt);
         const duration = Number(group.duration) || 0;
@@ -218,9 +210,8 @@ export async function calculateIncomeForYear(filterYear) {
 
         if (!isGroupActiveThisMonth) return acc;
 
-        // Calculate per-student expected payment with discounts
         const monthlyIncome = group.Students.reduce((groupTotal, student) => {
-          const discountFactor = 1 - Number(student.discount) / 100; // Assumes discount is percentage
+          const discountFactor = 1 - Number(student.discount) / 100; 
           const studentMonthlyPrice = Number(group.price) * discountFactor;
           return groupTotal + studentMonthlyPrice;
         }, 0);
@@ -240,7 +231,6 @@ export async function calculateIncomeForYear(filterYear) {
           refunds: true,
         },
       });
-
       const paidThisMonth = paymentsThisMonth.reduce((total, payment) => {
         const refundedAmount = payment.refunds.reduce(
           (sum, refund) => sum + Number(refund.amount),
@@ -248,7 +238,6 @@ export async function calculateIncomeForYear(filterYear) {
         );
         return total + (Number(payment.amount) - refundedAmount);
       }, 0);
-
       const percentage =
         expectedIncome > 0
           ? Math.floor((paidThisMonth / expectedIncome) * 100)
@@ -264,7 +253,6 @@ export async function calculateIncomeForYear(filterYear) {
         percentage,
       });
     }
-
     return results;
   } catch (error) {
     console.error("Error calculating income:", error);
@@ -512,16 +500,12 @@ export async function calculateStats(filterYear) {
       // totalPendingStudent
     };
   } catch (error) {
-    console.log(error);
-
     throw error;
   }
 }
 function getMonthName(year, month) {
   const now = new Date();
-  // If year/month are not provided, use current year/month
   const y = typeof year === "number" ? year : now.getFullYear();
-  // `month` expected as 1–12; convert to 0–11; if not given, use current month (0–11)
   const m = typeof month === "number" ? month - 1 : now.getMonth();
   const date = new Date(y, m, 1);
   return date.toLocaleString("default", {

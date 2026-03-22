@@ -35,6 +35,6 @@ groupRoutes.delete("/delete/:id", checkRole, deleteGroup);
 groupRoutes.put(
   "/activate/:id",
   checkRole,
-  validate(groupActivateSchema),
+  // validate(groupActivateSchema),
   activateGroup,
 );

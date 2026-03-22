@@ -1,6 +1,6 @@
 import { Prisma } from "@prisma/client";
 import { prisma } from "../../app.js";
-import { formatterGroups, calculateDebt } from "./group.helper.js";
+import { formatterGroups } from "./group.helper.js";
 // getAll groups
 const getAllGroup = async (req, res) => {
   try {
@@ -81,6 +81,12 @@ const createGroup = async (req, res, next) => {
     if (duration > 13) {
       return res.status(400).json({ message: "Oy xato kiritildi." });
     }
+    const group = await prisma.group.findUnique({
+      where: { name },
+    });
+    if (group) {
+      return res.status(400).json({ message: "Guruh nomi bazada mavjud!" });
+    }
     await prisma.group.create({
       data: {
         teacherId: parseInt(teacherId, 10),
@@ -134,20 +140,10 @@ const updateGroup = async (req, res, next) => {
 const getGroup = async (req, res) => {
   try {
     const { id } = req.params;
+    const { limit = 10, page = 1, name } = req.query;
     const group = await prisma.group.findUnique({
-      where: {
-        id: parseInt(id),
-      },
-      select: {
-        id: true,
-        name: true,
-        isActive: true,
-        startTime: true,
-        duration: true,
-        finishedDate: true,
-        Students: true,
-        price: true,
-        createdAt: true,
+      where: { id: parseInt(id) },
+      include: {
         teacher: {
           select: {
             id: true,
@@ -163,14 +159,29 @@ const getGroup = async (req, res) => {
           },
         },
         schedules: true,
+        Students: {
+          where: name
+            ? { firstName: { contains: name, mode: "insensitive" } }
+            : {},
+          skip: (parseInt(page) - 1) * parseInt(limit),
+          take: parseInt(limit),
+        },
       },
     });
     if (!group) {
       return res.status(404).json({ message: "Guruh topilmadi." });
     }
-    return res.status(200).json(group);
+    const totalStudents = await prisma.student.count({
+      where: {
+        groupId: parseInt(id),
+        ...(name ? { firstName: { contains: name, mode: "insensitive" } } : {}),
+      },
+    });
+    return res.status(200).json({
+      ...group,
+      totalPages: Math.ceil(totalStudents / limit),
+    });
   } catch (error) {
-    console.log(error);
     return res.status(500).json({ error });
   }
 };
@@ -270,7 +281,7 @@ const activateGroup = async (req, res, next) => {
         where: { id: groupId },
         data: {
           isActive: "ACTIVE",
-          startTime: startTime,
+          startTime: new Date(startTime),
           finishedDate: finishedDate,
         },
       });
@@ -287,7 +298,7 @@ const activateGroup = async (req, res, next) => {
           data: {
             debt,
             debtStatus: "ACTIVE",
-            createdAt: startTime,
+            createdAt: new Date(startTime),
             finishedDate: finishedDate,
           },
         });

@@ -3,6 +3,7 @@ import { useAppSelector } from "@/hooks/redux";
 import { selectUser } from "@/lib/redux/reducer/admin";
 import { useState } from "react";
 import {
+  Badge,
   Group,
   Pagination,
   Select,
@@ -15,13 +16,14 @@ import CertificateTable from "@/common/components/CertificateTable";
 import { Server } from "@/api/api";
 import { ICertificateResponse } from "@/types";
 import { currentYearQuery, years } from "@/config";
+import { NumberTicker } from "@/animation/number-ticker";
 const CertificatePage = () => {
   const admin = useAppSelector(selectUser);
   const [query, setQuery] = useState({
     name: "",
     passportId: "",
     page: 1,
-    limit: 10,
+    limit: 12,
     year: currentYearQuery || "",
   });
   const params = new URLSearchParams({
@@ -51,8 +53,14 @@ const CertificatePage = () => {
   return (
     <section>
       <Group mb="10" justify="space-between" align="center">
-        <Group>
+        <Group align="center">
           <Text size="xl">Tayor Sertificatlar</Text>
+          <Badge color="grape" size="md">
+            <NumberTicker
+              className="text-white"
+              value={Number(data?.totalCount) || 0}
+            />
+          </Badge>
           <GraduationCap />
         </Group>
         <Group>

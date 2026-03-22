@@ -167,6 +167,8 @@ const uploadImage = async (req, res, next) => {
 };
 const updateProfile = async (req, res, next) => {
   try {
+    console.log(req);
+    
     const { username, secret, password, id } = req.body;
     const find = await prisma.admin.findUnique({
       where: {

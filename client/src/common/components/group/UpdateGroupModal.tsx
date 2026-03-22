@@ -1,7 +1,5 @@
-import { ActionIcon, Button, Grid, Modal, Select, Stack } from "@mantine/core";
-import { useDisclosure } from "@mantine/hooks";
-import { PenIcon } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
+import { Button, Grid, Modal, Select, Stack } from "@mantine/core";
+import { memo, useCallback, useEffect, useRef, useState } from "react";
 import { useAppSelector } from "@/hooks/redux";
 import { selectUser } from "@/lib/redux/reducer/admin";
 import {
@@ -22,11 +20,18 @@ import {
   IUpdateGroup,
 } from "@/types";
 import { weekType } from "@/config";
-const UpdateGroupModal = ({ id }: { id: number }) => {
+const UpdateGroupModal = ({
+  id,
+  opened,
+  close,
+}: {
+  id: number;
+  opened: boolean;
+  close: () => void;
+}) => {
   const admin = useAppSelector(selectUser);
   const idNotification = useRef<string>("");
-  const [opened, { open, close }] = useDisclosure(false);
-  const { loading, teachers, rooms } = useFormData();
+  const { loading, teachers, rooms } = useFormData(opened);
   const client = useQueryClient();
   const { data } = useQuery({
     queryKey: ["group", id],
@@ -40,7 +45,7 @@ const UpdateGroupModal = ({ id }: { id: number }) => {
         });
       }
     },
-    enabled: !!id && !!admin?.token,
+    enabled: !!id && !!admin?.token && opened,
   });
   const form = useForm({
     initialValues: {
@@ -58,15 +63,15 @@ const UpdateGroupModal = ({ id }: { id: number }) => {
       form.setFieldValue("teacherId", data?.teacher?.id.toString() || "");
       form.setFieldValue(
         "schedules.weekType",
-        data?.schedules[0]?.weekType || ""
+        data?.schedules[0]?.weekType || "",
       );
       form.setFieldValue("schedules.time", data?.schedules[0]?.time || "");
       form.setFieldValue(
         "schedules.roomId",
-        data?.schedules[0]?.roomId.toString()
+        data?.schedules[0]?.roomId.toString(),
       );
     }
-  }, [data]);
+  }, [data, opened]);
   const { isPending, mutateAsync } = useMutation({
     mutationFn: (data: IUpdateGroup) =>
       Server<IMessageResponse>(`group/update/${id}`, {
@@ -89,34 +94,30 @@ const UpdateGroupModal = ({ id }: { id: number }) => {
     idNotification.current = createNotification(isPending);
     mutateAsync(group);
   };
-  useEffect(() => {
-    const { roomId, weekType } = form.values.schedules;
+  const fetchRoomData = useCallback(async () => {
+    if (
+      !form.values.schedules.roomId ||
+      (!form.values.schedules.weekType && opened)
+    )
+      return;
+
     const params = new URLSearchParams({
-      weekType: weekType,
+      weekType: form.values.schedules.weekType,
     });
-    if (roomId && weekType) {
-      const fetchRoomData = async () => {
-        const request = await Server<ISlotsResponse>(
-          `room/time/${roomId}?=${params}`,
-          {
-            method: "GET",
-          }
-        );
-        if (request?.slots) {
-          setSlots(request.slots);
-        } else {
-          setSlots(null);
-        }
-      };
-      fetchRoomData();
-    }
-  }, [form.values.schedules.roomId, form.values.schedules.weekType]);
+    const request = await Server<ISlotsResponse>(
+      `room/time/${form.values.schedules.roomId}?${params}`,
+      {
+        method: "GET",
+      },
+    );
+    setSlots(request?.slots ?? null);
+  }, [form.values.schedules.roomId, form.values.schedules.weekType, opened]);
+  useEffect(() => {
+    fetchRoomData();
+  }, [fetchRoomData]);
   const [slots, setSlots] = useState<null | ISelect[]>(null);
   return (
     <>
-      <ActionIcon onClick={open}>
-        <PenIcon size="16" />
-      </ActionIcon>
       <Modal opened={opened} onClose={close} title="Guruh yangilash">
         <form onSubmit={form.onSubmit(handleSubmit)}>
           <Stack>
@@ -169,4 +170,4 @@ const UpdateGroupModal = ({ id }: { id: number }) => {
     </>
   );
 };
-export default UpdateGroupModal;
+export default memo(UpdateGroupModal);

@@ -10,18 +10,19 @@ import {
 import { Button, Group, Modal, Text } from "@mantine/core";
 import { DateInput } from "@mantine/dates";
 import { useForm } from "@mantine/form";
-import { useDisclosure } from "@mantine/hooks";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { Play } from "lucide-react";
 import { useRef } from "react";
 const ActivateGroupModal = ({
   duration,
   id,
+  opened,
+  close,
 }: {
   duration: number;
   id: number;
+  opened: boolean;
+  close: () => void;
 }) => {
-  const [opened, { open, close }] = useDisclosure(false);
   const admin = useAppSelector(selectUser);
   const idNotification = useRef<string>("");
   const client = useQueryClient();
@@ -71,15 +72,6 @@ const ActivateGroupModal = ({
   };
   return (
     <>
-      <Button
-        onClick={open}
-        color="grape"
-        variant="outline"
-        fz="xs"
-        rightSection={<Play size={16} />}
-      >
-        Guruhni faollashtirish
-      </Button>
       <Modal centered opened={opened} onClose={close}>
         <Text ta="center">Guruh davomiyligi {duration} oy</Text>
         <form onSubmit={form.onSubmit(handleSubmit)}>

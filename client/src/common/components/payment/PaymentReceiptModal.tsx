@@ -48,8 +48,6 @@ const PaymentReceiptModal = ({
   const handleCopy = () => {
     clipboard.copy(qrUrl);
   };
-  console.log(data?.cancelledAt);
-
   return (
     <>
       <Modal opened={opened} onClose={close} w={300}>

@@ -46,7 +46,7 @@ const CreateGroupModal = () => {
     if (roomId && weekType) {
       const fetchRoomData = async () => {
         const request = await Server<ISlotsResponse>(
-          `room/time/${roomId}?=${params}`,
+          `room/time/${roomId}?${params}`,
           {
             method: "GET",
           },

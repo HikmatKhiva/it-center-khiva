@@ -15,7 +15,6 @@ const getPayments = async (req, res) => {
       },
       include: {
         refunds: true,
-        // FIXME: add to who created this payment test mode
         createdBy: {
           select: {
             username: true,
@@ -76,18 +75,18 @@ const getPayments = async (req, res) => {
 const uploadPayment = async (req, res, next) => {
   try {
     const { studentId, amount, paymentDate } = req.body;
-    // const username = req.admin.username;
-    // const find = await prisma.admin.findUnique({
-    //   where: {
-    //     username,
-    //   },
-    // });
-    // if (!find) {
-    //   return res.status(400).json({ message: "Hisob topilmadi!" });
-    // }
-    // if (!find.isActive && find.role === "RECEPTION") {
-    //   return res.status(400).json({ message: "Sizda Ruxsat yo'q!" });
-    // }
+    const username = req.admin.username;
+    const find = await prisma.admin.findUnique({
+      where: {
+        username,
+      },
+    });
+    if (!find) {
+      return res.status(400).json({ message: "Hisob topilmadi!" });
+    }
+    if (!find.isActive && find.role === "RECEPTION") {
+      return res.status(400).json({ message: "Sizda Ruxsat yo'q!" });
+    }
     const student = await prisma.student.findUnique({
       where: {
         id: parseInt(studentId),
@@ -120,7 +119,7 @@ const uploadPayment = async (req, res, next) => {
           amount: parseInt(amount),
           studentId: parseInt(studentId),
           createdAt: new Date(paymentDate),
-          createdById: 1,
+          createdById: find?.id,
         },
       });
       // 3. Create receipt
@@ -142,6 +141,18 @@ const uploadPayment = async (req, res, next) => {
 };
 const paymentRefund = async (req, res, next) => {
   try {
+    const admin = req.admin;
+    const find = await prisma.admin.findUnique({
+      where: {
+        username: admin.username,
+      },
+    });
+    if (!find) {
+      return res.status(400).json({ message: "Hisob topilmadi!" });
+    }
+    if (!find.isActive && find.role === "RECEPTION") {
+      return res.status(400).json({ message: "Sizda Ruxsat yo'q!" });
+    }
     const { paymentId } = req.params;
     const { reason, amount } = req.body;
     const parsedPaymentId = parseInt(paymentId, 10);
@@ -190,7 +201,7 @@ const paymentRefund = async (req, res, next) => {
           reason,
           amount: amount,
           paymentId: parsedPaymentId,
-          cancelledById: 1,
+          cancelledById: find?.id,
         },
       }),
     ]);
@@ -207,6 +218,13 @@ const getRefund = async (req, res) => {
     const refund = await prisma.refund.findFirst({
       where: {
         paymentId: parseInt(paymentId, 10),
+      },
+      include: {
+        cancelledBy: {
+          select: {
+            role: true,
+          },
+        },
       },
     });
     if (!refund) {

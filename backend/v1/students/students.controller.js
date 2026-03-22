@@ -1,6 +1,16 @@
 import { prisma } from "../../app.js";
 import { generateContract } from "../../utils/generateContract.js";
-import { dataConverter, generateStudentCode } from "./students.helper.js";
+import {
+  dataConverter,
+  generateStudentCode,
+  studentsConverter,
+} from "./students.helper.js";
+import path from "path";
+import fs from "fs";
+import { zipFolder } from "../../utils/zipFolder.js";
+import { promisify } from "util";
+const unlinkAsync = promisify(fs.unlink); // Promisify fs.unlink for async/await
+const __dirname = path.resolve();
 // get all students
 const getAllStudents = async (req, res) => {
   try {
@@ -44,6 +54,7 @@ const getAllStudents = async (req, res) => {
         code: true,
         passportId: true,
         finishedDate: true,
+        debt: true,
         guarantor: true,
         Group: {
           select: {
@@ -66,7 +77,6 @@ const getAllStudents = async (req, res) => {
       skip: (page - 1) * limit,
       take: parseInt(limit),
     });
-
     const totalCount = await prisma.student.count({
       where: {
         firstName: {
@@ -87,8 +97,6 @@ const getAllStudents = async (req, res) => {
     const totalPages = Math.ceil(totalCount / limit);
     return res.status(200).json({ students, totalPages });
   } catch (error) {
-    console.log(error);
-
     return res.status(500).json({ error });
   }
 };
@@ -121,8 +129,6 @@ const getGroupStudents = async (req, res) => {
     const totalPages = Math.ceil(totalCount / limit);
     return res.status(200).json({ students, totalPages });
   } catch (error) {
-    console.log(error);
-
     return res.status(500).json({ error });
   }
 };
@@ -341,10 +347,7 @@ const getContract = async (req, res) => {
       return res.status(404).json({ message: "O'quvchi mavjud emas!" });
     }
     const data = dataConverter(student);
-    // ✅ generate DOCX buffer
     const docxBuffer = await generateContract(data);
-
-    // ❗ IMPORTANT: send file instead of JSON
     res.setHeader(
       "Content-Type",
       "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
@@ -355,7 +358,86 @@ const getContract = async (req, res) => {
     );
     return res.send(docxBuffer);
   } catch (error) {
-    console.log(error);
+    res.status(500).json({ error });
+  }
+};
+const downloadAllContracts = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const students = await prisma.student.findMany({
+      where: {
+        Group: {
+          id: parseInt(id),
+          isActive: {
+            in: ["ACTIVE", "FINISHED"],
+          },
+        },
+      },
+      include: {
+        Group: {
+          select: {
+            name: true,
+            price: true,
+            duration: true,
+            startTime: true,
+            finishedDate: true,
+          },
+        },
+        course: {
+          select: {
+            name: true,
+          },
+        },
+        guarantor: true,
+      },
+    });
+    if (students.length === 0) {
+      return res.status(404).json({ message: "O'quvchilar yo'q!" });
+    }
+    const groupName = students[0]?.Group?.name;
+    const data = studentsConverter(students);
+    const tempPath = path.join(__dirname, "temp");
+    if (!fs.existsSync(tempPath)) {
+      fs.mkdirSync(tempPath, { recursive: true });
+    }
+    const contractsDir = path.join(tempPath, groupName);
+    if (!fs.existsSync(contractsDir)) {
+      fs.mkdirSync(contractsDir, { recursive: true });
+    }
+    for (const student of data) {
+      const certPath = path.join(
+        contractsDir,
+        `${student.fullName}_contract.docx`,
+      );
+      const docxBuffer = await generateContract(student);
+      fs.writeFileSync(certPath, docxBuffer);
+    }
+    await zipFolder(contractsDir, groupName);
+    const zipFilePath = path.join(__dirname, "temp", `${groupName}.zip`);
+    const fileStream = fs.createReadStream(zipFilePath);
+    res.set("Content-Disposition", `attachment; filename="${groupName}.zip"`);
+    res.set("Content-Type", "application/zip");
+    res.status(200);
+    fileStream.pipe(res);
+    fileStream.on("end", async () => {
+      try {
+        await unlinkAsync(zipFilePath);
+        fs.rmSync(contractsDir, { recursive: true, force: true });
+        console.log("Temporary files deleted.");
+        console.log(`Successfully deleted ${zipFilePath}`);
+      } catch (unlinkError) {
+        const sanitizedPath = validator.escape(zipFilePath);
+        console.error(`Error deleting ${sanitizedPath}:`, unlinkError);
+      }
+    });
+    fileStream.on("error", (streamError) => {
+      console.error("Error streaming file:", streamError);
+      if (!res.headersSent) {
+        res.status(500).send("Error streaming file.");
+      }
+    });
+    return;
+  } catch (error) {
     res.status(500).json({ error });
   }
 };
@@ -382,4 +464,5 @@ export {
   updateStudent,
   getContract,
   getGuarantor,
+  downloadAllContracts,
 };

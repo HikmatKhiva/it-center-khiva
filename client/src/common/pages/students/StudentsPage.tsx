@@ -23,7 +23,7 @@ const StudentsPage = () => {
     name: "",
     passportId: "",
     page: 1,
-    limit: 10,
+    limit: 14,
     year: currentYearQuery || "",
     courseId: "",
   });

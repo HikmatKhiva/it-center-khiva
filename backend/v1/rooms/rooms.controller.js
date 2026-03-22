@@ -96,7 +96,7 @@ const getRoomTime = async (req, res) => {
     const busySlots = await prisma.schedule.findMany({
       where: {
         roomId: room.id,
-        weekType: weekType,
+        weekType: weekType?.toUpperCase(), 
       },
       select: { time: true },
     });

@@ -1,14 +1,10 @@
 import { Outlet, useNavigate } from "react-router-dom";
 import {
-  ActionIcon,
   AppShell,
   Burger,
   Group,
-  Menu,
 } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
-import { motion } from "motion/react";
-import { AdminIcon } from "@/assets";
 import { useAppDispatch } from "@/hooks/redux";
 import { logout } from "@/lib/redux/reducer/admin";
 // import AdminConfigure from "../components/admin/AdminConfigure";
@@ -46,26 +42,8 @@ const Admin = () => {
             <LogoSVG />
           </div>
           <div className="flex items-center gap-4">
-            <ProfileConfigure />
             <ThemeControl />
-            <Menu>
-              <Menu.Target>
-                <ActionIcon variant="default" size="lg">
-                  <motion.img
-                    whileTap={{ scale: [1, 0] }}
-                    transition={{ duration: 0.8, type: "spring" }}
-                    src={AdminIcon}
-                    width={30}
-                    className="object-cover"
-                    alt="icon theme"
-                  />
-                </ActionIcon>
-              </Menu.Target>
-              <Menu.Dropdown>
-                {/* <AdminConfigure /> */}
-                <Menu.Item onClick={handleLogout}>Logout</Menu.Item>
-              </Menu.Dropdown>
-            </Menu>
+            <ProfileConfigure />
           </div>
         </Group>
       </AppShell.Header>

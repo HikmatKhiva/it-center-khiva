@@ -15,8 +15,6 @@ export async function generateReceipt(receipt, baseUrl) {
   const formattedCancelledDate = cancelledAt ? formatDate(cancelledAt) : null;
   try {
     const isCancelled = status === "CANCELLED" && cancelledAt;
-    console.log(isCancelled);
-    
     const pdfDoc = await PDFDocument.create();
     const page = pdfDoc.addPage([250, 400]);
     const { width, height } = page.getSize();

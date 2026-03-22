@@ -7,20 +7,18 @@ export async function middlewareAdmin(req, res, next) {
   if (req.method === "OPTIONS") return next();
   try {
     const token = req?.headers?.authorization?.split(" ")[1]; // token
-    // if (!token) return res.status(401).json({ message: "permission denied" });
-    // const decode = jwt.decode(token, jwtSecret);
-    // if (!decode) return res.status(401).json({ message: "permission denied" });
-    // const user = await prisma.admin.findUnique({
-    //   where: {
-    //     username: decode?.username,
-    //   },
-    // });
-    // if (!user) return res.status(401).json({ message: "permission denied" });
-    // req.admin = decode;
+    if (!token) return res.status(401).json({ message: "permission denied" });
+    const decode = jwt.decode(token, jwtSecret);
+    if (!decode) return res.status(401).json({ message: "permission denied" });
+    const user = await prisma.admin.findUnique({
+      where: {
+        username: decode?.username,
+      },
+    });
+    if (!user) return res.status(401).json({ message: "permission denied" });
+    req.admin = decode;
     next();
   } catch (error) {
-    console.log(error);
-    
     return res.status(500).json({ message: "authorization need" });
   }
 }

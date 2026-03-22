@@ -19,7 +19,7 @@ import { selectUser } from "@/lib/redux/reducer/admin";
 import GroupIdHeader from "@/common/components/group/GroupIdHeader";
 import { Check, Eye, FileDown, RefreshCw } from "lucide-react";
 import { downloadContract, Server } from "@/api/api";
-import { IDefaultQuery, IGroup, IStudentsResponse, IStudent } from "@/types";
+import { IDefaultQuery, IStudent, IGroupResponse } from "@/types";
 import GuarantorModal from "@/common/components/student/GuarantorModal";
 const AdminGroupId = () => {
   const url = `/site/certificate?code`;
@@ -36,11 +36,21 @@ const AdminGroupId = () => {
     [],
   );
   const { id } = useParams();
-  const { data: group } = useQuery({
-    queryKey: ["group", id],
+  const params = new URLSearchParams({
+    name: query.name,
+    page: query.page.toString(),
+    limit: query.limit.toString(),
+    ...(id !== undefined && { groupId: id.toString() }),
+  });
+  const {
+    data: group,
+    isPending,
+    refetch,
+  } = useQuery({
+    queryKey: ["group", id, query.name, query.page],
     queryFn: () => {
       if (id) {
-        return Server<IGroup>(`group/${id}`, {
+        return Server<IGroupResponse>(`group/${id}?${params}`, {
           method: "GET",
           headers: {
             authorization: `Bearer ${admin?.token}`,
@@ -49,23 +59,6 @@ const AdminGroupId = () => {
       }
     },
     enabled: !!id && !!admin?.token,
-  });
-  const params = new URLSearchParams({
-    name: query.name,
-    page: query.page.toString(),
-    limit: query.limit.toString(),
-    ...(id !== undefined && { groupId: id.toString() }),
-  });
-  const { data, isPending, refetch } = useQuery<IStudentsResponse>({
-    queryKey: ["students", query.name, query.page],
-    queryFn: () =>
-      Server<IStudentsResponse>(`students?${params}`, {
-        method: "GET",
-        headers: {
-          authorization: `Bearer ${admin?.token}`,
-        },
-      }),
-    enabled: !!admin?.token && !!group?.id,
   });
   const { mutateAsync } = useMutation({
     mutationFn: ({ id, fullName }: { id: number; fullName: string }) =>
@@ -81,7 +74,7 @@ const AdminGroupId = () => {
   }) => {
     await mutateAsync({ id, fullName });
   };
-  const rows = data?.students?.map((student: IStudent, index: number) => (
+  const rows = group?.Students?.map((student: IStudent, index: number) => (
     <Table.Tr key={student.id}>
       <Table.Td>{index + 1}</Table.Td>
       <Table.Td>{student.firstName}</Table.Td>
@@ -149,7 +142,6 @@ const AdminGroupId = () => {
       </Table.Td>
     </Table.Tr>
   ));
-
   return (
     <section>
       {group && (
@@ -195,9 +187,9 @@ const AdminGroupId = () => {
             value={query.page}
             className="self-end"
             color="indigo"
-            hidden={(data?.totalPages ?? 0) <= 1 || isPending}
+            hidden={(group?.totalPages ?? 0) <= 1 || isPending}
             onChange={(pageNumber) => setQuery({ ...query, page: pageNumber })}
-            total={data?.totalPages || 1}
+            total={group?.totalPages || 1}
           />
         </Group>
       </Stack>
