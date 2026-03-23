@@ -15,7 +15,7 @@ import {
 } from "@mantine/core";
 import { useQuery } from "@tanstack/react-query";
 import { GraduationCap, LoaderCircle, Search } from "lucide-react";
-import  { useState } from "react";
+import { useCallback, useState } from "react";
 const StudentsPage = () => {
   const admin = useAppSelector(selectUser);
   const { courses } = useFormData();
@@ -23,9 +23,10 @@ const StudentsPage = () => {
     name: "",
     passportId: "",
     page: 1,
-    limit: 14,
+    limit: 12,
     year: currentYearQuery || "",
     courseId: "",
+    orderBy: "asc",
   });
   const params = new URLSearchParams({
     name: query.name,
@@ -34,6 +35,7 @@ const StudentsPage = () => {
     year: query.year,
     passportId: query.passportId,
     courseId: query.courseId,
+    orderBy: query.orderBy,
   });
   const { data, isPending } = useQuery<IAllStudentsResponse>({
     queryKey: [
@@ -44,6 +46,7 @@ const StudentsPage = () => {
       query.year,
       query.courseId,
       query.passportId,
+      query.orderBy,
     ],
     queryFn: () =>
       Server<IAllStudentsResponse>(`students/all?${params}`, {
@@ -54,6 +57,12 @@ const StudentsPage = () => {
       }),
     enabled: !!admin?.token,
   });
+  const handleChangeOrder = useCallback(() => {
+    setQuery((prev) => ({
+      ...prev,
+      orderBy: prev.orderBy === "asc" ? "desc" : "asc",
+    }));
+  }, []);
   return (
     <section>
       <Group mb="10" justify="space-between" align="center">
@@ -115,9 +124,9 @@ const StudentsPage = () => {
         </Group>
       </Group>
       <Stack className="h-[calc(100vh_-_140px)]" justify="space-between">
-        <StudentsTable students={data?.students || []} />
+        <StudentsTable handleChangeOrder={handleChangeOrder} students={data?.students || []} />
         <Pagination
-        className="justify-end"
+          className="justify-end"
           value={query.page}
           hidden={(data?.totalPages ?? 0) <= 1 || isPending}
           onChange={(pageNumber) => setQuery({ ...query, page: pageNumber })}

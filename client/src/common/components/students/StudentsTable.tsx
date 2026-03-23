@@ -1,18 +1,30 @@
 import { IStudents } from "@/types";
 import { formatTime } from "@/utils/helper";
-import { ActionIcon, Indicator, Table, Tooltip } from "@mantine/core";
+import {
+  ActionIcon,
+  Group,
+  Indicator,
+  Table,
+  Text,
+  Tooltip,
+} from "@mantine/core";
 import PaymentsHistory from "../payment/PaymentsHistory";
 import GuarantorModal from "../student/GuarantorModal";
 import UploadPayment from "../payment/UploadPayment";
-import { Check } from "lucide-react";
-const StudentsTable = ({ students }: { students: IStudents[] }) => {
+import { ArrowDownUp, Check } from "lucide-react";
+const StudentsTable = ({
+  students,
+  handleChangeOrder,
+}: {
+  students: IStudents[];
+  handleChangeOrder: () => void;
+}) => {
   const rows =
     Array.isArray(students) &&
     students?.map((student: IStudents, index: number) => (
       <Table.Tr key={student.id}>
         <Table.Td>{index + 1}</Table.Td>
         <Table.Td>{`${student.firstName} ${student.secondName}`}</Table.Td>
-        <Table.Td>{student.code}</Table.Td>
         <Table.Td>
           <Tooltip
             label={
@@ -90,8 +102,14 @@ const StudentsTable = ({ students }: { students: IStudents[] }) => {
         <Table.Thead>
           <Table.Tr>
             <Table.Th>N</Table.Th>
-            <Table.Th>O'quvchi</Table.Th>
-            <Table.Th>Code</Table.Th>
+            <Table.Th onClick={handleChangeOrder}>
+              <Group align="center">
+                <Text fw={700} size="sm">
+                  O'quvchi
+                </Text>
+                <ArrowDownUp size={15} />
+              </Group>
+            </Table.Th>
             <Table.Th>Guruh nomi</Table.Th>
             <Table.Th>PassportId</Table.Th>
             <Table.Th>O'qituvchi</Table.Th>

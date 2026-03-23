@@ -90,7 +90,7 @@ const AdminGroupId = () => {
       <Table.Td>{student?.gender === "MALE" ? "Erkak" : "Ayol"}</Table.Td>
       <Table.Td>{id && <UpdateStudentModal student={student} />}</Table.Td>
       <Table.Td>
-        <DeleteStudentModal id={student?.id} />
+        <DeleteStudentModal groupId={student.groupId} id={student?.id} />
       </Table.Td>
       <Table.Td hidden={group?.isActive === "PENDING"}>
         <ActionIcon

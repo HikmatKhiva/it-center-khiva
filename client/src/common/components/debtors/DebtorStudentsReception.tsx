@@ -1,6 +1,7 @@
 import {
   ActionIcon,
   Group,
+  LoadingOverlay,
   Pagination,
   Select,
   Stack,
@@ -11,8 +12,14 @@ import {
 import { useQuery } from "@tanstack/react-query";
 import { useAppSelector } from "@/hooks/redux";
 import { selectUser } from "@/lib/redux/reducer/admin";
-import { Check, LoaderCircle, RefreshCw, Search } from "lucide-react";
-import { useState } from "react";
+import {
+  ArrowDownUp,
+  Check,
+  LoaderCircle,
+  RefreshCw,
+  Search,
+} from "lucide-react";
+import { useCallback, useState } from "react";
 import { formatTime } from "@/utils/helper";
 import PaymentsHistory from "@/common/components/payment/PaymentsHistory";
 import UploadPayment from "@/common/components/payment/UploadPayment";
@@ -27,6 +34,7 @@ const DebtorStudentsReception = () => {
     limit: 16,
     month: (new Date().getMonth() + 1).toString(),
     year: currentYearQuery || "",
+    orderBy: "desc",
   });
   const params = new URLSearchParams({
     name: query.name,
@@ -34,6 +42,7 @@ const DebtorStudentsReception = () => {
     limit: query.limit.toString(),
     month: query.month,
     year: query.year || "",
+    orderBy: query.orderBy,
   });
   const { data, isPending, refetch } = useQuery<IDebtorsResponse>({
     queryFn: () =>
@@ -43,9 +52,22 @@ const DebtorStudentsReception = () => {
           authorization: `Bearer ${user?.token}`,
         },
       }),
-    queryKey: ["debtors", query.name, query.page, query.month, query.year],
+    queryKey: [
+      "debtors",
+      query.name,
+      query.page,
+      query.month,
+      query.year,
+      query.orderBy,
+    ],
     enabled: !!user?.token,
   });
+  const handleChangeOrder = useCallback(() => {
+    setQuery((prev) => ({
+      ...prev,
+      orderBy: prev.orderBy === "asc" ? "desc" : "asc",
+    }));
+  }, []);
   const rows = data?.debtors?.map((student: IDebtor, index: number) => (
     <Table.Tr key={index}>
       <Table.Td>{student.teacherName}</Table.Td>
@@ -111,19 +133,27 @@ const DebtorStudentsReception = () => {
             <Table.Tr>
               <Table.Th>O'qituvchi</Table.Th>
               <Table.Th>Kurs</Table.Th>
-              <Table.Th>Talaba</Table.Th>
+              <Table.Th onClick={handleChangeOrder}>
+                <Group align="center">
+                  <Text fw={700} size="sm">
+                    Talaba
+                  </Text>
+                  <ArrowDownUp size={15} />
+                </Group>
+              </Table.Th>
               <Table.Th>Guruh</Table.Th>
               <Table.Th>Oylik puli</Table.Th>
               <Table.Th>Passport ID</Table.Th>
               <Table.Th>Oxirgi to'lov sanasi</Table.Th>
               <Table.Th>Oxirgi to'lov miqdori</Table.Th>
-              <Table.Th>Dars boshlangan sana.</Table.Th>
+              <Table.Th>Boshlangan sana.</Table.Th>
               <Table.Th>To'lov</Table.Th>
               <Table.Th>To'lov tarixi</Table.Th>
             </Table.Tr>
           </Table.Thead>
           <Table.Tbody>{rows}</Table.Tbody>
         </Table>
+        <LoadingOverlay visible={isPending} />
         <Group justify="space-between">
           <ActionIcon onClick={() => refetch()} size="lg" color="indigo">
             <RefreshCw size="18" />

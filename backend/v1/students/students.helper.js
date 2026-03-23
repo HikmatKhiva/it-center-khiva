@@ -1,13 +1,11 @@
 import { prisma } from "../../app.js";
 export const generateStudentCode = async () => {
   const latest = await prisma.student.findFirst({
-    orderBy: {
-      createdAt: "desc",
-    },
+    orderBy: { id: "desc" }, // change get latest created by id when activate group updated student createdAt ,
+    select: { code: true },
   });
   const currentYear = new Date().getFullYear() % 100; // Get the last two digits of the current year
   const newFirstPart = String(currentYear).padStart(2, "0"); // Ensure it's two digits
-
   if (!latest) return `${newFirstPart}/100-001`; // Initial code if no students exist
 
   const latestCode = latest?.code;
@@ -27,7 +25,6 @@ export const generateStudentCode = async () => {
     return `${newFirstPart}/100-001`;
   }
 };
-
 export const dataConverter = (student) => {
   return {
     fullName: `${student?.firstName} ${student?.secondName}`,

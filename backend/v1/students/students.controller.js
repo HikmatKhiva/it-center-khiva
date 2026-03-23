@@ -14,8 +14,17 @@ const __dirname = path.resolve();
 // get all students
 const getAllStudents = async (req, res) => {
   try {
-    const { limit = 1, page = 1, name, passportId, year, courseId } = req.query;
+    let {
+      limit = 1,
+      page = 1,
+      name,
+      passportId,
+      year,
+      courseId,
+      orderBy,
+    } = req.query;
     const yearFilter = parseInt(year, 10) || new Date().getFullYear();
+    orderBy = orderBy || "asc";
     const students = await prisma.student.findMany({
       where: {
         firstName: {
@@ -45,6 +54,9 @@ const getAllStudents = async (req, res) => {
           gte: new Date(yearFilter, 0, 1),
           lte: new Date(yearFilter, 11, 31, 23, 59, 59, 999),
         },
+      },
+      orderBy: {
+        createdAt: orderBy,
       },
       select: {
         id: true,
@@ -97,6 +109,8 @@ const getAllStudents = async (req, res) => {
     const totalPages = Math.ceil(totalCount / limit);
     return res.status(200).json({ students, totalPages });
   } catch (error) {
+    console.log(error);
+    
     return res.status(500).json({ error });
   }
 };
@@ -215,7 +229,6 @@ const createStudent = async (req, res, next) => {
           phone: guarantor.phone,
         },
       });
-
       guarantorId = g.id;
     }
     await prisma.student.create({

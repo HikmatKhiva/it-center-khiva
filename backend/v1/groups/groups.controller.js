@@ -163,6 +163,9 @@ const getGroup = async (req, res) => {
           where: name
             ? { firstName: { contains: name, mode: "insensitive" } }
             : {},
+          include: {
+            guarantor: true,
+          },
           skip: (parseInt(page) - 1) * parseInt(limit),
           take: parseInt(limit),
         },

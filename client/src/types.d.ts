@@ -524,6 +524,7 @@ interface IDebtorsResponse extends IDefaultResponse {
 interface IDebtorQuery extends IDefaultQuery {
   month: string;
   year: string;
+  orderBy: "asc" | "desc";
 }
 
 interface IRoomQuery {

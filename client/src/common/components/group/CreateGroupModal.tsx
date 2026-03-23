@@ -49,6 +49,9 @@ const CreateGroupModal = () => {
           `room/time/${roomId}?${params}`,
           {
             method: "GET",
+            headers: {
+              authorization: `Bearer ${admin?.token}`,
+            },
           },
         );
         if (request?.slots) {

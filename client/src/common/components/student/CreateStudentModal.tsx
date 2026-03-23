@@ -73,7 +73,7 @@ const CreateStudent = memo(
           },
         }),
       onSuccess: (success) => {
-        client.invalidateQueries({ queryKey: ["students"] });
+        client.invalidateQueries({ queryKey: ["group", String(groupId)] });
         showSuccessNotification(idNotification.current, success?.message);
         close();
         form.reset();
