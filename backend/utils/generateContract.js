@@ -16,10 +16,12 @@ export const generateContract = async (student) => {
   try {
     const startDate = new Date(student.startTime);
     const finishedDate = new Date(student.finishedDate);
+    const docTemplate = student.docType === 'PASSPORT' ? '2-ways-contract_Passport':'2-ways-contract_BirthCertificate'
     const template = fs.readFileSync(
-      path.resolve(__dirname, "template", "docs", "2-ways-contract.docx"),
+      path.resolve(__dirname, "template", "docs", `${docTemplate}.docx`),
       "binary",
     );
+    
     const zip = new Pizzip(template);
     const doc = new DocxTemplater(zip, {
       paragraphLoop: true,
@@ -29,7 +31,13 @@ export const generateContract = async (student) => {
     doc.render({
       startYear: startDate.getFullYear(),
       startMonth: getMonthName(startDate.getMonth() + 1),
-      startDay: startDate.getDay(),
+      startDay: startDate.getDate(),
+
+      finishedYear: finishedDate.getFullYear(),
+      finishedMonth: getMonthName(finishedDate.getMonth() + 1),
+      finishedDay: finishedDate.getDate(),
+      passportId: student?.passportId,
+      phone: student?.phone || '',
 
       fullName: student.fullName,
       courseName: student.courseName,
@@ -43,8 +51,6 @@ export const generateContract = async (student) => {
     });
 
     const buffer = doc.getZip().generate({ type: "nodebuffer" });
-    // const outputFileName = `Contract_${student.fullName}.docx`;
-    // fs.writeFileSync(outputFileName, buffer);
     return buffer;
   } catch (error) {
     throw error;
