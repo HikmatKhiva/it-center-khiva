@@ -35,11 +35,12 @@ const getRoom = async (req, res) => {
     const { id } = req.params;
     const { time, weekType } = req.query;
     const where = {};
-    if (weekType) {
-      where.weekType = { equals: weekType }; // "ODD" or "EVEN"
+    const isValidWeekType = ["ODD", "EVEN"].includes(weekType?.trim());
+    if (isValidWeekType) {
+      where.weekType = { equals: weekType }; 
     }
     if (time) {
-      where.time = { equals: time }; // "T11_00", "T09_00", etc.
+      where.time = { equals: time }; 
     }
     const room = await prisma.room.findUnique({
       where: {
@@ -63,7 +64,7 @@ const getRoom = async (req, res) => {
                 },
                 _count: {
                   select: {
-                    Students: true, // this is the student count
+                    Students: true,
                   },
                 },
               },
@@ -84,7 +85,10 @@ const getRoom = async (req, res) => {
 const getRoomTime = async (req, res) => {
   try {
     const { id } = req.params;
-    const { weekType } = req.query;
+    let { weekType } = req.query;
+    weekType = ["ODD", "EVEN"].includes(weekType?.trim())
+      ? weekType?.trim()
+      : null;
     const room = await prisma.room.findUnique({
       where: {
         id: parseInt(id),
@@ -96,7 +100,7 @@ const getRoomTime = async (req, res) => {
     const busySlots = await prisma.schedule.findMany({
       where: {
         roomId: room.id,
-        weekType: weekType?.toUpperCase(), 
+        ...(weekType && { weekType: weekType?.toUpperCase() }),
       },
       select: { time: true },
     });
@@ -117,6 +121,8 @@ const getRoomTime = async (req, res) => {
     }));
     return res.status(200).json({ slots });
   } catch (error) {
+    console.log(error);
+
     return res.status(500).json({ error });
   }
 };

@@ -22,6 +22,7 @@ import { selectUser } from "@/lib/redux/reducer/admin";
 import { teacherValidate } from "@/validation";
 import { InputMask } from "@react-input/mask";
 import { Server } from "@/api/api";
+import { IMessageResponse, ITeacher, ITeacherForm } from "@/types";
 const UpdateTeacherModal = ({ teacher }: { teacher: ITeacher }) => {
   const admin = useAppSelector(selectUser);
   const idNotification = useRef<string>("");
@@ -58,6 +59,7 @@ const UpdateTeacherModal = ({ teacher }: { teacher: ITeacher }) => {
     validate: teacherValidate,
   });
   const handleSubmit = async (teacher: ITeacherForm) => {
+    idNotification.current = createNotification(isPending);
     const formData = new FormData();
     formData.append("firstName", teacher.firstName);
     formData.append("secondName", teacher.secondName);
@@ -66,7 +68,6 @@ const UpdateTeacherModal = ({ teacher }: { teacher: ITeacher }) => {
       formData.append("image", teacher.image);
     }
     mutateAsync(formData);
-    idNotification.current = createNotification(isPending);
   };
   const setFile = (file: File | null) => {
     form.setFieldValue("image", file);

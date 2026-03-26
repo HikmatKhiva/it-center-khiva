@@ -48,8 +48,8 @@ const RoomCreateModal = () => {
   });
 
   const handleSubmit = async (data: IRoomCreate) => {
-    mutateAsync(data);
     idNotification.current = createNotification(isPending);
+    mutateAsync(data);
   };
   return (
     <>

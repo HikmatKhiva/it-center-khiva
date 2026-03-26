@@ -1,6 +1,7 @@
 import { Server } from "@/api/api";
 import { useAppSelector } from "@/hooks/redux";
 import { selectUser } from "@/lib/redux/reducer/admin";
+import { IMessageResponse, IUserProfile } from "@/types";
 import {
   createNotification,
   showErrorNotification,
@@ -33,11 +34,11 @@ const ReceptionStatusUpdate = ({ profile }: { profile: IUserProfile }) => {
     },
   });
   const handleUpdateStatus = async (profile: IUserProfile) => {
+    idNotification.current = createNotification(isPending);
     await mutateAsync({
       username: profile.username,
       isActive: !profile.isActive,
     });
-    idNotification.current = createNotification(isPending);
   };
   return (
     <>

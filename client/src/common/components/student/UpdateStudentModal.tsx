@@ -21,7 +21,7 @@ import {
   createNotification,
   showSuccessNotification,
 } from "@/utils/notification";
-import { Pencil, UserRoundPen } from "lucide-react";
+import {  UserRoundPen } from "lucide-react";
 import { Server } from "@/api/api";
 import { IStudent, IMessageResponse, IGuarantor } from "@/types";
 const UpdateStudentModal = memo(({ student }: { student: IStudent }) => {
@@ -62,12 +62,12 @@ const UpdateStudentModal = memo(({ student }: { student: IStudent }) => {
     } as IStudent,
   });
   const handleSubmit = async (data: IStudent) => {
-    mutateAsync(data);
     idNotification.current = createNotification(isPending);
+    mutateAsync(data);
   };
   const passport = form.values.guarantor.passportId;
 
-  const { data: guarantor, isLoading } = useQuery<IGuarantor>({
+  const { data: guarantor } = useQuery<IGuarantor>({
     queryKey: ["guarantor", passport],
     queryFn: () =>
       Server(`/guarantor/${passport}`, {

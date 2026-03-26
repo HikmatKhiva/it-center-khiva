@@ -14,7 +14,7 @@ import {
 } from "@mantine/core";
 import { useClipboard } from "@mantine/hooks";
 import { useQuery } from "@tanstack/react-query";
-import { Clipboard } from "lucide-react";
+import { CheckCheck, Clipboard } from "lucide-react";
 // import { useRef } from "react";
 import QRCode from "react-qr-code";
 // import { useReactToPrint } from "react-to-print";
@@ -93,11 +93,15 @@ const PaymentReceiptModal = ({
         <ActionIcon.Group className="justify-end" mt={10}>
           <ActionIcon
             onClick={handleCopy}
-            color="grape"
+            color={clipboard.copied ? "teal" : "grape"}
             aria-label="copy"
             size="input-sm"
           >
-            <Clipboard size={16} />
+            {clipboard.copied ? (
+              <CheckCheck size={16} />
+            ) : (
+              <Clipboard size={16} />
+            )}
           </ActionIcon>
         </ActionIcon.Group>
       </Modal>

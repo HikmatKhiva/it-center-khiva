@@ -14,7 +14,7 @@ adminRoutes.get("/messages", checkRole, getMessages);
 adminRoutes.delete("/messages/:id", checkRole, deleteMessage);
 adminRoutes.get(
   "/download/certificate/:id",
-  checkRole,
+  // checkRole,
   downloadGroupCertificateZip
 );
 adminRoutes.post("/upload-image", upload.single("image"), uploadImage);

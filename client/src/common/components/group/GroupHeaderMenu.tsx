@@ -49,7 +49,7 @@ const GroupHeaderMenu = ({ group }: { group: IGroup }) => {
         </Menu.Target>
         <Menu.Dropdown>
           <Menu.Item
-            disabled={group?.isActive === "FINISHED" && !group}
+            disabled={group?.isActive === "FINISHED" || !group}
             onClick={() => setModalCreateStudent(true)}
             rightSection={<UserRound size="16" />}
           >

@@ -21,20 +21,24 @@ groupRoutes.get("/:id", getGroup);
 groupRoutes.post(
   "/create",
   validate(groupCreateSchema),
-  checkRole,
+  // checkRole,
   createGroup,
 );
 groupRoutes.put(
   "/update/:id",
   validate(groupUpdateSchema),
-  checkRole,
+  // checkRole,
   updateGroup,
 );
-groupRoutes.patch("/finish/:id", checkRole, finishGroup);
+groupRoutes.patch(
+  "/finish/:id",
+  //  checkRole,
+  finishGroup,
+);
 groupRoutes.delete("/delete/:id", checkRole, deleteGroup);
 groupRoutes.put(
   "/activate/:id",
   checkRole,
-  // validate(groupActivateSchema),
+  validate(groupActivateSchema),
   activateGroup,
 );

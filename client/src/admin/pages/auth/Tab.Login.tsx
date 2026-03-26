@@ -9,6 +9,7 @@ import {
   showSuccessNotification,
 } from "@/utils/notification";
 import { Server } from "@/api/api";
+import { ILoginResponse, IUserLogin } from "@/types";
 const TabLogin = ({
   nextStep,
   handleLogin,

@@ -22,6 +22,7 @@ import {
 import { teacherValidate } from "@/validation";
 import { InputMask } from "@react-input/mask";
 import { Server } from "@/api/api";
+import { IMessageResponse, ITeacherForm } from "@/types";
 const CreateTeacherModal = () => {
   const admin = useAppSelector(selectUser);
   const idNotification = useRef<string>("");
@@ -57,6 +58,7 @@ const CreateTeacherModal = () => {
     },
   });
   const handleSubmit = async (teacher: ITeacherForm) => {
+    idNotification.current = createNotification(isPending);
     const formData = new FormData();
     formData.append("firstName", teacher.firstName);
     formData.append("secondName", teacher.secondName);
@@ -65,7 +67,6 @@ const CreateTeacherModal = () => {
       formData.append("image", teacher.image); // Append the image file to the FormData
     }
     mutateAsync(formData);
-    idNotification.current = createNotification(isPending);
   };
   const setFile = (file: File | null) => {
     form.setFieldValue("image", file); // Update the form state with the selected file

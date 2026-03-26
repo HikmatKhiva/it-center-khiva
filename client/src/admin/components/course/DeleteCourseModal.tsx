@@ -11,6 +11,7 @@ import {
 } from "@/utils/notification";
 import { selectUser } from "@/lib/redux/reducer/admin";
 import { Server } from "@/api/api";
+import { IMessageResponse } from "@/types";
 const DeleteCourseModal = ({ id }: { id: number }) => {
   const admin = useAppSelector(selectUser);
   const [opened, { open, close }] = useDisclosure(false);

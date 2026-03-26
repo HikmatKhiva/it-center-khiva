@@ -36,8 +36,8 @@ const DeleteStudentModal = memo(
       },
     });
     const handleDelete = async () => {
-      await mutateAsync();
       idNotification.current = createNotification(isPending);
+      await mutateAsync();
     };
     return (
       <>

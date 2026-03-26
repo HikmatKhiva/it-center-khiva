@@ -108,6 +108,9 @@ const UpdateGroupModal = ({
       `room/time/${form.values.schedules.roomId}?${params}`,
       {
         method: "GET",
+        headers: {
+          authorization: `Bearer ${admin?.token}`,
+        },
       },
     );
     setSlots(request?.slots ?? null);

@@ -1,6 +1,7 @@
 import { useAppDispatch } from "@/hooks/redux";
 import { logout } from "@/lib/redux/reducer/admin";
 import { Button, Group, Modal, Text } from "@mantine/core";
+import { useNavigate } from "react-router-dom";
 const ProfileLogout = ({
   opened = false,
   close,
@@ -9,7 +10,11 @@ const ProfileLogout = ({
   close: () => void;
 }) => {
   const dispatch = useAppDispatch();
-  const handleLogout = () => dispatch(logout());
+  const navigate = useNavigate();
+  const handleLogout = () => {
+    navigate("/");
+    dispatch(logout());
+  };
   return (
     <>
       <Modal centered opened={opened} onClose={close} title="Hisobdan chiqish">

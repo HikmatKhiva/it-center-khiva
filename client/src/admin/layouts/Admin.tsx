@@ -1,25 +1,16 @@
-import { Outlet, useNavigate } from "react-router-dom";
+import { Outlet } from "react-router-dom";
 import {
   AppShell,
   Burger,
   Group,
 } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
-import { useAppDispatch } from "@/hooks/redux";
-import { logout } from "@/lib/redux/reducer/admin";
-// import AdminConfigure from "../components/admin/AdminConfigure";
 import ThemeControl from "@/components/ThemeControl";
 import AdminNavbar from "@/admin/components/AdminNavbar";
 import LogoSVG from "@/motions_components/LogoSVG";
 import ProfileConfigure from "@/common/components/profile/ProfileConfigure";
 const Admin = () => {
-  const dispatch = useAppDispatch();
   const [opened, { toggle, close }] = useDisclosure();
-  const navigate = useNavigate();
-  const handleLogout = () => {
-    navigate("/");
-    dispatch(logout());
-  };
   return (
     <AppShell
       header={{ height: 60 }}

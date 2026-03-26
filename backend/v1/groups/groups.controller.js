@@ -6,7 +6,7 @@ const getAllGroup = async (req, res) => {
   try {
     let { name, isActive, limit = 10, page = 1, year, orderBy } = req.query;
     const yearFilter = parseInt(year, 10) || new Date().getFullYear();
-    orderBy = orderBy || "asc";
+    orderBy = !["desc", "asc"].includes(orderBy) ? "asc" : orderBy;
     isActive = ["PENDING", "ACTIVE", "FINISHED"].includes(isActive)
       ? isActive
       : "ACTIVE";
@@ -113,7 +113,6 @@ const updateGroup = async (req, res, next) => {
   try {
     const { teacherId, schedules } = req.body;
     const { id } = req.params;
-    // Add six months to the current date
     await prisma.group.update({
       where: {
         id: parseInt(id),
@@ -279,7 +278,6 @@ const activateGroup = async (req, res, next) => {
       return res.status(404).json({ message: "Guruh topilmadi." });
     }
     await prisma.$transaction(async (tx) => {
-      // 1️⃣ Activate the group
       const group = await tx.group.update({
         where: { id: groupId },
         data: {
@@ -288,9 +286,7 @@ const activateGroup = async (req, res, next) => {
           finishedDate: finishedDate,
         },
       });
-      // 2️⃣ Fetch students in the group
       const students = await tx.student.findMany({ where: { groupId } });
-      // 3️⃣ Calculate and update debt for each student
       const updates = students.map((student) => {
         const debt =
           parseInt(group.price) *
@@ -306,11 +302,9 @@ const activateGroup = async (req, res, next) => {
           },
         });
       });
-      // Run all updates in parallel inside transaction
       await Promise.all(updates);
       return { group, updatedStudents: students.length };
     });
-
     return res.status(200).json({ message: "Guruh faollashtirildi!" });
   } catch (error) {
     next(error);

@@ -24,6 +24,7 @@ import {
 } from "@/utils/notification";
 import CustomIFrame from "@/admin/extension/CustomIFrame";
 import { Server } from "@/api/api";
+import { IMessageResponse, INewsCard } from "@/types";
 const AdminNewsCreate = () => {
   const admin = useAppSelector(selectUser);
   const [content, setContent] = useState<string>("");
@@ -54,7 +55,7 @@ const AdminNewsCreate = () => {
   });
 
   const handleInputChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
   ) => {
     const { name, value } = e.target;
     setNewsCard((prevState) => ({
@@ -90,6 +91,7 @@ const AdminNewsCreate = () => {
   });
   // editor?.commands.
   const handleSubmit = () => {
+    idNotification.current = createNotification(isPending);
     const formData = new FormData();
     if (newsCard.image) {
       formData.append("image", newsCard.image);
@@ -99,7 +101,6 @@ const AdminNewsCreate = () => {
     formData.append("content", content);
     formData.append("createdAt", createdAt.toISOString());
     mutateAsync(formData);
-    idNotification.current = createNotification(isPending);
   };
   const handleImageUpload = (file: File): Promise<string> => {
     return new Promise((resolve) => {
@@ -132,7 +133,13 @@ const AdminNewsCreate = () => {
         <Group>
           <DateInput
             value={createdAt}
-            onChange={(value) => setCreatedAt((value ?? new Date()) instanceof Date ? value as unknown as Date : new Date())}
+            onChange={(value) =>
+              setCreatedAt(
+                (value ?? new Date()) instanceof Date
+                  ? (value as unknown as Date)
+                  : new Date(),
+              )
+            }
             placeholder="Date input"
           />
           <Button
@@ -189,7 +196,7 @@ const AdminNewsCreate = () => {
                     const file = fileInput.files?.[0];
                     if (file) {
                       const imageUrl = (await handleImageUpload(
-                        file
+                        file,
                       )) as string;
                       if (editor) {
                         editor

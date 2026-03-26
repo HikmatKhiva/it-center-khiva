@@ -3,7 +3,7 @@ import { filterStudents } from "./debtors.helper.js";
 const getAllMonthlyDebtors = async (req, res) => {
   try {
     let { month, limit = 10, page = 1, name, year, orderBy } = req.query;
-    orderBy = orderBy || "asc";
+    orderBy = !["desc", "asc"].includes(orderBy) ? "asc" : orderBy;
     const yearFilter = parseInt(year, 10) || new Date().getFullYear();
     const currentDate = new Date();
     const monthNumber = parseInt(month)
@@ -36,9 +36,9 @@ const getAllMonthlyDebtors = async (req, res) => {
           lte: new Date(yearFilter, 11, 31, 23, 59, 59, 999),
         },
       },
-        orderBy: {
-          createdAt: orderBy,
-        },
+      orderBy: {
+        createdAt: orderBy,
+      },
       select: {
         id: true,
         firstName: true,

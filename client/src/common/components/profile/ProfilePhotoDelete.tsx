@@ -11,6 +11,7 @@ import {
   showSuccessNotification,
 } from "@/utils/notification";
 import { Server } from "@/api/api";
+import { IMessageResponse } from "@/types";
 const ProfilePhotoDelete = ({ photo }: { photo: string | null }) => {
   const [opened, { open, close }] = useDisclosure(false);
   const idNotification = useRef<string>("");
@@ -35,8 +36,8 @@ const ProfilePhotoDelete = ({ photo }: { photo: string | null }) => {
     },
   });
   const handleDeleteImage = async () => {
-    await mutateAsync();
     idNotification.current = createNotification(isPending);
+    await mutateAsync();
   };
   return (
     <>

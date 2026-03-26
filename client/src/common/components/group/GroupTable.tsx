@@ -4,6 +4,8 @@ import DeleteGroupModal from "./DeleteGroupModal";
 import { formatTime } from "@/utils/helper";
 import { ArrowDownUp, List } from "lucide-react";
 import { IGroup } from "@/types";
+import { useAppSelector } from "@/hooks/redux";
+import { selectUser } from "@/lib/redux/reducer/admin";
 const GroupTable = ({
   data,
   isPending,
@@ -14,6 +16,7 @@ const GroupTable = ({
   handleChangeOrder: () => void;
 }) => {
   const location = useLocation();
+  const admin = useAppSelector(selectUser);
   const path = location.pathname.split("/")[1];
   const navigate = useNavigate();
   const rows = data?.map((group: IGroup, index: number) => (
@@ -63,7 +66,9 @@ const GroupTable = ({
       </Table.Td>
       <Table.Td>
         <DeleteGroupModal
-          disabled={group?.isActive === "FINISHED"}
+          disabled={
+            group?.isActive === "FINISHED" || admin?.role !== "ADMIN"
+          }
           id={group.id}
         />
       </Table.Td>
@@ -73,7 +78,7 @@ const GroupTable = ({
     <Table withTableBorder highlightOnHover>
       <Table.Thead>
         <Table.Tr>
-        <Table.Th>N</Table.Th>
+          <Table.Th>N</Table.Th>
           <Table.Th onClick={handleChangeOrder}>
             <Group align="center">
               <Text fw={700} size="sm">
