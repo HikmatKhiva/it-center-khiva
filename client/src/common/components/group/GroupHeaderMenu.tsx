@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { Menu, Button } from "@mantine/core";
 import UpdateGroupModal from "./UpdateGroupModal";
-import { IGroup } from "@/types";
 import CreateStudent from "../student/CreateStudentModal";
 import ActivateGroupModal from "./ActivateGroupModal";
 import { useAppSelector } from "@/hooks/redux";

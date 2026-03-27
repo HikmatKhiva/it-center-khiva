@@ -12,7 +12,6 @@ import { login } from "@/lib/redux/reducer/admin";
 import { useAppDispatch } from "@/hooks/redux";
 import { useNavigate } from "react-router-dom";
 import { Server } from "@/api/api";
-import { I2FAData, I2FAResponse } from "@/types";
 const TabVerify2FA = ({ username }: { username: string }) => {
   const dispatch = useAppDispatch();
   const navigate = useNavigate();

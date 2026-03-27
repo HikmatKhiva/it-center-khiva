@@ -27,7 +27,6 @@ import { selectUser } from "@/lib/redux/reducer/admin";
 import { Server } from "@/api/api";
 import { useDisclosure } from "@mantine/hooks";
 import AddNewStudent from "@/components/contact/AddNewStudent";
-import { IQueryStudent, INewStudentResponse } from "@/types";
 const NewStudents = () => {
   const user = useAppSelector(selectUser);
   const [opened, { open, close }] = useDisclosure(false);

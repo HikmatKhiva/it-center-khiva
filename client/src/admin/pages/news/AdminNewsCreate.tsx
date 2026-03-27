@@ -24,7 +24,6 @@ import {
 } from "@/utils/notification";
 import CustomIFrame from "@/admin/extension/CustomIFrame";
 import { Server } from "@/api/api";
-import { IMessageResponse, INewsCard } from "@/types";
 const AdminNewsCreate = () => {
   const admin = useAppSelector(selectUser);
   const [content, setContent] = useState<string>("");

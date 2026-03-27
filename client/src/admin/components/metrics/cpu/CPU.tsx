@@ -1,6 +1,6 @@
 import { Sparkline } from "@mantine/charts";
 import { Card, Text } from "@mantine/core";
-import React, { useEffect, useState } from "react";
+import  { useEffect, useState } from "react";
 
 const CPU = () => {
   const [data, setData] = useState<number[]>([]);

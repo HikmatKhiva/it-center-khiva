@@ -13,7 +13,6 @@ import { useForm } from "@mantine/form";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useRef } from "react";
 import { Pencil } from "lucide-react";
-import { IRoomCreate, IMessageResponse } from "@/types";
 const RoomCreateModal = () => {
   const [opened, { open, close }] = useDisclosure(false);
   const admin = useAppSelector(selectUser);

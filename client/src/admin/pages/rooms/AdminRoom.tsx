@@ -7,7 +7,6 @@ import { useAppSelector } from "@/hooks/redux";
 import { selectUser } from "@/lib/redux/reducer/admin";
 import { useQuery } from "@tanstack/react-query";
 import { Server } from "@/api/api";
-import { RoomsQueryResponse } from "@/types";
 const AdminRoom = () => {
   const admin = useAppSelector(selectUser);
   const [query, setQuery] = useState({

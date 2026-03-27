@@ -10,7 +10,7 @@ import { useQuery } from "@tanstack/react-query";
 import { selectUser } from "@/lib/redux/reducer/admin";
 import { useAppSelector } from "@/hooks/redux";
 import { Server } from "@/api/api";
-import { ICourse } from "@/types";
+// import { ICourse } from "@/types";
 const CourseCertificateDemo = memo(
   ({ id, teacherFullName }: { id: number; teacherFullName: string }) => {
     const admin = useAppSelector(selectUser);

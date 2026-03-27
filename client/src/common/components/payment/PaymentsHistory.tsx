@@ -17,7 +17,6 @@ import { useAppSelector } from "@/hooks/redux";
 import { selectUser } from "@/lib/redux/reducer/admin";
 import { Server } from "@/api/api";
 import PaymentMonthly from "./PaymentMonthly";
-import { IPaymentsResponse } from "@/types";
 const PaymentsHistory = ({ id }: { id: number }) => {
   const admin = useAppSelector(selectUser);
   const [opened, { open, close }] = useDisclosure(false);

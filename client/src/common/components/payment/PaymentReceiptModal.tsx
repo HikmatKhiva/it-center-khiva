@@ -1,7 +1,6 @@
 import { Server } from "@/api/api";
 import { useAppSelector } from "@/hooks/redux";
 import { selectUser } from "@/lib/redux/reducer/admin";
-import { IReceipt } from "@/types";
 import { formatTime } from "@/utils/helper";
 import {
   ActionIcon,

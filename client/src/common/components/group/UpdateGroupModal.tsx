@@ -12,13 +12,6 @@ import { updateGroupValidation } from "@/validation";
 import useFormData from "@/hooks/useFormData";
 import { useForm } from "@mantine/form";
 import { Server } from "@/api/api";
-import {
-  IGroup,
-  IMessageResponse,
-  ISelect,
-  ISlotsResponse,
-  IUpdateGroup,
-} from "@/types";
 import { weekType } from "@/config";
 const UpdateGroupModal = ({
   id,

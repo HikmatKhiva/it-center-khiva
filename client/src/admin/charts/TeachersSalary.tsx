@@ -2,7 +2,7 @@ import { Server } from "@/api/api";
 import { selectMonths, years } from "@/config";
 import { useAppSelector } from "@/hooks/redux";
 import { selectUser } from "@/lib/redux/reducer/admin";
-import { ITeacherChartResponse } from "@/types";
+// import { ITeacherChartResponse } from "@/types";
 import { BarChart } from "@mantine/charts";
 import { Group, Select } from "@mantine/core";
 import { useQuery } from "@tanstack/react-query";

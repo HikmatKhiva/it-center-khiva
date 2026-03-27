@@ -1,4 +1,4 @@
-import { IMessage } from "@/types";
+// import { IMessage } from "@/types";
 import { formatTime } from "@/utils/helper";
 import { Table } from "@mantine/core";
 import MessageModal from "./MessageModal";

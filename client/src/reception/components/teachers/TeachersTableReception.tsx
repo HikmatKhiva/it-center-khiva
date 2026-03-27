@@ -1,5 +1,4 @@
 import ImageModal from "@/admin/components/ImageModal";
-import { ITeacher } from "@/types";
 import { Table } from "@mantine/core";
 const TeachersTableReception = ({ teachers }: { teachers: ITeacher[] }) => {
   const rows =

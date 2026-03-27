@@ -1,5 +1,3 @@
-import { number } from "motion/react";
-
 interface ILinks {
   id: number;
   link: string;

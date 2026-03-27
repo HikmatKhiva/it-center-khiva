@@ -22,7 +22,6 @@ import { selectUser } from "@/lib/redux/reducer/admin";
 import { teacherValidate } from "@/validation";
 import { InputMask } from "@react-input/mask";
 import { Server } from "@/api/api";
-import { IMessageResponse, ITeacher, ITeacherForm } from "@/types";
 const UpdateTeacherModal = ({ teacher }: { teacher: ITeacher }) => {
   const admin = useAppSelector(selectUser);
   const idNotification = useRef<string>("");

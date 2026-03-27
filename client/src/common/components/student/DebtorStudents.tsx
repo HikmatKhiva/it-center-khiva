@@ -14,7 +14,6 @@ import { LoaderCircle, RefreshCw, Search } from "lucide-react";
 import { useState } from "react";
 import { formatTime } from "@/utils/helper";
 import { Server } from "@/api/api";
-import { IDebtorQuery, IDebtorsResponse, IDebtor } from "@/types";
 const DebtorStudents = () => {
   const admin = useAppSelector(selectUser);
   const [query, setQuery] = useState<IDebtorQuery>({
@@ -23,6 +22,7 @@ const DebtorStudents = () => {
     limit: 10,
     month: (new Date().getMonth() + 1).toString(),
     year: new Date().getFullYear().toString(),
+    // orderBy: "asc",
   });
   const params = new URLSearchParams({
     name: query.name,
@@ -81,7 +81,10 @@ const DebtorStudents = () => {
               )
             }
             onChange={(event) =>
-              setQuery((prev) => ({ ...prev, name: event.target.value }))
+              setQuery((prev: IDebtorQuery) => ({
+                ...prev,
+                name: event.target.value,
+              }))
             }
             placeholder="O'quvchi ismi..."
           />

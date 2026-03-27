@@ -11,7 +11,6 @@ import {
 } from "@/utils/notification";
 import { Trash } from "lucide-react";
 import { Server } from "@/api/api";
-import { IMessageResponse } from "@/types";
 const DeleteTeacherModal = ({ id }: { id: number }) => {
   const admin = useAppSelector(selectUser);
   const idNotification = useRef<string>("");

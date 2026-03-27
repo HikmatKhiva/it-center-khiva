@@ -8,11 +8,11 @@ import {
   Banknote,
   ChartCandlestick,
   ChartNoAxesCombined,
-  Computer,
+  // Computer,
   DoorClosed,
   WalletCards,
 } from "lucide-react";
-import Metrics from "../components/metrics/Metrics";
+// import Metrics from "../components/metrics/Metrics";
 import RoomsTab from "@/common/components/rooms/RoomsTab";
 const AdminHome = () => {
   const [activeTab, setActiveTab] = useState<string | null>("debtors");

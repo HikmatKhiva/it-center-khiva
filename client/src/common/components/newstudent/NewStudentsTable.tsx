@@ -3,7 +3,6 @@ import OptionsMenuNewStudent from "@/common/components/newstudent/OptionsMenuNew
 import React from "react";
 import { Check, Clock3, X } from "lucide-react";
 import { formatTime } from "@/utils/helper";
-import { INewStudent } from "@/types";
 import NewStudentDeleteModal from "./NewStudentDeleteModal";
 const NewStudentsTable = ({ newStudents }: { newStudents: INewStudent[] }) => {
   const rows =

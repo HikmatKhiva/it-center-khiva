@@ -10,7 +10,7 @@ import {
   showSuccessNotification,
 } from "@/utils/notification";
 import { Server } from "@/api/api";
-import { IMessageResponse } from "@/types";
+// import { IMessageResponse } from "@/types";
 const MessageDeleteModal = ({ id }: { id: number }) => {
   const [opened, { open, close }] = useDisclosure(false);
   const { admin } = useAppSelector((state) => state.admin);

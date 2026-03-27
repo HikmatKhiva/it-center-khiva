@@ -1,4 +1,3 @@
-import { ILinks } from "@/types";
 
 export const navLinks: ILinks[] = [
   { id: 1, link: "/news", label: "Yangiliklar" },

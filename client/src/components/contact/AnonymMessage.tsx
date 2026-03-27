@@ -18,7 +18,6 @@ import {
   showSuccessNotification,
 } from "@/utils/notification";
 import { Server } from "@/api/api";
-import { IAnonymMessage, IMessageResponse } from "@/types";
 const AnonymMessage = (props: PaperProps) => {
   const idNotification = useRef<string>("");
   const { mutateAsync, isPending } = useMutation({

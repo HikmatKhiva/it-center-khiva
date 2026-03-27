@@ -3,7 +3,6 @@ import { useLocation, useNavigate } from "react-router-dom";
 import DeleteGroupModal from "./DeleteGroupModal";
 import { formatTime } from "@/utils/helper";
 import { ArrowDownUp, List } from "lucide-react";
-import { IGroup } from "@/types";
 import { useAppSelector } from "@/hooks/redux";
 import { selectUser } from "@/lib/redux/reducer/admin";
 const GroupTable = ({

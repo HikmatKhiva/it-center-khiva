@@ -1,6 +1,5 @@
 import { Badge, Table } from "@mantine/core";
 import { formatTime } from "@/utils/helper";
-import { IPayments } from "@/types";
 import PaymentMenu from "./PaymentMenu";
 const PaymentTable = ({
   payments,

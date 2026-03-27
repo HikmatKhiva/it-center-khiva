@@ -19,7 +19,6 @@ import { selectUser } from "@/lib/redux/reducer/admin";
 import GroupIdHeader from "@/common/components/group/GroupIdHeader";
 import { Check, Eye, FileDown, RefreshCw } from "lucide-react";
 import { downloadContract, Server } from "@/api/api";
-import { IDefaultQuery, IStudent, IGroupResponse } from "@/types";
 import GuarantorModal from "@/common/components/student/GuarantorModal";
 const AdminGroupId = () => {
   const url = `/site/certificate?code`;
@@ -31,7 +30,7 @@ const AdminGroupId = () => {
   });
   const handleChangeInput = useCallback(
     (event: ChangeEvent<HTMLInputElement>): void => {
-      setQuery((prev) => ({ ...prev, name: event.target.value }));
+      setQuery((prev:IDefaultQuery) => ({ ...prev, name: event.target.value }));
     },
     [],
   );

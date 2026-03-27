@@ -1,7 +1,6 @@
 import { Server } from "@/api/api";
 import { useAppSelector } from "@/hooks/redux";
 import { selectUser } from "@/lib/redux/reducer/admin";
-import { IStats } from "@/types";
 import { BarChart } from "@mantine/charts";
 import { Group, Select, Text } from "@mantine/core";
 import { useQuery } from "@tanstack/react-query";

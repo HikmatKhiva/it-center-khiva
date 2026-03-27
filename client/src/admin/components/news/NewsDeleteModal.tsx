@@ -11,7 +11,6 @@ import {
   showSuccessNotification,
 } from "@/utils/notification";
 import { Server } from "@/api/api";
-import { IMessageResponse } from "@/types";
 const NewsDeleteModal = ({ id }: { id: number }) => {
   const admin = useAppSelector(selectUser);
   const idNotification = useRef<string>("");

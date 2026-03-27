@@ -25,7 +25,6 @@ import { selectUser } from "@/lib/redux/reducer/admin";
 import { discounts } from "@/config";
 import { InputMask } from "@react-input/mask";
 import { Server } from "@/api/api";
-import { IStudentCreate, IMessageResponse, IGuarantor } from "@/types";
 const CreateStudent = memo(
   ({
     courseId,

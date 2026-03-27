@@ -6,7 +6,6 @@ import { Server } from "@/api/api";
 import { selectUser } from "@/lib/redux/reducer/admin";
 import { memo, useRef } from "react";
 import { Trash2 } from "lucide-react";
-import { IMessageResponse } from "@/types";
 import {
   createNotification,
   showErrorNotification,

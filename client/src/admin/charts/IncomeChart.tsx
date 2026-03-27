@@ -2,7 +2,7 @@ import { Server } from "@/api/api";
 import { currentYearQuery, years } from "@/config";
 import { useAppSelector } from "@/hooks/redux";
 import { selectUser } from "@/lib/redux/reducer/admin";
-import { IYearly } from "@/types";
+// import { IYearly } from "@/types";
 import { CompositeChart } from "@mantine/charts";
 import { Group, Select } from "@mantine/core";
 import { useQuery } from "@tanstack/react-query";

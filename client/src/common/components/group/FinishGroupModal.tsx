@@ -1,7 +1,5 @@
-import { useDisclosure } from "@mantine/hooks";
 import { Button, Group, Modal, Text } from "@mantine/core";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { Check } from "lucide-react";
 import confetti from "canvas-confetti";
 import { useAppSelector } from "@/hooks/redux";
 import { memo, useRef } from "react";
@@ -12,7 +10,6 @@ import {
   showSuccessNotification,
 } from "@/utils/notification";
 import { Server } from "@/api/api";
-import { IMessageResponse } from "@/types";
 const FinishGroupModal = memo(
   ({
     id,

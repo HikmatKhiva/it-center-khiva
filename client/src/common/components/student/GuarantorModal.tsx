@@ -1,4 +1,3 @@
-import { IGuarantor } from "@/types";
 import { Button, Modal, Table } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
 import { UserRound } from "lucide-react";

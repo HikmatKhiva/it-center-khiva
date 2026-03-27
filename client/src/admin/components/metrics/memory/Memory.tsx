@@ -1,6 +1,5 @@
-import { IMemory } from "@/types";
 import { Card, Group, Progress, Text } from "@mantine/core";
-const Memory = ({ memory }: { memory: IMemory | null }) => {
+const Memory = ({ _memory }: { memory: IMemory | null }) => {
   return (
     <Card w={'50%'} flex={1} h={200} withBorder>
       <Text>OS: Ubuntu</Text>

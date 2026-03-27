@@ -24,7 +24,6 @@ import { formatTime } from "@/utils/helper";
 import PaymentsHistory from "@/common/components/payment/PaymentsHistory";
 import UploadPayment from "@/common/components/payment/UploadPayment";
 import { Server } from "@/api/api";
-import { IDebtor, IDebtorQuery, IDebtorsResponse } from "@/types";
 import { currentYearQuery, years } from "@/config";
 const DebtorStudentsReception = () => {
   const user = useAppSelector(selectUser);

@@ -29,12 +29,7 @@ import {
   showSuccessNotification,
 } from "@/utils/notification";
 import { Server } from "@/api/api";
-import {
-  I2FAResponse,
-  IMessageResponse,
-  IUserProfile,
-  IUserUpdate,
-} from "@/types";
+
 import ProfilePhotoDelete from "./ProfilePhotoDelete";
 const ProfileUpdate = ({
   profile,

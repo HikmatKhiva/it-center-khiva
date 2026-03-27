@@ -14,7 +14,6 @@ import { useCallback, useState } from "react";
 import { useAppSelector } from "@/hooks/redux";
 import { Server } from "@/api/api";
 import { selectUser } from "@/lib/redux/reducer/admin";
-import { GroupQueryResponse } from "@/types";
 import { currentYearQuery, years } from "@/config";
 const AdminGroups = () => {
   const admin = useAppSelector(selectUser);

@@ -9,7 +9,6 @@ import { useAppSelector } from "@/hooks/redux";
 import { selectUser } from "@/lib/redux/reducer/admin";
 import { Server } from "@/api/api";
 import { useQuery } from "@tanstack/react-query";
-import { IRoomQuery, RoomQueryResponse } from "@/types";
 const AdminRoomId = () => {
   const { id } = useParams();
   const admin = useAppSelector(selectUser);

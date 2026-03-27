@@ -1,4 +1,3 @@
-import { graduateMen, men, teacher, women } from "@/admin/assets/svg";
 import {
   BookOpenText,
   GraduationCap,
@@ -12,7 +11,6 @@ import {
 import { NumberTicker } from "@/animation/number-ticker";
 import { Card, Group, Indicator, Text } from "@mantine/core";
 import { Banknote } from "lucide-react";
-import { IStats } from "@/types";
 const StatCards = ({ data }: { data: IStats[] }) => {
   return (
     <>

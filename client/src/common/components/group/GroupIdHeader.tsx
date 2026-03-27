@@ -3,7 +3,6 @@ import { CalendarOff, CalendarPlus, Search } from "lucide-react";
 import { formatTime } from "@/utils/helper";
 import { ChangeEvent, memo } from "react";
 import BackButton from "../BackButton";
-import { IGroup } from "@/types";
 import GroupHeaderMenu from "./GroupHeaderMenu";
 const GroupIdHeader = memo(
   ({

@@ -8,8 +8,8 @@ import {
   Textarea,
 } from "@mantine/core";
 import { ArrowRight } from "lucide-react";
-import { CoolMode } from "../../../animation/cool-mode";
-import { Logo } from "../../../assets"
+import { CoolMode } from "@/animation/cool-mode";
+import { Logo } from "@/assets"
 const CreateCard = (props: CreateCardProps) => {
   return (
     <div className="relative w-[300px]">

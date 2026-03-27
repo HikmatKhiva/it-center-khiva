@@ -2,7 +2,6 @@ import { useState } from "react";
 import { Menu, Button } from "@mantine/core";
 import { Eye, ReceiptText, Settings, X } from "lucide-react";
 import PaymentRefundModal from "./PaymentRefundModal";
-import { IPayments } from "@/types";
 import PaymentRefundReasonModal from "./PaymentRefundReasonModal";
 import PaymentReceiptModal from "./PaymentReceiptModal";
 const PaymentMenu = ({

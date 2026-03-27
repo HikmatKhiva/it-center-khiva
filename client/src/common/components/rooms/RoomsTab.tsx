@@ -13,7 +13,6 @@ import { useAppSelector } from "@/hooks/redux";
 import { selectUser } from "@/lib/redux/reducer/admin";
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { RoomsQueryResponse } from "@/types";
 import { Server } from "@/api/api";
 const RoomsTab = ({ isActive }: { isActive: boolean }) => {
   const admin = useAppSelector(selectUser);
@@ -58,7 +57,7 @@ const RoomsTab = ({ isActive }: { isActive: boolean }) => {
       <Stack className="h-[calc(100vh-260px)]" justify="space-between">
         <Group wrap="wrap" mt={10}>
           {Array.isArray(data?.rooms) && !isPending
-            ? data?.rooms.map((room) => <TimeCard room={room} key={room.id} />)
+            ? data?.rooms.map((room:IRoom) => <TimeCard room={room} key={room.id} />)
             : loadingCard.map((number) => (
                 <Skeleton key={number} w={200} h={230} />
               ))}

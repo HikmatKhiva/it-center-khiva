@@ -7,7 +7,6 @@ import { DoorOpen } from "lucide-react";
 import { selectUser } from "@/lib/redux/reducer/admin";
 import { useQuery } from "@tanstack/react-query";
 import { Server } from "@/api/api";
-import { IUserProfile } from "@/types";
 import ProfileLogout from "./ProfileLogout";
 const ProfileConfigure = () => {
   const profile = useAppSelector(selectUser);

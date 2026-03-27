@@ -3,7 +3,6 @@ import { Server } from "@/api/api";
 import { weekType } from "@/config";
 import { useAppSelector } from "@/hooks/redux";
 import { selectUser } from "@/lib/redux/reducer/admin";
-import { IRoomQuery, RoomQueryResponse } from "@/types";
 import { Drawer, Group, Select, Text } from "@mantine/core";
 import { useQuery } from "@tanstack/react-query";
 import { DoorClosed, UsersRound } from "lucide-react";

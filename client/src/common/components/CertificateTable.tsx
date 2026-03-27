@@ -1,7 +1,6 @@
 import { downloadCertificate } from "@/api/api";
 import { useAppSelector } from "@/hooks/redux";
 import { selectUser } from "@/lib/redux/reducer/admin";
-import { ICertificateStudents } from "@/types";
 import { formatTime } from "@/utils/helper";
 import { ActionIcon, Table } from "@mantine/core";
 import { ArrowDownToLine, Eye } from "lucide-react";

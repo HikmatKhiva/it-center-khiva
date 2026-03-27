@@ -22,7 +22,6 @@ import {
 import { teacherValidate } from "@/validation";
 import { InputMask } from "@react-input/mask";
 import { Server } from "@/api/api";
-import { IMessageResponse, ITeacherForm } from "@/types";
 const CreateTeacherModal = () => {
   const admin = useAppSelector(selectUser);
   const idNotification = useRef<string>("");

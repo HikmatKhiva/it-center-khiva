@@ -14,7 +14,7 @@ import {
 } from "@/utils/notification";
 import useFormData from "@/hooks/useFormData";
 import { Server } from "@/api/api";
-import { ICourseResponse, IMessageResponse, INewCourse } from "@/types";
+// import { ICourseResponse, IMessageResponse, INewCourse } from "@/types";
 const UpdatedCourseModal = ({ id }: { id: number }) => {
   const client = useQueryClient();
   const admin = useAppSelector(selectUser);

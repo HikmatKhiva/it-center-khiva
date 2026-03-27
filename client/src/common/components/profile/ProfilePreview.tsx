@@ -12,7 +12,6 @@ import { useClipboard } from "@mantine/hooks";
 import ProfileQrCode from "./ProfileQrCode";
 // import { useAppDispatch } from "@/hooks/redux";
 // import { logout } from "@/lib/redux/reducer/admin";
-import { IUserProfile } from "@/types";
 const ProfilePreview = ({
   profile,
   opened,

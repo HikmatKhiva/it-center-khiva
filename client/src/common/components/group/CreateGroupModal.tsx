@@ -15,7 +15,6 @@ import {
 } from "@/utils/notification";
 import { Server } from "@/api/api";
 import { duration, weekType } from "@/config";
-import { ISelect, INewGroup, ISlotsResponse, IMessageResponse } from "@/types";
 const CreateGroupModal = () => {
   const admin = useAppSelector(selectUser);
   const idNotification = useRef<string>("");

@@ -1,6 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
 import { Server } from "@/api/api";
-import { ISelect } from "@/types";
 interface IFormDataResponse {
   teachers: ISelect[];
   courses: ISelect[];

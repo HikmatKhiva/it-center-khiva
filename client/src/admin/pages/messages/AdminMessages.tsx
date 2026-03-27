@@ -12,7 +12,6 @@ import { useAppSelector } from "@/hooks/redux";
 import { selectUser } from "@/lib/redux/reducer/admin";
 import { Mails, Search } from "lucide-react";
 import { Server } from "@/api/api";
-import { IMessagesResponse } from "@/types";
 import MessagesTable from "@/admin/components/messages/MessagesTable";
 const AdminMessages = () => {
   const admin = useAppSelector(selectUser);

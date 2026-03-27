@@ -11,7 +11,6 @@ import { useRef } from "react";
 import { selectUser } from "@/lib/redux/reducer/admin";
 import { Trash2 } from "lucide-react";
 import { Server } from "@/api/api";
-import { IMessageResponse } from "@/types";
 const DeleteGroupModal = ({
   id,
   disabled,

@@ -1,14 +1,18 @@
-import { Box, Card, Group, Text } from "@mantine/core";
+import { 
+  // Box,
+  //  Card,
+   Group,
+    // Text
+   } from "@mantine/core";
 import Memory from "./memory/Memory";
 import { useAppSelector } from "@/hooks/redux";
 import { selectUser } from "@/lib/redux/reducer/admin";
 import { useQuery } from "@tanstack/react-query";
 import { Server } from "@/api/api";
-import { IMetricsResponse } from "@/types";
 // import { io } from "socket.io-client";
 // import { useEffect } from "react";
 import CPU from "./cpu/CPU";
-import Logs from "./logs/Logs";
+// import Logs from "./logs/Logs";
 const Metrics = ({ isActive }: { isActive: boolean }) => {
   const admin = useAppSelector(selectUser);
   //   const API_URL = `"http://localhost`;
@@ -45,7 +49,7 @@ const Metrics = ({ isActive }: { isActive: boolean }) => {
         <CPU />
         <Memory memory={data?.memory || null} />
       </Group>
-      <Logs />
+      {/* <Logs /> */}
     </>
   );
 };

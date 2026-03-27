@@ -1,4 +1,3 @@
-import { IRoom } from "@/types";
 import {
   ActionIcon,
   Card,

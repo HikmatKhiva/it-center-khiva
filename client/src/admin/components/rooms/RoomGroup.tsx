@@ -1,4 +1,3 @@
-import { ISchedules } from "@/types";
 import { Table, Indicator, Text, Badge } from "@mantine/core";
 const RoomGroup = ({ schedules }: { schedules: ISchedules[] }) => {
   const rows = schedules.map((schedule, index: number) => (

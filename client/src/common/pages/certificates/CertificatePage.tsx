@@ -14,7 +14,6 @@ import {
 import { GraduationCap, LoaderCircle, Search } from "lucide-react";
 import CertificateTable from "@/common/components/CertificateTable";
 import { Server } from "@/api/api";
-import { ICertificateResponse } from "@/types";
 import { currentYearQuery, years } from "@/config";
 import { NumberTicker } from "@/animation/number-ticker";
 const CertificatePage = () => {

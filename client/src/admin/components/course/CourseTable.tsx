@@ -8,7 +8,7 @@ import { useState } from "react";
 import { formatTime } from "@/utils/helper";
 import CourseCertificateDemo from "./CourseCertificateDemo";
 import { Server } from "@/api/api";
-import { ICoursesResponse, ICourse } from "@/types";
+// import { ICoursesResponse, ICourse } from "@/types";
 const CourseTable = ({ name }: { name: string }) => {
   const [query, setQuery] = useState({
     page: 1,

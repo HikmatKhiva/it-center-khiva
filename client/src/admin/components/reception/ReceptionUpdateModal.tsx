@@ -21,7 +21,6 @@ import { selectUser } from "@/lib/redux/reducer/admin";
 import { Server } from "@/api/api";
 import { useForm } from "@mantine/form";
 import { adminValidate } from "@/validation";
-import { I2FAResponse, IUserProfile, IUserUpdate } from "@/types";
 const ReceptionUpdateModal = ({ id }: { id: number }) => {
   const [opened, { open, close }] = useDisclosure(false);
   const admin = useAppSelector(selectUser);

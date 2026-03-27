@@ -23,7 +23,6 @@ import {
 } from "@/utils/notification";
 import {  UserRoundPen } from "lucide-react";
 import { Server } from "@/api/api";
-import { IStudent, IMessageResponse, IGuarantor } from "@/types";
 const UpdateStudentModal = memo(({ student }: { student: IStudent }) => {
   const client = useQueryClient();
   const admin = useAppSelector(selectUser);

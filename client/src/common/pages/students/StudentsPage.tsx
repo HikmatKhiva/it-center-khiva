@@ -4,7 +4,6 @@ import { currentYearQuery, years } from "@/config";
 import { useAppSelector } from "@/hooks/redux";
 import useFormData from "@/hooks/useFormData";
 import { selectUser } from "@/lib/redux/reducer/admin";
-import { IAllStudentsResponse } from "@/types";
 import {
   Group,
   Pagination,

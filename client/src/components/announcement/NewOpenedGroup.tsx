@@ -11,7 +11,6 @@ import {
 import { useDisclosure } from "@mantine/hooks";
 import { Bell, Call, Telegram } from "@/assets";
 import { TextAnimate } from "@/animation/text-animation";
-import { IOpenedGroup } from "@/types";
 const NewOpenedGroup = ({ groupList }: { groupList: IOpenedGroup[] }) => {
   const [opened, { open, close }] = useDisclosure(false);
   const rows = groupList?.map((group: IOpenedGroup) => (

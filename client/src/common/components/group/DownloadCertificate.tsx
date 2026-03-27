@@ -9,13 +9,9 @@ const DownloadCertificate = memo(
   ({
     id,
     name,
-    opened,
-    close,
   }: {
     id: number;
     name: string;
-    opened: boolean;
-    close: () => void;
   }) => {
     const admin = useAppSelector(selectUser);
     const { mutateAsync, isPending } = useMutation({
