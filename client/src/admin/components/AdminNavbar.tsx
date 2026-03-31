@@ -12,6 +12,7 @@ import {
   Users,
   Settings,
   UserRound,
+  Calendar,
 } from "lucide-react";
 import { NavLink } from "react-router-dom";
 const AdminNavbar = ({ close }: { close: () => void }) => {
@@ -111,6 +112,14 @@ const AdminNavbar = ({ close }: { close: () => void }) => {
       >
         <UserRound />
         O'quvchilar
+      </NavLink>
+      <NavLink
+        onClick={close}
+        className="w-full py-2 px-4 flex items-center gap-2  text-lg"
+        to="/admin/attendance"
+      >
+        <Calendar />
+        Attendance
       </NavLink>
     </div>
   );

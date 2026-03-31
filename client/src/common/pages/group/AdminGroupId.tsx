@@ -30,7 +30,10 @@ const AdminGroupId = () => {
   });
   const handleChangeInput = useCallback(
     (event: ChangeEvent<HTMLInputElement>): void => {
-      setQuery((prev:IDefaultQuery) => ({ ...prev, name: event.target.value }));
+      setQuery((prev: IDefaultQuery) => ({
+        ...prev,
+        name: event.target.value,
+      }));
     },
     [],
   );
@@ -39,14 +42,13 @@ const AdminGroupId = () => {
     name: query.name,
     page: query.page.toString(),
     limit: query.limit.toString(),
-    ...(id !== undefined && { groupId: id.toString() }),
   });
   const {
     data: group,
     isPending,
     refetch,
   } = useQuery({
-    queryKey: ["group", id, query.name, query.page],
+    queryKey: ["group", String(id), query.name, query.page],
     queryFn: () => {
       if (id) {
         return Server<IGroupResponse>(`group/${id}?${params}`, {
@@ -87,7 +89,9 @@ const AdminGroupId = () => {
         )}
       </Table.Td>
       <Table.Td>{student?.gender === "MALE" ? "Erkak" : "Ayol"}</Table.Td>
-      <Table.Td>{id && <UpdateStudentModal student={student} />}</Table.Td>
+      <Table.Td>
+        {id && <UpdateStudentModal groupId={group?.id} student={student} />}
+      </Table.Td>
       <Table.Td>
         <DeleteStudentModal groupId={student.groupId} id={student?.id} />
       </Table.Td>

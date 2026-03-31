@@ -35,6 +35,7 @@ interface IStudentCreate {
   firstName: string;
   secondName: string;
   passportId: string;
+  issueAt: null | Date;
   gender: string;
   address: string;
   courseId: number;
@@ -48,6 +49,7 @@ interface IGuarantorCreate {
   secondName: string;
   phone: string;
   passportId: string;
+  issueAt: null | Date | string;
 }
 interface IGuarantor {
   id: number;
@@ -55,6 +57,7 @@ interface IGuarantor {
   secondName: string;
   phone: string;
   passportId: string;
+  issueAt:  Date | string ;
   // studentId: number;
 }
 interface IStudent extends IDefault {
@@ -67,6 +70,7 @@ interface IStudent extends IDefault {
   code: string;
   groupId: number;
   certificate_url?: string;
+  issueAt: null | Date;
   phone: null | string;
   debt: string;
   discount: string;

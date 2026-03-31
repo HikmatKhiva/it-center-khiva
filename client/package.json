@@ -39,7 +39,7 @@
     "@tiptap/starter-kit": "^2.11.5",
     "canvas-confetti": "^1.9.3",
     "clsx": "^2.1.1",
-    "dayjs": "^1.11.13",
+    "dayjs": "^1.11.20",
     "dompurify": "^3.2.6",
     "file-saver": "^2.0.5",
     "lucide-react": "^0.474.0",

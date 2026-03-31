@@ -102,6 +102,7 @@ model Student {
   firstName    String       @db.VarChar(50)
   secondName   String       @db.VarChar(50)
   passportId   String?      @unique @db.VarChar(10)
+  issueAt      DateTime?
   paymentType  PaymentType  @default(selfPayment)
   address      String       @db.VarChar(255)
   gender       gender
@@ -132,6 +133,7 @@ model Guarantor {
   firstName  String    @db.VarChar(50)
   secondName String    @db.VarChar(50)
   passportId String    @unique @db.VarChar(10)
+  issueAt    DateTime
   phone      String    @db.VarChar(50)
   students   Student[]
 }

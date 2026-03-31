@@ -109,8 +109,6 @@ const getAllStudents = async (req, res) => {
     const totalPages = Math.ceil(totalCount / limit);
     return res.status(200).json({ students, totalPages });
   } catch (error) {
-    console.log(error);
-    
     return res.status(500).json({ error });
   }
 };
@@ -154,6 +152,9 @@ const getAStudent = async (req, res) => {
       where: {
         id: parseInt(id),
       },
+      include: {
+        guarantor: true,
+      },
     });
     if (!student) {
       return res.status(404).json({ message: "O'quvchi topilmadi." });
@@ -178,6 +179,7 @@ const createStudent = async (req, res, next) => {
       guarantor,
       address,
       docType,
+      issueAt,
     } = req.body;
     const group = await prisma.group.findUnique({
       where: {
@@ -226,6 +228,7 @@ const createStudent = async (req, res, next) => {
           firstName: guarantor.firstName,
           secondName: guarantor.secondName,
           passportId: guarantor.passportId,
+          issueAt: new Date(guarantor?.issueAt).toISOString(),
           phone: guarantor.phone,
         },
       });
@@ -239,6 +242,10 @@ const createStudent = async (req, res, next) => {
         groupId,
         courseId,
         address,
+        issueAt:
+          docType === "BIRTHCERTIFICATE"
+            ? null
+            : new Date(issueAt).toISOString(),
         docType,
         code,
         debt: debt ? debt : undefined,
@@ -270,25 +277,37 @@ const updateStudent = async (req, res, next) => {
       docType,
       address,
       guarantor,
+      issueAt,
     } = req.body;
     if (docType === "BIRTHCERTIFICATE" && !guarantor) {
       return res.status(500).json({ message: "Vasiy ma'lumotlari shart!" });
     }
+    const normalizeDate = (value) => {
+      if (!value) return null;
+      return new Date(value);
+    };
     let guarantorId = null;
     if (docType === "BIRTHCERTIFICATE") {
       const g = await prisma.guarantor.upsert({
         where: { passportId: guarantor.passportId },
-        update: {},
+        update: {
+          firstName: guarantor.firstName,
+          secondName: guarantor.secondName,
+          passportId: guarantor.passportId,
+          issueAt: normalizeDate(guarantor?.issueAt),
+          phone: guarantor.phone,
+        },
         create: {
           firstName: guarantor.firstName,
           secondName: guarantor.secondName,
           passportId: guarantor.passportId,
+          issueAt: normalizeDate(guarantor?.issueAt),
           phone: guarantor.phone,
         },
       });
-
       guarantorId = g.id;
     }
+
     await prisma.student.update({
       where: {
         id: parseInt(id),
@@ -298,12 +317,22 @@ const updateStudent = async (req, res, next) => {
         secondName,
         passportId,
         gender: gender.toUpperCase(),
+        issueAt: docType === "BIRTHCERTIFICATE" ? null : normalizeDate(issueAt),
         phone,
         docType,
         address,
         guarantorId,
       },
     });
+    if (docType === "PASSPORT" && guarantor?.passportId) {
+      await prisma.guarantor.deleteMany({
+        where: {
+          passportId: guarantor.passportId,
+          students: { none: {} },
+        },
+      });
+      guarantorId = null;
+    }
     return res
       .status(200)
       .json({ message: "O'quvchi muvaffaqiyatli yangilandi." });

@@ -25,6 +25,7 @@ import { selectUser } from "@/lib/redux/reducer/admin";
 import { discounts } from "@/config";
 import { InputMask } from "@react-input/mask";
 import { Server } from "@/api/api";
+import { DateInput } from "@mantine/dates";
 const CreateStudent = memo(
   ({
     courseId,
@@ -39,6 +40,7 @@ const CreateStudent = memo(
   }) => {
     const admin = useAppSelector(selectUser);
     const idNotification = useRef<string>("");
+    const date = new Date().toISOString().split("T")[0];
     // const [opened, { open, close }] = useDisclosure(false);
     const client = useQueryClient();
     const form = useForm({
@@ -46,6 +48,7 @@ const CreateStudent = memo(
         firstName: "",
         secondName: "",
         passportId: "",
+        issueAt: null,
         gender: "",
         address: "",
         courseId: courseId,
@@ -56,6 +59,7 @@ const CreateStudent = memo(
         guarantor: {
           firstName: "",
           secondName: "",
+          issueAt: date,
           phone: "",
           passportId: "",
         },
@@ -86,7 +90,6 @@ const CreateStudent = memo(
       mutateAsync(student);
     };
     const passport = form.values.guarantor.passportId;
-
     const { data: guarantor, isLoading } = useQuery<IGuarantor>({
       queryKey: ["guarantor", passport],
       queryFn: () =>
@@ -104,6 +107,7 @@ const CreateStudent = memo(
         form.setFieldValue("guarantor.firstName", guarantor?.firstName);
         form.setFieldValue("guarantor.secondName", guarantor?.secondName);
         form.setFieldValue("guarantor.phone", guarantor?.phone);
+        form.setFieldValue("guarantor.issueAt", guarantor?.issueAt || date);
       }
     }, [guarantor]);
     return (
@@ -126,6 +130,7 @@ const CreateStudent = memo(
                 placeholder="Xudayshukur"
                 size="sm"
                 radius="sm"
+                required
               />
               <TextInput
                 onChange={(e) =>
@@ -137,6 +142,7 @@ const CreateStudent = memo(
                 placeholder="Polvonov"
                 size="sm"
                 radius="sm"
+                required
               />
               <InputMask
                 mask="+99 (8__) ___-__-__"
@@ -162,6 +168,7 @@ const CreateStudent = memo(
                   { value: "male", label: "Erkak" },
                   { value: "female", label: "Ayol" },
                 ]}
+                required
               />
               <TextInput
                 label="Yashash manzilini kiriting!"
@@ -172,6 +179,7 @@ const CreateStudent = memo(
                 value={form.values.address}
                 size="sm"
                 radius="sm"
+                required
               />
               <Text>Hujjat turini belgilang!</Text>
               <Group>
@@ -202,7 +210,16 @@ const CreateStudent = memo(
                 value={form.values.passportId}
                 size="sm"
                 radius="sm"
+                required
               />
+              {form.values.docType === "PASSPORT" && (
+                <DateInput
+                  {...form.getInputProps("issueAt")}
+                  label="Berilgan sana"
+                  placeholder="Berilgan sana"
+                  required
+                />
+              )}
               <Text fw="700" hidden={form.values.docType === "PASSPORT"}>
                 Vasiyni ma'lumotlarini kiriting!
               </Text>
@@ -227,6 +244,7 @@ const CreateStudent = memo(
                   value={form.values.guarantor.passportId}
                   size="sm"
                   radius="sm"
+                  required
                 />
                 <Group>
                   <TextInput
@@ -243,6 +261,7 @@ const CreateStudent = memo(
                     placeholder="Xudayshukur"
                     size="sm"
                     radius="sm"
+                    required
                   />
                   <TextInput
                     onChange={(e) =>
@@ -258,8 +277,14 @@ const CreateStudent = memo(
                     // disabled={isLoading || !!guarantor?.secondName}
                     size="sm"
                     radius="sm"
+                    required
                   />
                 </Group>
+                <DateInput
+                  {...form.getInputProps("guarantor.issueAt")}
+                  label="Berilgan sana"
+                  placeholder="Berilgan sana"
+                />
                 <InputMask
                   mask="+99 (8__) ___-__-__"
                   replacement={{ _: /\d/ }}
