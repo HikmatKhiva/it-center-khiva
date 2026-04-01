@@ -139,20 +139,22 @@ model Guarantor {
 }
 
 model Payment {
-  id          Int       @id @default(autoincrement())
-  paymentDate DateTime  @default(now())
-  amount      Decimal
-  status      String    @default("Paid")
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
-  studentId   Int
-  isRefunded  Boolean   @default(false)
-  refundedAt  DateTime?
-  createdById Int
-  createdBy   Admin     @relation(fields: [createdById], references: [id])
-  Student     Student   @relation(fields: [studentId], references: [id], onDelete: Cascade)
-  receipts    Receipt?
-  refunds     Refund[]
+  id              Int             @id @default(autoincrement())
+  paymentDate     DateTime        @default(now())
+  amount          Decimal
+  status          String          @default("Paid")
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+  studentId       Int
+  isRefunded      Boolean         @default(false)
+  refundedAt      DateTime?
+  createdById     Int
+  createdBy       Admin           @relation(fields: [createdById], references: [id])
+  Student         Student         @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  confirmedAt     DateTime?
+  confirmedStatus ConfirmedStatus @default(PENDING)
+  receipts        Receipt?
+  refunds         Refund[]
 
   @@index([studentId])
 }
@@ -298,4 +300,9 @@ enum IsActive {
   FINISHED
   ACTIVE
   PENDING
+}
+
+enum ConfirmedStatus {
+  PENDING
+  CONFIRMED
 }

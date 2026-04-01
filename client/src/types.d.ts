@@ -577,3 +577,26 @@ interface IReceipt {
     };
   };
 }
+
+interface ISelectedPayment {
+  id: number;
+  amount: number;
+  confirmedStatus: "PENDING" | "CONFIRMED";
+}
+
+interface IAdminPayment {
+  id: number;
+  studentId: number;
+  amount: number;
+  paymentDate: Date;
+  confirmedAt: null;
+  confirmedStatus: "PENDING" | "CONFIRMED";
+  fullName: string;
+  groupName: string;
+  courseName: string;
+  teacherName: string;
+}
+interface IAdminPaymentResponse {
+  payments: IAdminPayment[];
+  totalPages: number;
+}

@@ -28,7 +28,6 @@ export const groupCreateSchema = {
   required: ["teacherId", "name", "courseId", "duration", "price", "schedules"],
   additionalProperties: false,
 };
-
 export const groupUpdateSchema = {
   type: "object",
   properties: {

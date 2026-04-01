@@ -67,7 +67,12 @@ const ActivateGroupModal = ({
   });
   const handleSubmit = async (data: IGroupActivate) => {
     idNotification.current = createNotification(isPending);
-    await mutateAsync(data);
+    const payload = {
+      ...data,
+      startTime: new Date(data.startTime),
+      finishedDate: new Date(data.finishedDate),
+    };
+    await mutateAsync(payload);
   };
   return (
     <>
@@ -84,7 +89,6 @@ const ActivateGroupModal = ({
               label="Tugash sana"
               disabled
             />
-
             <Button type="submit">Faollashtirish</Button>
           </Group>
         </form>

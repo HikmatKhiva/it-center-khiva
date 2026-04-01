@@ -32,25 +32,6 @@ const UpdateStudentModal = memo(
     const admin = useAppSelector(selectUser);
     const idNotification = useRef<string>("");
     const [opened, { open, close }] = useDisclosure(false);
-    // const form = useForm({
-    //   initialValues: {
-    //     firstName: student?.firstName,
-    //     secondName: student?.secondName,
-    //     passportId: student?.passportId,
-    //     gender: student?.gender.toLowerCase(),
-    //     issueAt: student?.issueAt || date,
-    //     phone: student?.phone,
-    //     address: student.address,
-    //     docType: student.docType,
-    //     guarantor: {
-    //       firstName: student?.guarantor?.firstName || "",
-    //       secondName: student?.guarantor?.secondName || "",
-    //       phone: student?.guarantor?.phone || "",
-    //       passportId: student?.guarantor?.passportId || "",
-    //       issueAt: student?.guarantor?.issueAt || date,
-    //     },
-    //   } as IStudent,
-    // });
     const form = useForm({
       initialValues: {
         firstName: "",
@@ -75,20 +56,7 @@ const UpdateStudentModal = memo(
       mutateAsync(data);
     };
     const passport = form.values.guarantor.passportId;
-    const { data: studentA } = useQuery<IStudent>({
-      queryKey: ["student",'test'],
-      queryFn: () =>
-        Server(`/students/${student.id}`, {
-          method: "GET",
-          headers: {
-            authorization: `Bearer ${admin?.token}`,
-          },
-        }),
-      // enabled: passport.length >= 7,
-      // retry: false,
-    });
-    console.log(studentA);
-    
+
     const { data: guarantor } = useQuery<IGuarantor>({
       queryKey: ["guarantor", passport],
       queryFn: () =>
@@ -108,6 +76,8 @@ const UpdateStudentModal = memo(
         form.setFieldValue("guarantor.phone", guarantor?.phone);
         form.setFieldValue("guarantor.issueAt", guarantor?.issueAt);
       }
+    }, [guarantor]);
+    useEffect(() => {
       if (student) {
         form.setFieldValue("firstName", student?.firstName);
         form.setFieldValue("secondName", student?.secondName);
@@ -118,7 +88,7 @@ const UpdateStudentModal = memo(
         form.setFieldValue("docType", student?.docType);
         form.setFieldValue("address", student?.address);
       }
-    }, [guarantor, student]);
+    }, [student]);
     const { mutateAsync, isPending } = useMutation({
       mutationFn: (data: IStudent) =>
         Server<IMessageResponse>(`students/update/${student.id}`, {
@@ -224,7 +194,7 @@ const UpdateStudentModal = memo(
               </Group>
               <TextInput
                 label={`${form.values.docType === "PASSPORT" ? "Passport" : "Guvohnoma"} seriyasini kiriting!`}
-                placeholder={`${form.values.docType === "PASSPORT" ? "FA" : "INN"} 123456`}
+                placeholder={`${form.values.docType === "PASSPORT" ? "FA" : "HR"} 123456`}
                 maxLength={10}
                 required
                 onChange={(e) =>
@@ -250,75 +220,77 @@ const UpdateStudentModal = memo(
               <Text fw="700" hidden={form.values.docType === "PASSPORT"}>
                 Vasiyni ma'lumotlarini kiriting!
               </Text>
-              <Box hidden={form.values.docType === "PASSPORT"}>
-                <TextInput
-                  label="Passport seriyasini kiriting!"
-                  placeholder="FA 123456"
-                  flex="2"
-                  maxLength={10}
-                  required
-                  onChange={(e) =>
-                    form.setFieldValue(
-                      "guarantor.passportId",
-                      e.target.value.trim().toUpperCase(),
-                    )
-                  }
-                  // error={form.errors.guarantor?.passportId || ''}
-                  value={form.values.guarantor.passportId}
-                  size="sm"
-                  radius="sm"
-                />
-                <Group>
+              {form.values.docType === "BIRTHCERTIFICATE" && (
+                <Box>
                   <TextInput
+                    label="Passport seriyasini kiriting!"
+                    placeholder="FA 123456"
+                    flex="2"
+                    maxLength={10}
+                    required
                     onChange={(e) =>
                       form.setFieldValue(
-                        "guarantor.firstName",
-                        e.target.value.trim(),
+                        "guarantor.passportId",
+                        e.target.value.trim().toUpperCase(),
                       )
                     }
-                    value={form.values.guarantor.firstName}
-                    // error={form.errors.guarantor.firstName}
-                    label="Ismi!"
-                    placeholder="Xudayshukur"
-                    size="sm"
-                    required
-                    radius="sm"
-                  />
-                  <TextInput
-                    onChange={(e) =>
-                      form.setFieldValue(
-                        "guarantor.secondName",
-                        e.target.value.trim(),
-                      )
-                    }
-                    value={form.values.guarantor.secondName}
-                    // error={form.errors.guarantorSecondName}
-                    label="Familiyasi!"
-                    placeholder="Polvonov"
+                    // error={form.errors.guarantor?.passportId || ''}
+                    value={form.values.guarantor.passportId}
                     size="sm"
                     radius="sm"
-                    required
                   />
-                </Group>
-                <DateInput
-                  {...form.getInputProps("guarantor.issueAt")}
-                  label="Berilgan sana"
-                  placeholder="Berilgan sana"
-                />
-                <InputMask
-                  mask="+99 (8__) ___-__-__"
-                  replacement={{ _: /\d/ }}
-                  autoComplete="off"
-                  placeholder="+99 (8__) ___-__-__"
-                  label="Telefon raqamini kiriting!"
-                  component={TextInput}
-                  // error={form.errors.gr}
-                  value={form.values.guarantor.phone}
-                  onChange={(event) => {
-                    form.setFieldValue("guarantor.phone", event.target.value);
-                  }}
-                />
-              </Box>
+                  <Group>
+                    <TextInput
+                      onChange={(e) =>
+                        form.setFieldValue(
+                          "guarantor.firstName",
+                          e.target.value.trim(),
+                        )
+                      }
+                      value={form.values.guarantor.firstName}
+                      // error={form.errors.guarantor.firstName}
+                      label="Ismi!"
+                      placeholder="Xudayshukur"
+                      size="sm"
+                      required
+                      radius="sm"
+                    />
+                    <TextInput
+                      onChange={(e) =>
+                        form.setFieldValue(
+                          "guarantor.secondName",
+                          e.target.value.trim(),
+                        )
+                      }
+                      value={form.values.guarantor.secondName}
+                      // error={form.errors.guarantorSecondName}
+                      label="Familiyasi!"
+                      placeholder="Polvonov"
+                      size="sm"
+                      radius="sm"
+                      required
+                    />
+                  </Group>
+                  <DateInput
+                    {...form.getInputProps("guarantor.issueAt")}
+                    label="Berilgan sana"
+                    placeholder="Berilgan sana"
+                  />
+                  <InputMask
+                    mask="+99 (8__) ___-__-__"
+                    replacement={{ _: /\d/ }}
+                    autoComplete="off"
+                    placeholder="+99 (8__) ___-__-__"
+                    label="Telefon raqamini kiriting!"
+                    component={TextInput}
+                    // error={form.errors.gr}
+                    value={form.values.guarantor.phone}
+                    onChange={(event) => {
+                      form.setFieldValue("guarantor.phone", event.target.value);
+                    }}
+                  />
+                </Box>
+              )}
             </Stack>
             <Button
               loading={isPending}

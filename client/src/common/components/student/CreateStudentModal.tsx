@@ -201,7 +201,7 @@ const CreateStudent = memo(
               </Group>
               <TextInput
                 label={`${form.values.docType === "PASSPORT" ? "Passport" : "Guvohnoma"} seriyasini kiriting!`}
-                placeholder={`${form.values.docType === "PASSPORT" ? "FA" : "INN"} 123456`}
+                placeholder={`${form.values.docType === "PASSPORT" ? "FA" : "HR"} 123456`}
                 maxLength={10}
                 onChange={(e) =>
                   form.setFieldValue("passportId", e.target.value.toUpperCase())
@@ -229,6 +229,7 @@ const CreateStudent = memo(
                   placeholder="FA 123456"
                   flex="2"
                   maxLength={10}
+                  name="student-passportId"
                   onChange={(e) =>
                     form.setFieldValue(
                       "guarantor.passportId",
@@ -244,42 +245,44 @@ const CreateStudent = memo(
                   value={form.values.guarantor.passportId}
                   size="sm"
                   radius="sm"
-                  required
+                  withAsterisk={true}
                 />
-                <Group>
-                  <TextInput
-                    onChange={(e) =>
-                      form.setFieldValue(
-                        "guarantor.firstName",
-                        e.target.value.trim(),
-                      )
-                    }
-                    value={form.values.guarantor.firstName}
-                    // error={form.errors.guarantor.firstName}
-                    // disabled={isLoading || !!guarantor?.firstName}
-                    label="Ismi!"
-                    placeholder="Xudayshukur"
-                    size="sm"
-                    radius="sm"
-                    required
-                  />
-                  <TextInput
-                    onChange={(e) =>
-                      form.setFieldValue(
-                        "guarantor.secondName",
-                        e.target.value.trim(),
-                      )
-                    }
-                    value={form.values.guarantor.secondName}
-                    // error={form.errors.guarantorSecondName}
-                    label="Familiyasi!"
-                    placeholder="Polvonov"
-                    // disabled={isLoading || !!guarantor?.secondName}
-                    size="sm"
-                    radius="sm"
-                    required
-                  />
-                </Group>
+                {form.values.docType === "BIRTHCERTIFICATE" && (
+                  <Group>
+                    <TextInput
+                      onChange={(e) =>
+                        form.setFieldValue(
+                          "guarantor.firstName",
+                          e.target.value.trim(),
+                        )
+                      }
+                      value={form.values.guarantor.firstName}
+                      // error={form.errors.guarantor.firstName}
+                      // disabled={isLoading || !!guarantor?.firstName}
+                      label="Ismi!"
+                      placeholder="Xudayshukur"
+                      size="sm"
+                      radius="sm"
+                      required
+                    />
+                    <TextInput
+                      onChange={(e) =>
+                        form.setFieldValue(
+                          "guarantor.secondName",
+                          e.target.value.trim(),
+                        )
+                      }
+                      value={form.values.guarantor.secondName}
+                      // error={form.errors.guarantorSecondName}
+                      label="Familiyasi!"
+                      placeholder="Polvonov"
+                      // disabled={isLoading || !!guarantor?.secondName}
+                      size="sm"
+                      radius="sm"
+                      required
+                    />
+                  </Group>
+                )}
                 <DateInput
                   {...form.getInputProps("guarantor.issueAt")}
                   label="Berilgan sana"

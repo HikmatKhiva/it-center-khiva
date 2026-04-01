@@ -10,19 +10,21 @@ import {
   ChartNoAxesCombined,
   // Computer,
   DoorClosed,
+  TicketCheck,
   WalletCards,
 } from "lucide-react";
 // import Metrics from "../components/metrics/Metrics";
 import RoomsTab from "@/common/components/rooms/RoomsTab";
+import PaymentAccepted from "../components/paymentAccepted/PaymentAccepted";
 const AdminHome = () => {
-  const [activeTab, setActiveTab] = useState<string | null>("debtors");
+  const [activeTab, setActiveTab] = useState<string | null>("payments");
   return (
     <section>
       <Text mt="10" mb="20" size="24px">
         IT-Khiva Boshqaruv Paneli
       </Text>
       <Tabs
-        defaultValue="debtors"
+        defaultValue="payments"
         value={activeTab}
         onChange={setActiveTab}
         mb="20"
@@ -35,6 +37,13 @@ const AdminHome = () => {
           >
             Metrics
           </Tabs.Tab> */}
+          <Tabs.Tab
+            fz="xl"
+            value="payments"
+            rightSection={<TicketCheck size={16} />}
+          >
+            To'lovlar
+          </Tabs.Tab>
           <Tabs.Tab
             fz="xl"
             value="debtors"
@@ -77,6 +86,9 @@ const AdminHome = () => {
         {/* <Tabs.Panel value="metrics">
           <Metrics isActive={activeTab === "metrics"} />
         </Tabs.Panel> */}
+        <Tabs.Panel value="payments">
+          <PaymentAccepted isActive={activeTab === "payments"} />
+        </Tabs.Panel>
         <Tabs.Panel value="income">
           <IncomeChart isActive={activeTab === "income"} />
         </Tabs.Panel>

@@ -1,3 +1,4 @@
+import { formatTime } from "@/utils/helper";
 import { Button, Modal, Table } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
 import { UserRound } from "lucide-react";
@@ -33,6 +34,7 @@ const GuarantorModal = ({
               <Table.Th>Familiya</Table.Th>
               <Table.Th>Telefon</Table.Th>
               <Table.Th>Passport Id</Table.Th>
+              <Table.Th>Berilgan</Table.Th>
             </Table.Tr>
           </Table.Thead>
           <Table.Tbody>
@@ -41,6 +43,7 @@ const GuarantorModal = ({
               <Table.Td>{guarantor?.secondName}</Table.Td>
               <Table.Td>{guarantor?.phone}</Table.Td>
               <Table.Td>{guarantor?.passportId}</Table.Td>
+              <Table.Td>{formatTime.DateTimeIssueFormat(guarantor?.issueAt)}</Table.Td>
             </Table.Tr>
           </Table.Tbody>
         </Table>

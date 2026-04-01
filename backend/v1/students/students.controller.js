@@ -389,6 +389,7 @@ const getContract = async (req, res) => {
       return res.status(404).json({ message: "O'quvchi mavjud emas!" });
     }
     const data = dataConverter(student);
+
     const docxBuffer = await generateContract(data);
     res.setHeader(
       "Content-Type",
@@ -438,6 +439,7 @@ const downloadAllContracts = async (req, res) => {
     }
     const groupName = students[0]?.Group?.name;
     const data = studentsConverter(students);
+
     const tempPath = path.join(__dirname, "temp");
     if (!fs.existsSync(tempPath)) {
       fs.mkdirSync(tempPath, { recursive: true });

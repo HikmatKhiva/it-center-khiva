@@ -5,6 +5,7 @@ import {
   calculateTotalPaid,
   calculateTotalPrice,
 } from "./payment.helper.js";
+import { paymentsFormatter } from "../admin/admin.helper.js";
 // get all payments
 const getPayments = async (req, res) => {
   try {
@@ -237,4 +238,98 @@ const getRefund = async (req, res) => {
     return res.status(500).json({ error });
   }
 };
-export { uploadPayment, getPayments, paymentRefund, getRefund };
+const getUnconfirmedPayments = async (req, res) => {
+  try {
+    let { date, isConfirmed, limit = 10, page = 1, name } = req.query;
+    isConfirmed = ["PENDING", "CONFIRMED"].includes(isConfirmed)
+      ? isConfirmed
+      : "";
+    date = date ? new Date(date) : null;
+    const data = await prisma.payment.findMany({
+      where: {
+        ...(isConfirmed && { confirmedStatus: isConfirmed }),
+        ...(date && {
+          createdAt: {
+            gte: new Date(date.setHours(0, 0, 0, 0)),
+            lte: new Date(date.setHours(23, 59, 59, 999)),
+          },
+        }),
+        createdBy: { role: "RECEPTION" }, // only reception staff
+        isRefunded: false,
+        Student: name
+          ? {
+              OR: [
+                { firstName: { contains: name, mode: "insensitive" } },
+                { secondName: { contains: name, mode: "insensitive" } },
+              ],
+            }
+          : undefined,
+      },
+      include: {
+        Student: {
+          select: {
+            id: true,
+            firstName: true,
+            secondName: true,
+            course: { select: { name: true } },
+            Group: {
+              select: {
+                name: true,
+                teacher: { select: { firstName: true, secondName: true } },
+              },
+            },
+          },
+        },
+      },
+      skip: (page - 1) * limit,
+      take: parseInt(limit),
+    });
+    const totalCount = await prisma.payment.count({
+      where: {
+        ...(isConfirmed && { confirmedStatus: isConfirmed }),
+        ...(date && {
+          createdAt: {
+            gte: new Date(date.setHours(0, 0, 0, 0)),
+            lte: new Date(date.setHours(23, 59, 59, 999)),
+          },
+        }),
+        createdBy: { role: "RECEPTION" },
+        isRefunded: false,
+      },
+    });
+    const payments = paymentsFormatter(data);
+    const totalPages = Math.ceil(totalCount / limit);
+    res.status(200).json({ payments, totalPages });
+  } catch (error) {
+    console.log(error);
+
+    return res.status(500).json({ error });
+  }
+};
+const confirmedPayments = async (req, res) => {
+  try {
+    const payments = req.body;
+    await prisma.$transaction(
+      payments.map((payment) =>
+        prisma.payment.update({
+          where: { id: payment.id },
+          data: {
+            confirmedStatus: "CONFIRMED",
+            confirmedAt: new Date(),
+          },
+        }),
+      ),
+    );
+    res.status(200).json({ message: "To'lov muvaffaqiyatli yangilandi!" });
+  } catch (error) {
+    return res.status(500).json({ error });
+  }
+};
+export {
+  uploadPayment,
+  getPayments,
+  paymentRefund,
+  getRefund,
+  getUnconfirmedPayments,
+  confirmedPayments,
+};
