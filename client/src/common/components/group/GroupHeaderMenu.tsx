@@ -87,10 +87,7 @@ const GroupHeaderMenu = ({ group }: { group: IGroup }) => {
             Guruhni yakunlash.
           </Menu.Item>
           <Menu.Item
-            disabled={
-              ["ACTIVE", "FINISHED"]?.includes(group.isActive) ||
-              admin?.role !== "ADMIN"
-            }
+            disabled={["ACTIVE", "FINISHED"]?.includes(group.isActive)}
             rightSection={<Play size="16" />}
             onClick={() => setModalActivateGroup(true)}
           >

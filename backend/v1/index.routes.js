@@ -11,7 +11,7 @@ import { roomRoutes } from "./rooms/rooms.routes.js";
 import { receptionRoutes } from "./reception/reception.routes.js";
 import { statsRoutes } from "./stats/stats.routes.js";
 // HACK: this is feature stopped
-// import { metricsRoute } from "./metrics/metrics.routes.js";
+import { metricsRoute } from "./metrics/metrics.routes.js";
 import { newsRoutes } from "./news/news.routes.js";
 import { newStudentRoutes } from "./newStudents/newStudents.routes.js";
 import { receiptRoutes } from "./receipt/receipt.routes.js";

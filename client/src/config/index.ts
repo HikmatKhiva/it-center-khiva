@@ -1,4 +1,3 @@
-
 export const navLinks: ILinks[] = [
   { id: 1, link: "/news", label: "Yangiliklar" },
   { id: 2, link: "/contact", label: "Bog'lanish" },
@@ -16,6 +15,11 @@ export const selectMonths: { label: string; value: string }[] = [
   { label: "October", value: "10" },
   { label: "November", value: "11" },
   { label: "December", value: "12" },
+];
+export const percentSalary: { label: string; value: string }[] = [
+  { label: "70%", value: "0.7" },
+  { label: "50%", value: "0.5" },
+  { label: "30%", value: "0.3" },
 ];
 // Use this type if you want strong typing (optional)
 export type CourseTimeGroup = {

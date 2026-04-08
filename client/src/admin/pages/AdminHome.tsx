@@ -8,14 +8,15 @@ import {
   Banknote,
   ChartCandlestick,
   ChartNoAxesCombined,
+  Computer,
   // Computer,
   DoorClosed,
   TicketCheck,
   WalletCards,
 } from "lucide-react";
-// import Metrics from "../components/metrics/Metrics";
 import RoomsTab from "@/common/components/rooms/RoomsTab";
 import PaymentAccepted from "../components/paymentAccepted/PaymentAccepted";
+import Metrics from "../components/metrics/Metrics";
 const AdminHome = () => {
   const [activeTab, setActiveTab] = useState<string | null>("payments");
   return (
@@ -30,13 +31,13 @@ const AdminHome = () => {
         mb="20"
       >
         <Tabs.List mb="20">
-          {/* <Tabs.Tab
+          <Tabs.Tab
             fz="xl"
             value="metrics"
             rightSection={<Computer size={16} />}
           >
             Metrics
-          </Tabs.Tab> */}
+          </Tabs.Tab>
           <Tabs.Tab
             fz="xl"
             value="payments"
@@ -83,9 +84,9 @@ const AdminHome = () => {
         <Tabs.Panel value="stats">
           <StudentsChart isActive={activeTab === "stats"} />
         </Tabs.Panel>
-        {/* <Tabs.Panel value="metrics">
+        <Tabs.Panel value="metrics">
           <Metrics isActive={activeTab === "metrics"} />
-        </Tabs.Panel> */}
+        </Tabs.Panel>
         <Tabs.Panel value="payments">
           <PaymentAccepted isActive={activeTab === "payments"} />
         </Tabs.Panel>

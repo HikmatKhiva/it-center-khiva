@@ -29,7 +29,6 @@ import {
   LoadAdminRoom,
   LoadAdminRoomId,
   LoadAdminReception,
-  LoadAttendancePage
 } from "./admin/pages";
 // Admin Layout
 import { LoadAdminLayout } from "./admin/layouts";
@@ -41,6 +40,7 @@ import {
   LoadAdminGroup,
   LoadAdminGroupId,
   LoadStudents,
+  LoadTestPage
 } from "./common/pages";
 export const routes = createBrowserRouter([
   {
@@ -154,8 +154,8 @@ export const routes = createBrowserRouter([
         element: <LazyAdminPage Page={LoadStudents} />,
       },
       {
-        path: "attendance",
-        element: <LazyAdminPage Page={LoadAttendancePage} />,
+        path: "test",
+        element: <LazyAdminPage Page={LoadTestPage} />,
       },
     ],
   },

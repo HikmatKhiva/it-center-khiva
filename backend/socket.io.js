@@ -1,17 +1,40 @@
-// import { Server } from "socket.io";
-// export function initSocket(server) {
-//   const CORS_ORIGIN = process.env?.CORS_ORIGIN || "*";
-//   const io = new Server(server, {
-//     cors: {
-//       //   origin: CORS_ORIGIN,
-//       origin: true,
-//       credentials: true,
-//       methods: ["GET","POST"],
-//     },
-//   });
-//   io.on("connection", (socket) => {
-//     console.log("Client connected:", socket.id);
-//   });
+import { Server } from "socket.io";
+import dotenv from "dotenv";
+import { checkAdmin } from "./middleware/checkAdmin.js";
+dotenv.config();
+const CORS_ORIGIN = process.env?.CORS_ORIGIN || "*";
+export function initSocket(server) {
+  const io = new Server(server, {
+    cors: {
+      origin: CORS_ORIGIN,
+      origin: true,
+      credentials: true,
+      methods: ["GET", "POST"],
+    },
+  });
 
-//   return io;
-// }
+  io.use(async (socket, next) => {
+    const token = socket.handshake.auth.token || socket.handshake.query.token;
+    if (!token) {
+      socket.data.public = true;
+      return next();
+    }
+    try {
+      const isAdmin = await checkAdmin(token);
+      if (isAdmin) {
+        socket.data.isAdmin = true;
+        socket.join("admin"); // Private admin room
+        console.log("✅ Admin verified:", socket.id);
+      } else {
+        socket.data.public = true; // Invalid token = public
+      }
+      next();
+    } catch (err) {
+      next(new Error("Token error"));
+    }
+  });
+  io.on("connection", (socket) => {
+    console.log("Client connected:", socket.id);
+  });
+  return io;
+}

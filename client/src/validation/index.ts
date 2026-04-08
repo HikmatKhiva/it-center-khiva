@@ -56,7 +56,7 @@ export const updateGroupValidation = {
 };
 export const createPaymentValidation = {
   amount: (number: number) =>
-    number <= 0 ? "Summani to'g'ri kiriting!" : null,
+    number <= 1000 ? "Summana 1000 katta bo'lishi kerak" : null,
   studentId: (id: number) =>
     typeof id === "undefined" ? "Ma'lumot to'liq emas!" : null,
   paymentDate: (date: Date) => (date ? null : "To'lov sanasini kiriting!"),
@@ -138,7 +138,7 @@ export const updateNewStudentValidation = {
 
 export const paymentRefundValidation = {
   amount: (val: number) =>
-    val < 10000 ? "Qiymat 10000 dan katta bo'lishi kerak!" : null,
+    val < 1000 ? "Qiymat 10000 dan katta bo'lishi kerak!" : null,
   reason: (val: string) =>
     val.trim().length <= 10
       ? `Sababini kiriting eng kamida 10 ta harf... yana(${10 - val.trim().length} harf)`

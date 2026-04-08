@@ -44,10 +44,12 @@
     "nanoid": "^5.1.6",
     "otpauth": "^9.3.6",
     "pdf-lib": "^1.17.1",
+    "pino": "^10.3.1",
     "pizzip": "^3.2.0",
     "qrcode": "^1.5.4",
     "rate-limiter-flexible": "^5.0.5",
     "slugify": "^1.6.6",
+    "socket.io": "^4.8.3",
     "systeminformation": "^5.27.14",
     "validator": "^13.15.0"
   },

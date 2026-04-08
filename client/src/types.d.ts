@@ -57,7 +57,7 @@ interface IGuarantor {
   secondName: string;
   phone: string;
   passportId: string;
-  issueAt:  Date | string ;
+  issueAt: Date | string;
   // studentId: number;
 }
 interface IStudent extends IDefault {
@@ -544,11 +544,29 @@ interface INewsResponse extends IDefaultResponse {
   news: INews[];
 }
 
-interface IMemory {
-  totalMB: number;
-  usedMB: number;
-  freeMB: number;
+interface IInfo {
   totalGB: number;
+  usedGB: number;
+  freeGB: number;
+  usagePercent: number;
+}
+interface ICpu {
+  usagePercent: number;
+  loadAverage1m: number;
+  coreCount: number;
+}
+interface IOsInfo {
+  type: string;
+  platform: string;
+}
+interface IMetrics {
+  osInfo: IOsInfo;
+  serverIPs: string[];
+  cpu: ICpu;
+  memory: IInfo;
+  storage: IInfo;
+  uptime: number;
+  timestamp: Date;
 }
 interface IMetricsResponse {
   memory: IMemory;

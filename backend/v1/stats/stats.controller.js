@@ -25,10 +25,15 @@ const getYearlyIncome = async (req, res) => {
 const getTeachersSalary = async (req, res) => {
   try {
     const date = new Date();
-    const { year = date.getFullYear(), month = date.getMonth() } = req.query;
+    const {
+      year = date.getFullYear(),
+      month = date.getMonth(),
+      percentage = 0.5,
+    } = req.query;
     const teachers = await calculateAllTeachersSalaries(
       parseInt(year, 10),
-      parseInt(month, 10)
+      parseInt(month, 10),
+      Number(percentage),
     );
     res.status(200).json(teachers);
   } catch (error) {

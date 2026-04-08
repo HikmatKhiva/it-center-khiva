@@ -20,6 +20,11 @@ export default defineConfig(({ mode }) => {
           changeOrigin: true,
           rewrite: (path) => path.replace(/^\/api/, ""),
         },
+        "/socket.io": {
+          target: env?.VITE_BACKEND_API_URL || "/",
+          ws: true, // Enable WebSocket proxying
+          changeOrigin: true,
+        },
       },
     },
     assetsInclude: ["**/*.pdf", "**/*.ttf"],

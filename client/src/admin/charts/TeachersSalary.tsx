@@ -1,5 +1,5 @@
 import { Server } from "@/api/api";
-import { selectMonths, years } from "@/config";
+import { percentSalary, selectMonths, years } from "@/config";
 import { useAppSelector } from "@/hooks/redux";
 import { selectUser } from "@/lib/redux/reducer/admin";
 // import { ITeacherChartResponse } from "@/types";
@@ -13,10 +13,12 @@ const TeachersSalary = ({ isActive }: { isActive?: boolean }) => {
   const [query, setQuery] = useState({
     year: current.getFullYear().toString() || "",
     month: String(current.getMonth() + 1) || "",
+    percentage: "0.5",
   });
   const params = new URLSearchParams({
     year: query.year,
     month: query.month,
+    percentage: query.percentage,
   });
   const { data } = useQuery({
     queryFn: () =>
@@ -26,7 +28,7 @@ const TeachersSalary = ({ isActive }: { isActive?: boolean }) => {
           authorization: `Bearer ${admin?.token}`,
         },
       }),
-    queryKey: ["stats", "teachers", "salary", query.year, query.month],
+    queryKey: ["stats", "teachers", "salary", query.year, query.month,query.percentage],
     enabled: !!admin?.token && isActive,
   });
   return (
@@ -51,6 +53,16 @@ const TeachersSalary = ({ isActive }: { isActive?: boolean }) => {
             setQuery((prev) => ({ ...prev, month: value || "" }))
           }
           w={120}
+        />
+        <Select
+          defaultValue={query.percentage}
+          placeholder="Foiz"
+          data={percentSalary}
+          value={query.percentage}
+          onChange={(value) =>
+            setQuery((prev) => ({ ...prev, percentage: value || "" }))
+          }
+          w={80}
         />
       </Group>
       {data && (
