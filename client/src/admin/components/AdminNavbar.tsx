@@ -20,7 +20,7 @@ const AdminNavbar = ({ close }: { close: () => void }) => {
   return (
     <div className="flex flex-col admin-navbar">
       <Group align="center" gap="5" className="pt-5 pb-3">
-        <h3 className="text-xl px-4 ">Boshqaruv Paneli </h3>
+        <h3 className="text-xl px-4">Boshqaruv Paneli</h3>
       </Group>
       <Divider />
       <NavLink

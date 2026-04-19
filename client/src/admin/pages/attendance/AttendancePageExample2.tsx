@@ -53,58 +53,56 @@
 // export default AttendancePageExample2;
 
 
-import React from 'react'
-import {
-  Container,
-  Card,
-  Text,
-  Group,
-  Avatar,
-  SegmentedControl,
-  Stack,
-  Badge,
-  Button,
-  TextInput,
-  Grid,
-  Title,
-} from "@mantine/core";
-import { useState } from "react";
+// import React from 'react'
+// import {
+//   Container,
+//   Card,
+//   Text,
+//   Group,
+//   Avatar,
+//   SegmentedControl,
+//   Stack,
+//   Badge,
+//   Button,
+//   TextInput,
+//   Grid,
+//   Title,
+// } from "@mantine/core";
+// import { useState } from "react";
 
-const students = [
-  { id: 1, name: "Ali Karimov" },
-  { id: 2, name: "John Doe" },
-  { id: 3, name: "Jane Smith" },
-  { id: 4, name: "Sara Lee" },
-];
+// const students = [
+//   { id: 1, name: "Ali Karimov" },
+//   { id: 2, name: "John Doe" },
+//   { id: 3, name: "Jane Smith" },
+//   { id: 4, name: "Sara Lee" },
+// ];
 
 const AttendancePageExample2 = () => {
-    const [attendance, setAttendance] = useState({});
+//     const [attendance, setAttendance] = useState({});
 
-  const setStatus = (id, value) => {
-    setAttendance((prev) => ({ ...prev, [id]: value }));
-  };
+//   const setStatus = (id, value) => {
+//     setAttendance((prev) => ({ ...prev, [id]: value }));
+//   };
 
-  const stats = {
-    present: Object.values(attendance).filter((v) => v === "present").length,
-    absent: Object.values(attendance).filter((v) => v === "absent").length,
-    late: Object.values(attendance).filter((v) => v === "late").length,
-  };
+//   const stats = {
+//     present: Object.values(attendance).filter((v) => v === "present").length,
+//     absent: Object.values(attendance).filter((v) => v === "absent").length,
+//     late: Object.values(attendance).filter((v) => v === "late").length,
+//   };
 
   return (
- <Container size="md" py="xl">
-      {/* Header */}
+  <>
+   {/* <Container size="md" py="xl">
       <Group position="apart" mb="lg">
         <Title order={2}>📋 Attendance</Title>
         <Button variant="light">Today</Button>
       </Group>
 
-      {/* Filters */}
       <Group mb="md">
         <TextInput placeholder="Search student..." style={{ flex: 1 }} />
         <Button variant="default">Class 10A</Button>
       </Group>
 
-      {/* Summary Cards */}
       <Grid mb="md">
         <Grid.Col span={4}>
           <Card radius="lg" shadow="sm">
@@ -128,7 +126,6 @@ const AttendancePageExample2 = () => {
         </Grid.Col>
       </Grid>
 
-      {/* Student List */}
       <Card radius="lg" shadow="sm" p="md">
         <Stack spacing="sm">
           {students.map((student) => (
@@ -154,11 +151,11 @@ const AttendancePageExample2 = () => {
         </Stack>
       </Card>
 
-      {/* Save Button */}
       <Button fullWidth mt="lg" size="md" radius="lg">
         💾 Save Attendance
       </Button>
-    </Container>
+    </Container> */}
+    </>
   )
 }
 

@@ -11,7 +11,7 @@ import {
 import { useForm } from "@mantine/form";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useAppSelector } from "@/hooks/redux";
-import { Pen, Trash2 } from "lucide-react";
+import { Trash2, UserRoundPen } from "lucide-react";
 import {
   createNotification,
   showErrorNotification,
@@ -42,7 +42,6 @@ const UpdateTeacherModal = ({ teacher }: { teacher: ITeacher }) => {
       showSuccessNotification(idNotification.current, success?.message);
       close();
       form.reset();
-      
     },
     onError: (error) => {
       showErrorNotification(idNotification.current, error.message);
@@ -87,14 +86,8 @@ const UpdateTeacherModal = ({ teacher }: { teacher: ITeacher }) => {
   };
   return (
     <>
-      <Button
-        onClick={open}
-        rightSection={<Pen size={16} />}
-        color="green"
-        size="xs"
-        variant="outline"
-      >
-        O'zgartirish
+      <Button onClick={open} color="green" size="xs" variant="outline">
+        <UserRoundPen size="16" />
       </Button>
       <Modal opened={opened} onClose={close}>
         <form onSubmit={form.onSubmit(handleSubmit)}>

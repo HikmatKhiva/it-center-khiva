@@ -32,13 +32,12 @@ groupRoutes.put(
 );
 groupRoutes.patch(
   "/finish/:id",
-  //  checkRole,
+   checkRole,
   finishGroup,
 );
 groupRoutes.delete("/delete/:id", checkRole, deleteGroup);
 groupRoutes.put(
   "/activate/:id",
-  checkRole,
   validate(groupActivateSchema),
   activateGroup,
 );

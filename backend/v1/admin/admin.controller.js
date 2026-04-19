@@ -13,7 +13,7 @@ const { JWT_SECRET } = process.env;
 const expirationTime = new Date().getTime() + 3 * 24 * 60 * 60 * 1000; // 3 days from now
 const registerUser = async (req, res, next) => {
   try {
-    const { username, password, secret, role } = req.body;
+    const { username, password, secret } = req.body;
     const roles = ["ADMIN", "RECEPTION", "TEACHER"];
     const find = await prisma.admin.findFirst({
       where: {
@@ -30,7 +30,7 @@ const registerUser = async (req, res, next) => {
         username,
         password: hashedPassword,
         secret,
-        role,
+        role: "RECEPTION",
       },
     });
     res.status(201).json({
@@ -167,8 +167,6 @@ const uploadImage = async (req, res, next) => {
 };
 const updateProfile = async (req, res, next) => {
   try {
-    console.log(req);
-    
     const { username, secret, password, id } = req.body;
     const find = await prisma.admin.findUnique({
       where: {

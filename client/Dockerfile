@@ -7,6 +7,7 @@ WORKDIR /usr/src/app
 COPY package*.json ./
 
 RUN npm install -g vite 
+
 RUN npm install 
 
 COPY . .
@@ -14,7 +15,9 @@ COPY . .
 EXPOSE 3000
 # Build the app
 CMD ["npm", "run", "dev", "--", "--host", "0.0.0.0"]
+
 # production
+
 # FROM node:20-alpine as build
 # WORKDIR /usr/src/app
 # # Copy package files and install dependencies
@@ -27,13 +30,13 @@ CMD ["npm", "run", "dev", "--", "--host", "0.0.0.0"]
 # # Build the application
 # RUN npm run build
 
-# Production stage
-# FROM nginx:alpine
+# # Production stage
+# # FROM nginx:alpine
 
-# Copy the build output
+# # Copy the build output
 # COPY --from=build /usr/src/app/dist /usr/share/nginx/html
 
-# Copy nginx configuration
+# # Copy nginx configuration
 # COPY nginx.conf /etc/nginx/conf.d/default.conf
 
 # EXPOSE 80

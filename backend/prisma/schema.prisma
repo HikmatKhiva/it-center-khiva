@@ -16,7 +16,7 @@ model Admin {
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
   role      Role
-  isActive  Boolean   @default(true)
+  isActive  Boolean   @default(false)
   // Add online status
   isOnline  Boolean   @default(false)
   lastSeen  DateTime?
@@ -25,15 +25,16 @@ model Admin {
 }
 
 model Teacher {
-  id         Int      @id @default(autoincrement())
-  firstName  String   @db.VarChar(255)
-  secondName String   @db.VarChar(255)
-  photo_url  String?  @db.VarChar(255)
-  createdAt  DateTime @default(now())
-  phone      String?
-  updatedAt  DateTime @updatedAt
-  role       Role     @default(TEACHER)
-  commissionRate Float  @default(0.5)  // Custom per teacher!
+  id             Int      @id @default(autoincrement())
+  firstName      String   @db.VarChar(255)
+  secondName     String   @db.VarChar(255)
+  photo_url      String?  @db.VarChar(255)
+  createdAt      DateTime @default(now())
+  phone          String?
+  updatedAt      DateTime @updatedAt
+  role           Role     @default(TEACHER)
+  commissionRate Float    @default(0.5) // Custom per teacher!
+
   Blog   Blog[]
   Course Course[]
   Groups Group[]
@@ -239,37 +240,6 @@ model Category {
   id    Int    @id @default(autoincrement())
   name  String @unique
   blogs Blog[]
-}
-
-model TestQuestion {
-  id        Int          @id @default(autoincrement())
-  question  String
-  createdAt DateTime     @default(now())
-  answers   TestAnswer[]
-}
-
-model TestAnswer {
-  id         Int          @id @default(autoincrement())
-  text       String
-  questionId Int
-  question   TestQuestion @relation(fields: [questionId], references: [id])
-
-  frontend Int @default(0)
-  smm      Int @default(0)
-  backend  Int @default(0)
-  computer Int @default(0)
-}
-
-model TestResult {
-  id          Int      @id @default(autoincrement())
-  fullName    String
-  phone       String
-  frontend    Int
-  backend     Int
-  smm         Int
-  computer    Int
-  recommended String
-  createdAt   DateTime @default(now())
 }
 
 enum Role {

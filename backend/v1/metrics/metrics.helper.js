@@ -48,7 +48,7 @@ export async function getSystemInfo() {
           diskTotal > 0 ? Math.round((diskUsed / diskTotal) * 100) : 0,
       },
       uptime: process.uptime(),
-      timestamp: new Date().toISOString(),
+      timestamp: Math.floor(Date.now() / 1000),
     };
   } catch (err) {
     console.error(err);

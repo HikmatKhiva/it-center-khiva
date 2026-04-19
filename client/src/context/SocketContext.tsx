@@ -5,8 +5,8 @@ import {
   useState,
   ReactNode,
 } from "react";
-import { Socket } from "socket.io-client"; // ✅ Import Socket type!
-import { io } from "socket.io-client";
+import type { Socket } from "socket.io-client";
+import io from "socket.io-client";
 import { useAppSelector } from "@/hooks/redux";
 import { selectUser } from "@/lib/redux/reducer/admin";
 interface SocketContextType {

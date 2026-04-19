@@ -15,8 +15,13 @@ import {
 } from "@/utils/notification";
 import { Server } from "@/api/api";
 import { duration, weekType } from "@/config";
+import {useErrorSound} from "@/hooks/useErrorSound"; // Your path
+
 const CreateGroupModal = () => {
   const admin = useAppSelector(selectUser);
+  const prevErrorsRef = useRef<{ [key: string]: any }>({}); // Track previous errors
+  const playErrorSound = useErrorSound(); // ✅ Stable, memoized
+
   const idNotification = useRef<string>("");
   const [opened, { open, close }] = useDisclosure(false);
   const { courses, loading, teachers, rooms } = useFormData();
@@ -100,6 +105,17 @@ const CreateGroupModal = () => {
     idNotification.current = createNotification(isPending);
     mutateAsync(group);
   };
+
+  useEffect(() => {
+    const hasErrorsNow = Object.keys(form.errors).length > 0;
+    const hadErrorsBefore = Object.keys(prevErrorsRef?.current).length > 0;
+
+    if (hasErrorsNow && !hadErrorsBefore) {
+      playErrorSound();
+    }
+    prevErrorsRef.current = form.errors;
+  }, [form.errors, playErrorSound]);
+
   return (
     <>
       <Button
@@ -209,6 +225,17 @@ const CreateGroupModal = () => {
             Yaratish
           </Button>
         </form>
+          {/* <Button
+            loading={isPending}
+            onClick={playErrorSound}
+            size="sm"
+            mt="15"
+            color="green"
+            type="submit"
+            radius="md"
+          >
+            Sound
+          </Button> */}
       </Modal>
     </>
   );

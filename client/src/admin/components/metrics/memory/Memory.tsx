@@ -9,6 +9,7 @@ import {
   Text,
   Tooltip,
 } from "@mantine/core";
+
 const Memory = () => {
   const { metrics } = useAdminMetrics();
   if (!metrics) {
@@ -21,7 +22,7 @@ const Memory = () => {
   const { memory, storage, serverIPs, osInfo } = metrics;
   return (
     <Card w="50%" flex={1} h={230} withBorder>
-      <Stack justify="space-between" h={'100%'}>
+      <Stack justify="space-between" h={"100%"}>
         <Group justify="space-between">
           <Text size="xl" mb={5}>
             OS: {osInfo?.platform}

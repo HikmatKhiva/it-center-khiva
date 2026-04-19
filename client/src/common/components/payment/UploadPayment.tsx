@@ -4,7 +4,7 @@ import { useDisclosure } from "@mantine/hooks";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Calendar, Wallet, PoundSterling } from "lucide-react";
 import { createPaymentValidation } from "@/validation";
-import { useRef } from "react";
+import { useEffect, useRef } from "react";
 import { useAppSelector } from "@/hooks/redux";
 import {
   createNotification,
@@ -14,9 +14,12 @@ import {
 import { selectUser } from "@/lib/redux/reducer/admin";
 import { Server } from "@/api/api";
 import { DateTimePicker } from "@mantine/dates";
+import { useErrorSound } from "@/hooks/useErrorSound";
 const UploadPayment = ({ studentId }: { studentId: number }) => {
   const admin = useAppSelector(selectUser);
   const [opened, { open, close }] = useDisclosure(false);
+  const prevErrorsRef = useRef<{ [key: string]: any }>({}); // Track previous errors
+  const playErrorSound = useErrorSound(); // ✅ Stable, memoized
   const idNotification = useRef<string>("");
   const client = useQueryClient();
   const form = useForm({
@@ -53,6 +56,14 @@ const UploadPayment = ({ studentId }: { studentId: number }) => {
     idNotification.current = createNotification(isPending);
     mutateAsync(data);
   };
+  useEffect(() => {
+    const hasErrorsNow = Object.keys(form.errors).length > 0;
+    const hadErrorsBefore = Object.keys(prevErrorsRef?.current).length > 0;
+    if (hasErrorsNow && !hadErrorsBefore) {
+      playErrorSound();
+    }
+    prevErrorsRef.current = form.errors;
+  }, [form.errors, playErrorSound]);
   return (
     <>
       <Button type="button" color="indigo" size="xs" onClick={open}>

@@ -1,6 +1,7 @@
 import { Server } from "socket.io";
 import dotenv from "dotenv";
 import { checkAdmin } from "./middleware/checkAdmin.js";
+import { logger } from "./utils/logger.js";
 dotenv.config();
 const CORS_ORIGIN = process.env?.CORS_ORIGIN || "*";
 export function initSocket(server) {
@@ -24,7 +25,8 @@ export function initSocket(server) {
       if (isAdmin) {
         socket.data.isAdmin = true;
         socket.join("admin"); // Private admin room
-        console.log("✅ Admin verified:", socket.id);
+        // console.log("✅ Admin verified:", socket.id);
+        logger.info({ msg: "✅ Admin verified", id: socket.id, isAdmin });
       } else {
         socket.data.public = true; // Invalid token = public
       }

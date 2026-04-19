@@ -23,6 +23,7 @@ const CPU = ({ isActive }: { isActive: boolean }) => {
       </>
     );
   }
+  
   return (
     <Card withBorder w="50%" h={230}>
       <Stack>

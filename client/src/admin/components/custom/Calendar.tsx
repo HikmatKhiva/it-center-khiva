@@ -5,7 +5,7 @@ type Props = {
   onChange?: (date: Date) => void;
 };
 
-const Calendar: React.FC<Props> = ({ _value, onChange }) => {
+const Calendar: React.FC<Props> = ({ onChange }) => {
   const [currentMonth, setCurrentMonth] = useState(new Date());
 
   const year = currentMonth.getFullYear();
@@ -61,7 +61,7 @@ const Calendar: React.FC<Props> = ({ _value, onChange }) => {
                 >
                   {d}
                 </th>
-              )
+              ),
             )}
           </tr>
         </thead>

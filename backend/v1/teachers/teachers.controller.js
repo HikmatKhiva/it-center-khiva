@@ -14,6 +14,13 @@ const getAllTeacher = async (req, res) => {
           mode: "insensitive",
         },
       },
+      select: {
+        id: true,
+        firstName: true,
+        secondName: true,
+        photo_url: true,
+        phone: true,
+      },
       skip: (page - 1) * limit,
       take: parseInt(limit),
     });

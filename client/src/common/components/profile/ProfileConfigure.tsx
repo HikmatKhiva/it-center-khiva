@@ -1,4 +1,4 @@
-import { Avatar, ActionIcon, Menu } from "@mantine/core";
+import { Avatar, ActionIcon, Menu, Switch, Group, Text } from "@mantine/core";
 import { useAppSelector } from "@/hooks/redux";
 import { useState } from "react";
 import ProfilePreview from "./ProfilePreview";
@@ -8,8 +8,10 @@ import { selectUser } from "@/lib/redux/reducer/admin";
 import { useQuery } from "@tanstack/react-query";
 import { Server } from "@/api/api";
 import ProfileLogout from "./ProfileLogout";
+import { useSoundPreference } from "@/hooks/useSoundPreference ";
 const ProfileConfigure = () => {
   const profile = useAppSelector(selectUser);
+  const { toggleSound, soundEnabled } = useSoundPreference();
   const { data } = useQuery<IUserProfile>({
     queryKey: ["profile"],
     queryFn: () =>
@@ -47,6 +49,17 @@ const ProfileConfigure = () => {
             onClick={() => setModalProfileUpdate(true)}
           >
             Hisobni yangilash
+          </Menu.Item>
+          <Menu.Item onClick={toggleSound}>
+            <Group justify="space-between">
+              <Text size="sm">Ovoz</Text>
+              <Switch
+                checked={soundEnabled}
+                size="sm"
+                onLabel="ON"
+                offLabel="OFF"
+              />
+            </Group>
           </Menu.Item>
           <Menu.Divider />
           <Menu.Label>Danger zone</Menu.Label>

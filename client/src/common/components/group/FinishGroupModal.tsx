@@ -10,6 +10,7 @@ import {
   showSuccessNotification,
 } from "@/utils/notification";
 import { Server } from "@/api/api";
+import { useErrorSound } from "@/hooks/useErrorSound";
 const FinishGroupModal = memo(
   ({
     id,
@@ -21,7 +22,7 @@ const FinishGroupModal = memo(
     close: () => void;
   }) => {
     const admin = useAppSelector(selectUser);
-    // const [opened, { open, close }] = useDisclosure(false);
+    const playErrorSound = useErrorSound(); 
     const idNotification = useRef<string>("");
     const client = useQueryClient();
     const frame = () => {
@@ -65,6 +66,7 @@ const FinishGroupModal = memo(
       onError: (error) => {
         showErrorNotification(idNotification.current, error.message);
         close();
+        playErrorSound();
       },
     });
     const handleSubmit = async () => {
@@ -73,17 +75,6 @@ const FinishGroupModal = memo(
     };
     return (
       <>
-        {/* <Button
-          onClick={open}
-          aria-label="finish group button"
-          aria-labelledby="finish group button"
-          color="green"
-          variant="outline"
-          fz={"xs"}
-          rightSection={<Check size={16} />}
-        >
-          Guruhni yakunlash.
-        </Button> */}
         <Modal
           centered
           opened={opened}

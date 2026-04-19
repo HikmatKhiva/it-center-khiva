@@ -22,7 +22,7 @@ const DebtorStudents = () => {
     limit: 10,
     month: (new Date().getMonth() + 1).toString(),
     year: new Date().getFullYear().toString(),
-    // orderBy: "asc",
+    orderBy: "asc",
   });
   const params = new URLSearchParams({
     name: query.name,

@@ -26,6 +26,7 @@ import { discounts } from "@/config";
 import { InputMask } from "@react-input/mask";
 import { Server } from "@/api/api";
 import { DateInput } from "@mantine/dates";
+import { useErrorSound } from "@/hooks/useErrorSound";
 const CreateStudent = memo(
   ({
     courseId,
@@ -40,8 +41,9 @@ const CreateStudent = memo(
   }) => {
     const admin = useAppSelector(selectUser);
     const idNotification = useRef<string>("");
+    const prevErrorsRef = useRef<{ [key: string]: any }>({}); // Track previous errors
+    const playErrorSound = useErrorSound(); // ✅ Stable, memoized
     const date = new Date().toISOString().split("T")[0];
-    // const [opened, { open, close }] = useDisclosure(false);
     const client = useQueryClient();
     const form = useForm({
       initialValues: {
@@ -110,6 +112,15 @@ const CreateStudent = memo(
         form.setFieldValue("guarantor.issueAt", guarantor?.issueAt || date);
       }
     }, [guarantor]);
+    useEffect(() => {
+      const hasErrorsNow = Object.keys(form.errors).length > 0;
+      const hadErrorsBefore = Object.keys(prevErrorsRef?.current).length > 0;
+
+      if (hasErrorsNow && !hadErrorsBefore) {
+        playErrorSound();
+      }
+      prevErrorsRef.current = form.errors;
+    }, [form.errors, playErrorSound]);
     return (
       <>
         <Modal

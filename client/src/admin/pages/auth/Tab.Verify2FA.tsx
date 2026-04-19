@@ -2,7 +2,7 @@ import { Button, PinInput, Stack, Text } from "@mantine/core";
 import { useForm } from "@mantine/form";
 import { tokenValidation } from "@/validation";
 import { useMutation } from "@tanstack/react-query";
-import { useRef } from "react";
+import { useEffect, useRef } from "react";
 import {
   createNotification,
   showErrorNotification,
@@ -12,10 +12,13 @@ import { login } from "@/lib/redux/reducer/admin";
 import { useAppDispatch } from "@/hooks/redux";
 import { useNavigate } from "react-router-dom";
 import { Server } from "@/api/api";
+import { useErrorSound } from "@/hooks/useErrorSound";
 const TabVerify2FA = ({ username }: { username: string }) => {
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
   const idNotification = useRef<string>("");
+  const prevErrorsRef = useRef<{ [key: string]: any }>({}); // Track previous errors
+  const playErrorSound = useErrorSound(); // ✅ Stable, memoized
   const navigateToRole = (role: string) => {
     switch (role) {
       case "ADMIN":
@@ -55,6 +58,14 @@ const TabVerify2FA = ({ username }: { username: string }) => {
     idNotification.current = createNotification(isPending);
     await mutateAsync(data);
   };
+  useEffect(() => {
+    const hasErrorsNow = Object.keys(form.errors).length > 0;
+    const hadErrorsBefore = Object.keys(prevErrorsRef?.current).length > 0;
+    if (hasErrorsNow && !hadErrorsBefore) {
+      playErrorSound();
+    }
+    prevErrorsRef.current = form.errors;
+  }, [form.errors, playErrorSound]);
   return (
     <form onSubmit={form.onSubmit(handleSubmit2FA)}>
       <Stack justify="center" pb="10">
