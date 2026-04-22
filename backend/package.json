@@ -5,8 +5,8 @@
   "type": "module",
   "main": "app.js",
   "scripts": {
-    "server": "nodemon app.js",
-    "dev": "npm run server ",
+    "server": "node app.js",
+    "dev": "nodemon app.js ",
     "client": "npm run dev --prefix client",
     "lint": "npx eslint"
   },

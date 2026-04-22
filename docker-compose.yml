@@ -4,7 +4,7 @@ services:
     container_name: backend
     build:
       context: ./backend
-      dockerfile: Dockerfile
+      dockerfile: Dockerfile.prod
     ports:
       - "5000:5000"
     command: sh -c "npx prisma migrate deploy  && npm run server"

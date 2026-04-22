@@ -20,7 +20,7 @@ const CSV_FILES = {
 async function readCsv(filename) {
   const rows = [];
   await new Promise((resolve, reject) => {
-    fs.createReadStream(filename)
+    fs.createReadStream(`data/${filename}`)
       .pipe(csvParser())
       .on("data", (row) => rows.push(row))
       .on("end", () => resolve())

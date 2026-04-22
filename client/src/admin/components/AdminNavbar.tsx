@@ -13,7 +13,7 @@ import {
   Settings,
   UserRound,
   // Calendar,
-  TestTube,
+  // TestTube,
 } from "lucide-react";
 import { NavLink } from "react-router-dom";
 const AdminNavbar = ({ close }: { close: () => void }) => {
@@ -72,13 +72,13 @@ const AdminNavbar = ({ close }: { close: () => void }) => {
           label="Xonalar"
           leftSection={<DoorClosed />}
         />
-        <MantineNavLink
+        {/* <MantineNavLink
           component={NavLink}
           onClick={close}
           to="/admin/test"
           label="Test"
           leftSection={<TestTube />}
-        />
+        /> */}
       </MantineNavLink>
       <NavLink
         onClick={close}
