@@ -65,7 +65,7 @@ services:
         ipv4_address: 172.0.0.4
 
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${DB_USER} -d ${DB_NAME}"]
+      test: [ "CMD-SHELL", "pg_isready -U ${DB_USER} -d ${DB_NAME}" ]
       interval: 5s
       timeout: 60s
       retries: 5
@@ -82,7 +82,7 @@ services:
     ports:
       - "80:80"
       - "443:443"
-    # volumes:
+      # volumes:
       # - ./certbot/conf:/etc/letsencrypt
       # - ./certbot/www:/var/www/certbot
     depends_on:
@@ -98,23 +98,24 @@ services:
   #   volumes:
   #     - ./certbot/conf:/etc/letsencrypt
   #     - ./certbot/www:/var/www/certbot
-  #   command: certonly --webroot -w /var/www/certbot --force-renewal --email xikmatkiva.4s@gmail.com -d it-khiva.uz --agree-tos
-#   pgadmin:
-#     image: dpage/pgadmin4
-#     container_name: pgadmin
-#     environment:
-#       PGADMIN_DEFAULT_EMAIL: ${PGADMIN_EMAIL}
-#       PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_PASSWORD}
-#       PGADMIN_CONFIG_SERVER_MODE: 'False'
-#     ports:
-#       - "8080:80"
-#     depends_on:
-#       - db
-#     networks:
-#       it-network:
-#         ipv4_address: 172.0.0.6
+  #   command: certonly --webroot -w /var/www/certbot --force-renewal --email ${EMAIL} -d ${DOMAIN} --agree-tos
+  # pgadmin:
+  #   image: dpage/pgadmin4
+  #   container_name: pgadmin
+  #   environment:
+  #     PGADMIN_DEFAULT_EMAIL: ${PGADMIN_EMAIL}
+  #     PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_PASSWORD}
+  #     PGADMIN_CONFIG_SERVER_MODE: 'False'
+  #   ports:
+  #     - "8080:80"
+  #   depends_on:
+  #     - db
+  #   networks:
+  #     it-network:
+  #       ipv4_address: 172.0.0.6
 volumes:
   db_data:
+
 
 networks:
   it-network:
@@ -122,5 +123,3 @@ networks:
     ipam:
       config:
         - subnet: 172.0.0.0/16
-
-
