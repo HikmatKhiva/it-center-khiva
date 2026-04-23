@@ -62,7 +62,8 @@ const NewStudents = () => {
       query.isAttend,
       query.month,
       query.courseId,
-      query.year
+      query.year,
+      query.page
     ],
     enabled: !!user?.token,
   });

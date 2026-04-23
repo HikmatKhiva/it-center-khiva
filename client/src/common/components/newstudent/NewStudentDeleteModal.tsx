@@ -11,7 +11,6 @@ import { useDisclosure } from "@mantine/hooks";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Trash } from "lucide-react";
 import { useRef } from "react";
-
 const NewStudentDeleteModal = ({
   id,
   fullName,
@@ -25,7 +24,6 @@ const NewStudentDeleteModal = ({
   const client = useQueryClient();
   const idNotification = useRef<string>("");
   const [opened, { open, close }] = useDisclosure(false);
-
   const { mutateAsync: mutationDelete, isPending } = useMutation({
     mutationFn: () =>
       Server<IMessageResponse>(`newStudents/delete/${id}`, {
@@ -38,6 +36,7 @@ const NewStudentDeleteModal = ({
     onSuccess: (success) => {
       client.invalidateQueries({ queryKey: ["newStudents"] });
       showSuccessNotification(idNotification.current, success?.message);
+      close()
     },
     onError: (error) => {
       showErrorNotification(idNotification.current, error.message);
@@ -84,5 +83,4 @@ const NewStudentDeleteModal = ({
     </>
   );
 };
-
 export default NewStudentDeleteModal;
