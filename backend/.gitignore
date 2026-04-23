@@ -5,6 +5,7 @@
 /.pnp
 .pnp.js
 .yarn/install-state.gz
+package-lock.json
 
 
 # prisma
@@ -19,3 +20,7 @@
 
 # env
 .env
+
+*.csv
+*.docx
+*.doc

@@ -2,6 +2,7 @@ import { Divider, Group } from "@mantine/core";
 import {
   GraduationCap,
   House,
+  UserRound,
   UserRoundPlus,
   Users,
   UsersRoundIcon,
@@ -54,6 +55,14 @@ const ReceptionNavbar = ({ close }: { close: () => void }) => {
       >
         <GraduationCap />
         Tayor Sertificatlar
+      </NavLink>
+      <NavLink
+        onClick={close}
+        className="w-full py-2 px-4 flex items-center gap-2  text-lg"
+        to="/reception/students"
+      >
+        <UserRound />
+        O'quvchilar
       </NavLink>
     </div>
   );

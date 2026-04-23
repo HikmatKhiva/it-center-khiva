@@ -1,7 +1,8 @@
-import { Divider, Group } from "@mantine/core";
+import { Divider, Group, NavLink as MantineNavLink } from "@mantine/core";
 import {
   BookOpenText,
   ConciergeBell,
+  DoorClosed,
   GraduationCap,
   House,
   Mails,
@@ -9,13 +10,17 @@ import {
   User,
   UserRoundPlus,
   Users,
+  Settings,
+  UserRound,
+  // Calendar,
+  // TestTube,
 } from "lucide-react";
 import { NavLink } from "react-router-dom";
 const AdminNavbar = ({ close }: { close: () => void }) => {
   return (
     <div className="flex flex-col admin-navbar">
       <Group align="center" gap="5" className="pt-5 pb-3">
-        <h3 className="text-xl px-4 ">Boshqaruv Paneli </h3>
+        <h3 className="text-xl px-4">Boshqaruv Paneli</h3>
       </Group>
       <Divider />
       <NavLink
@@ -34,7 +39,47 @@ const AdminNavbar = ({ close }: { close: () => void }) => {
         <Users />
         Guruhlar
       </NavLink>
-
+      <MantineNavLink
+        label="Sozlamalar"
+        leftSection={<Settings />}
+        href="/admin/settings"
+      >
+        <MantineNavLink
+          component={NavLink}
+          onClick={close}
+          to="/admin/teachers"
+          label="O'qituvchilar"
+          leftSection={<User />}
+        />
+        <MantineNavLink
+          component={NavLink}
+          onClick={close}
+          to="/admin/course"
+          label="Kurslar"
+          leftSection={<BookOpenText />}
+        />
+        <MantineNavLink
+          component={NavLink}
+          onClick={close}
+          to="/admin/reception"
+          label="Reception"
+          leftSection={<ConciergeBell />}
+        />
+        <MantineNavLink
+          component={NavLink}
+          onClick={close}
+          to="/admin/rooms"
+          label="Xonalar"
+          leftSection={<DoorClosed />}
+        />
+        {/* <MantineNavLink
+          component={NavLink}
+          onClick={close}
+          to="/admin/test"
+          label="Test"
+          leftSection={<TestTube />}
+        /> */}
+      </MantineNavLink>
       <NavLink
         onClick={close}
         className="w-full py-2 px-4 flex items-center gap-2  text-lg"
@@ -42,22 +87,6 @@ const AdminNavbar = ({ close }: { close: () => void }) => {
       >
         <Newspaper />
         Yangiliklar
-      </NavLink>
-      <NavLink
-        onClick={close}
-        className="w-full py-2 px-4 flex items-center gap-2  text-lg"
-        to="/admin/course"
-      >
-        <BookOpenText />
-        Kurslar
-      </NavLink>
-      <NavLink
-        onClick={close}
-        className="w-full py-2 px-4 flex items-center gap-2  text-lg"
-        to="/admin/teachers"
-      >
-        <User />
-        O'qituvchilar
       </NavLink>
       <NavLink
         onClick={close}
@@ -70,18 +99,10 @@ const AdminNavbar = ({ close }: { close: () => void }) => {
       <NavLink
         onClick={close}
         className="w-full py-2 px-4 flex items-center gap-2  text-lg"
-        to="/admin/students"
+        to="/admin/new-students"
       >
         <UserRoundPlus />
         Yangi o'quvchilar
-      </NavLink>
-      <NavLink
-        onClick={close}
-        className="w-full py-2 px-4 flex items-center gap-2  text-lg"
-        to="/admin/reception"
-      >
-        <ConciergeBell />
-        Reception
       </NavLink>
       <NavLink
         onClick={close}
@@ -91,13 +112,21 @@ const AdminNavbar = ({ close }: { close: () => void }) => {
         <GraduationCap />
         Tayor Sertificatlar
       </NavLink>
+      <NavLink
+        onClick={close}
+        className="w-full py-2 px-4 flex items-center gap-2  text-lg"
+        to="/admin/students"
+      >
+        <UserRound />
+        O'quvchilar
+      </NavLink>
       {/* <NavLink
         onClick={close}
         className="w-full py-2 px-4 flex items-center gap-2  text-lg"
-        to="/admin/rooms"
+        to="/admin/attendance"
       >
-        <DoorClosed  />
-        Xonalar
+        <Calendar />
+        Attendance
       </NavLink> */}
     </div>
   );

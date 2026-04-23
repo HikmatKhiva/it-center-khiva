@@ -1,3 +1,4 @@
+# use production nginx-ssl.conf
 FROM nginx:alpine
 COPY nginx-http.conf /etc/nginx/conf.d/default.conf
 RUN mkdir -p /var/www/certbot

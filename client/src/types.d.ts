@@ -3,6 +3,10 @@ interface ILinks {
   link: string;
   label: string;
 }
+interface IRoomForm {
+  name: string;
+  capacity: number;
+}
 
 interface INewGroup {
   name: string;
@@ -10,20 +14,51 @@ interface INewGroup {
   teacherId: string;
   price: number;
   duration: number;
-  groupTime: string;
-  // groupTime: {
-  //   day: string;
-  //   hour: string;
-  // };
+  schedules: {
+    weekType: string;
+    time: string;
+    roomId: string | number;
+  };
+}
+interface IUpdateGroup {
+  teacherId: string;
+  schedules: {
+    weekType: string;
+    time: string;
+    roomId: string | number;
+  };
+}
+interface ISlotsResponse {
+  slots: ISelect[];
 }
 interface IStudentCreate {
   firstName: string;
   secondName: string;
   passportId: string;
+  issueAt: null | Date;
   gender: string;
+  address: string;
   courseId: number;
   groupId: number;
   phone: string;
+  docType: "PASSPORT" | "BIRTHCERTIFICATE";
+  guarantor: IGuarantorCreate;
+}
+interface IGuarantorCreate {
+  firstName: string;
+  secondName: string;
+  phone: string;
+  passportId: string;
+  issueAt: null | Date | string;
+}
+interface IGuarantor {
+  id: number;
+  firstName: string;
+  secondName: string;
+  phone: string;
+  passportId: string;
+  issueAt: Date | string;
+  // studentId: number;
 }
 interface IStudent extends IDefault {
   firstName: string;
@@ -31,20 +66,49 @@ interface IStudent extends IDefault {
   passportId: string;
   gender: string;
   courseId: number;
+  address: string;
   code: string;
   groupId: number;
   certificate_url?: string;
+  issueAt: null | Date;
   phone: null | string;
   debt: string;
   discount: string;
+  docType: "PASSPORT" | "BIRTHCERTIFICATE";
   Certificate: {
     id: number;
     certificateUrl: string;
   };
   Group: {
     duration: number;
-    price: string;
+
+    startTime: null | Date;
   };
+  guarantor: IGuarantor;
+}
+interface IStudents extends IDefault {
+  firstName: string;
+  secondName: string;
+  code: string;
+  passportId: string;
+  finishedDate: Date | null;
+  guarantor: IGuarantor;
+  debt: string;
+  Group: {
+    name: string;
+    isActive: "PENDING" | "ACTIVE" | "FINISHED";
+  };
+  course: {
+    name: string;
+    teacher: {
+      firstName: string;
+      secondName: string;
+    };
+  };
+}
+interface IAllStudentsResponse {
+  students: IStudents[];
+  totalPages: number;
 }
 interface ISelect {
   value: string;
@@ -53,7 +117,6 @@ interface ISelect {
 interface IGroup {
   id: number;
   name: string;
-  isGroupFinished: boolean;
   teacher: ITeacher;
   course: ICourse;
   Students: [];
@@ -62,6 +125,47 @@ interface IGroup {
   finishedDate: Date;
   groupTime: string;
   createdAt: Date;
+  startTime: Date | null;
+  price: string;
+  isActive: "PENDING" | "ACTIVE" | "FINISHED";
+  schedules: [
+    {
+      id: number;
+      weekType: string;
+      time: string;
+      roomId: number;
+      groupId: number;
+    },
+  ];
+}
+interface IGroupResponse {
+  id: number;
+  name: string;
+  teacher: ITeacher;
+  course: ICourse;
+  Students: [];
+  price: number;
+  duration: number;
+  finishedDate: Date;
+  groupTime: string;
+  createdAt: Date;
+  startTime: Date | null;
+  price: string;
+  isActive: "PENDING" | "ACTIVE" | "FINISHED";
+  schedules: [
+    {
+      id: number;
+      weekType: string;
+      time: string;
+      roomId: number;
+      groupId: number;
+    },
+  ];
+  totalPages: number;
+}
+interface IGroupActivate {
+  startTime: Date;
+  finishedDate: Date;
 }
 
 interface INewCourse {
@@ -84,7 +188,7 @@ interface CreateCardProps {
   photo: string;
   handleFileChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   handleInputChange: (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
   ) => void;
 }
 interface INewsCard {
@@ -103,6 +207,22 @@ interface IPayments extends IDefault {
   amount: string;
   status: string;
   studentId: number;
+  isRefunded: boolean;
+  refundedAt: Date;
+  createdBy: {
+    username: string;
+    role: string;
+  };
+}
+interface IRefund {
+  id: number;
+  paymentId: number;
+  amount: string;
+  createdAt: Date;
+  reason: string;
+  cancelledBy: {
+    role: string;
+  };
 }
 interface INewStudentCreate {
   fullName: string;
@@ -122,6 +242,7 @@ interface IAddStudents {
 interface INewStudent extends INewStudentCreate, IDefault {
   course: ICourse;
   isAttend: string;
+  reason: null | string;
 }
 interface IQueryStudent {
   isAttend: string;
@@ -130,16 +251,20 @@ interface IQueryStudent {
   courseTime: string;
   limit: number;
   page: number;
+  year: string;
 }
 interface IOpenedGroup {
   courseName: string;
   teacher: string;
   groupTime: string;
   admissionEnd: string;
+  weekType: string;
+  room: string;
 }
 
 interface IStats {
   stat: string;
+  yearFilter: number;
   activeStudents: number;
   activeGroups: number;
   totalTeachers: number;
@@ -152,6 +277,14 @@ interface IStats {
   totalFinishedFemaleStudents: number;
   finishedGroups: number;
   totalDebtors: number;
+  totalNewstudentNOT_CAME: number;
+  totalNewstudentCAME: number;
+  totalNewstudent: number;
+  totalNewstudentPENDING: number;
+}
+interface IPaymentRefund {
+  amount: number;
+  reason: string;
 }
 interface IYearly {
   month: string;
@@ -242,6 +375,7 @@ interface ICertificateStudents {
   secondName: string;
   passportId: string;
   code: string;
+  finishedDate: Date;
   Certificate: {
     id: number;
     certificateUrl: string;
@@ -283,11 +417,46 @@ interface IGroupQuery {
   name: string;
   page: number;
   limit: number;
-  isGroupFinished: boolean;
 }
 interface GroupQueryResponse {
   groups: IGroup[];
   totalPages: number;
+}
+interface ISchedules {
+  name: string;
+  time: string;
+  weekType: string;
+  teacher: string;
+  countStudents: number;
+  isActive: "PENDING" | "ACTIVE" | "FINISHED";
+}
+interface RoomsQueryResponse {
+  rooms: IRoom[];
+  totalPages: number;
+  totalCount: number;
+}
+interface IRoom {
+  id: number;
+  name: string;
+  capacity: number;
+  schedules: {
+    ODD: {
+      time: string[];
+    };
+    EVEN: {
+      time: string[];
+    };
+  };
+}
+interface RoomQueryResponse {
+  id: number;
+  name: string;
+  capacity?: number;
+  schedules: ISchedules[];
+}
+interface IRoomCreate {
+  name: string;
+  capacity: number;
 }
 interface IDefaultQuery {
   name: string;
@@ -305,6 +474,7 @@ interface ICoursesResponse extends IDefaultResponse {
 }
 interface IMessagesResponse extends IDefaultResponse {
   messages: IMessage[];
+  totalCount: number;
 }
 interface INewStudentResponse extends IDefaultResponse {
   students: INewStudent[];
@@ -326,6 +496,7 @@ interface IStudentsResponse extends IDefaultResponse {
 }
 
 interface IPaymentsResponse {
+  monthlyPrice: number;
   payments: IPayments[];
   student: IStudent;
   percentagePaid: number;
@@ -354,14 +525,96 @@ interface IDebtorsResponse extends IDefaultResponse {
 
 interface IDebtorQuery extends IDefaultQuery {
   month: string;
+  year: string;
+  orderBy: "asc" | "desc";
 }
 
+interface IRoomQuery {
+  weekType: string;
+  time: string;
+}
 interface ICertificateResponse extends IDefaultResponse {
   students: ICertificateStudents[];
+  totalCount: number;
 }
 interface IReceptionResponse {
   receptions: IUserProfile[];
 }
 interface INewsResponse extends IDefaultResponse {
   news: INews[];
+}
+
+interface IInfo {
+  totalGB: number;
+  usedGB: number;
+  freeGB: number;
+  usagePercent: number;
+}
+interface ICpu {
+  usagePercent: number;
+  loadAverage1m: number;
+  coreCount: number;
+}
+interface IOsInfo {
+  type: string;
+  platform: string;
+}
+interface IMetrics {
+  osInfo: IOsInfo;
+  serverIPs: string[];
+  cpu: ICpu;
+  memory: IInfo;
+  storage: IInfo;
+  uptime: number;
+  timestamp: Date;
+}
+interface IMetricsResponse {
+  memory: IMemory;
+}
+
+interface INewStudentUpdate {
+  courseId: string;
+  fullName: string;
+  isAttend: string;
+  reason: string;
+}
+
+interface IReceipt {
+  id: 1;
+  issuedAt: Date;
+  receiptNo: string;
+  status: string;
+  amount: string;
+  publicToken: string;
+  cancelledAt: Date | null;
+  student: {
+    firstName: string;
+    secondName: string;
+    course: {
+      name: string;
+    };
+  };
+}
+
+interface ISelectedPayment {
+  id: number;
+  amount: number;
+  confirmedStatus: "PENDING" | "CONFIRMED";
+}
+
+interface IAdminPayment {
+  id: number;
+  studentId: number;
+  amount: number;
+  paymentDate: Date;
+  confirmedAt: null;
+  confirmedStatus: "PENDING" | "CONFIRMED";
+  fullName: string;
+  groupName: string;
+  courseName: string;
+  teacherName: string;
+}
+interface IAdminPaymentResponse {
+  payments: IAdminPayment[];
+  totalPages: number;
 }

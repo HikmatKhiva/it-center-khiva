@@ -5,12 +5,12 @@ import {
   updateNewStudent,
 } from "./newStudents.controller.js";
 import { validate } from "../../middleware/validation.middleware.js";
-import { newStudentStatusSchema } from "./newStudent.validation.js";
+import { newStudentUpdateSchema } from "./newStudent.validation.js";
 export const newStudentRoutes = Router();
 newStudentRoutes.get("/", getNewStudents);
 newStudentRoutes.put(
   "/update/:id",
-  validate(newStudentStatusSchema),
+  validate(newStudentUpdateSchema),
   updateNewStudent
 );
 newStudentRoutes.delete("/delete/:id", deleteNewStudent);

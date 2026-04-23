@@ -2,7 +2,9 @@ import { prisma } from "../../app.js";
 import { filterStudents } from "./debtors.helper.js";
 const getAllMonthlyDebtors = async (req, res) => {
   try {
-    let { month, limit = 10, page = 1, name } = req.query;
+    let { month, limit = 10, page = 1, name, year, orderBy } = req.query;
+    orderBy = !["desc", "asc"].includes(orderBy) ? "asc" : orderBy;
+    const yearFilter = parseInt(year, 10) || new Date().getFullYear();
     const currentDate = new Date();
     const monthNumber = parseInt(month)
       ? parseInt(month)
@@ -23,9 +25,19 @@ const getAllMonthlyDebtors = async (req, res) => {
     const endIndex = page * limit;
     const students = await prisma.student.findMany({
       where: {
-        debt: {
-          gt: 0,
+        debt: { gt: 0 },
+        Group: {
+          isActive: {
+            in: ["ACTIVE", "FINISHED"],
+          },
         },
+        createdAt: {
+          gte: new Date(yearFilter, 0, 1),
+          lte: new Date(yearFilter, 11, 31, 23, 59, 59, 999),
+        },
+      },
+      orderBy: {
+        createdAt: orderBy,
       },
       select: {
         id: true,
@@ -34,11 +46,13 @@ const getAllMonthlyDebtors = async (req, res) => {
         passportId: true,
         createdAt: true,
         debt: true,
+        discount: true,
         Group: {
           select: {
             id: true,
             name: true,
             price: true,
+            startTime: true,
             teacher: {
               select: {
                 firstName: true,
@@ -47,13 +61,10 @@ const getAllMonthlyDebtors = async (req, res) => {
             },
           },
         },
-        course: {
-          select: {
-            name: true,
-          },
-        },
+        course: { select: { name: true } },
         Payments: {
           where: {
+            isRefunded: false,
             createdAt: {
               gte: firstDayOfMonth,
               lte: lastDayOfMonth,
@@ -69,7 +80,6 @@ const getAllMonthlyDebtors = async (req, res) => {
     const debtors = await filterStudents(students, name);
     const paginatedDebtors = debtors.slice(startIndex, endIndex);
     const totalPages = Math.ceil(debtors.length / limit);
-    // Return the filtered students in the response
     res.status(200).json({
       debtors: paginatedDebtors,
       totalPages,

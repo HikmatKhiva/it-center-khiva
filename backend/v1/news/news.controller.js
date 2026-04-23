@@ -3,7 +3,7 @@ import fs from "fs";
 import slugify from "slugify";
 import { prisma } from "../../app.js";
 import Ajv from "ajv";
-import {  newsSchema } from "./news.validator.js";
+import { newsSchema } from "./news.validator.js";
 import { promisify } from "util";
 import cloudinary from "../../db/db.js";
 const ajv = new Ajv({ allErrors: true });
@@ -11,7 +11,7 @@ const unlinkAsync = promisify(fs.unlink); // Promisify fs.unlink for async/await
 dotenv.config();
 const { LOGO_URL } = process.env;
 // create a news
-const createNews = async (req, res) => {
+const createNews = async (req, res, next) => {
   try {
     const image = req.file;
     const { title, description, content, createdAt } = req.body;
@@ -47,9 +47,9 @@ const createNews = async (req, res) => {
     });
     return res
       .status(201)
-      .json({ message: "Yangilik muoffaqiyatli yaratildi." });
+      .json({ message: "Yangilik muvaffaqiyatli yaratildi." });
   } catch (error) {
-    res.status(500).json(error);
+    next(error);
   }
 };
 // get all news
@@ -60,6 +60,7 @@ const getAllNews = async (req, res) => {
       where: {
         title: {
           contains: name,
+          mode: "insensitive",
         },
       },
       skip: (page - 1) * limit,
@@ -98,7 +99,7 @@ const getNews = async (req, res) => {
   }
 };
 // delete a news
-const deleteNews = async (req, res) => {
+const deleteNews = async (req, res, next) => {
   try {
     const { id } = req.params;
     await prisma.news.delete({
@@ -106,13 +107,13 @@ const deleteNews = async (req, res) => {
         id: parseInt(id),
       },
     });
-    return res.status(200).json({ message: "Muoffaqiyatli o'chirildi." });
+    return res.status(200).json({ message: "muvaffaqiyatli o'chirildi." });
   } catch (error) {
-    res.status(500).json(error);
+    next(error);
   }
 };
 // update a news
-const updateNews = async (req, res) => {
+const updateNews = async (req, res, next) => {
   try {
     const { slug } = req.params;
     const { title, description, content, createdAt } = req.body;
@@ -145,9 +146,9 @@ const updateNews = async (req, res) => {
         ...(imageUrl && { photo_url: imageUrl }), // Conditionally add photo_url
       },
     });
-    return res.status(200).json({ message: "Muoffaqiyatli yangilandi." });
+    return res.status(200).json({ message: "muvaffaqiyatli yangilandi." });
   } catch (error) {
-    res.status(500).json(error);
+    next(error);
   }
 };
 export { createNews, getAllNews, getNews, deleteNews, updateNews };

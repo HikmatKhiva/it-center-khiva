@@ -1,201 +1,252 @@
+// import { IsActive } from "@prisma/client";
 import { prisma } from "../../app.js";
-export async function getTeacherMonthlyReport(teacherId, year, month) {
-  if (!teacherId) throw new Error("Invalid teacherId");
-  if (
-    typeof year !== "number" ||
-    typeof month !== "number" ||
-    month < 1 ||
-    month > 12
-  ) {
-    throw new Error("Invalid year or month");
-  }
-
-  // 1. Fetch teacher info
-  const teacher = await prisma.teacher.findUnique({
-    where: { id: teacherId },
-    select: { id: true, firstName: true, secondName: true }, // adjust field name if different
-  });
-  if (!teacher) throw new Error("Teacher not found");
-
-  // 2. Calculate totalPaid by students of this teacher's groups in the month
-  const paidAggregate = await prisma.payment.aggregate({
-    _sum: { amount: true },
-    where: {
-      createdAt: {
-        gte: new Date(year, month - 1, 1),
-        lt: new Date(year, month, 1),
-      },
-      Student: {
-        Group: {
-          teacherId: teacherId,
+export async function getTeacherMonthlyReport(teacherId, year, month, percentage=0.5) {
+  try {
+    if (!teacherId) throw new Error("Invalid teacherId");
+    if (
+      typeof year !== "number" ||
+      typeof month !== "number" ||
+      month < 1 ||
+      month > 12
+    ) {
+      throw new Error("Invalid year or month");
+    }
+    // 1. Fetch teacher info
+    const teacher = await prisma.teacher.findUnique({
+      where: { id: teacherId },
+      select: { id: true, firstName: true, secondName: true },
+    });
+    if (!teacher) throw new Error("Teacher not found");
+    const startOfMonth = new Date(year, month - 1, 1);
+    const endOfMonth = new Date(year, month, 0, 23, 59, 59, 999);
+    // 2. Calculate totalPaid by students of this teacher's groups in the month (with refunds)
+    const paymentsThisMonth = await prisma.payment.findMany({
+      where: {
+        isRefunded: false,
+        createdAt: {
+          gte: startOfMonth,
+          lte: endOfMonth,
+        },
+        Student: {
+          Group: {
+            teacherId: teacherId,
+          },
         },
       },
-    },
-  });
-  const totalPaid = Number(paidAggregate._sum.amount) || 0;
-
-  // 3. Calculate totalSalary (50% of totalPaid)
-  const totalSalary = totalPaid * 0.5;
-
-  // 4. Calculate expectedSalary based on groups and students count
-  const groups = await prisma.group.findMany({
-    where: {
-      teacherId,
-      createdAt: {
-        gte: new Date(year, month - 1, 1),
-        lt: new Date(year, month, 1),
+      include: {
+        refunds: true,
       },
-    },
-    select: {
-      price: true,
-      Students: true,
-    },
-  });
-  const expectedSalary = groups.reduce(
-    (sum, group) => sum + Number(group.price) * group.Students.length * 0.5,
-    0
-  );
-  const totalAmount = groups.reduce(
-    (sum, group) => sum + Number(group.price) * group.Students.length,
-    0
-  );
-  // 5. Build report object
-  return {
-    teacherName: teacher.firstName + " " + teacher.secondName,
-    month,
-    totalPaid,
-    totalSalary,
-    expectedSalary,
-    totalAmount,
-  };
+    });
+
+    const totalPaid = paymentsThisMonth.reduce((total, payment) => {
+      const refundedAmount = payment.refunds.reduce(
+        (sum, refund) => sum + Number(refund.amount),
+        0,
+      );
+      return total + (Number(payment.amount) - refundedAmount);
+    }, 0);
+
+    // 3. Calculate expectedSalary based on active groups with student discounts
+    const groups = await prisma.group.findMany({
+      where: {
+        teacherId,
+        isActive: "ACTIVE", // Only active groups
+        createdAt: {
+          lt: endOfMonth, // Group must have started by end of month
+        },
+      },
+      select: {
+        id: true,
+        price: true,
+        createdAt: true,
+        duration: true,
+        Students: {
+          select: {
+            discount: true,
+          },
+        },
+      },
+    });
+
+    let expectedSalary = 0;
+    const currentMonthDate = new Date(year, month - 1, 1);
+
+    groups.forEach((group) => {
+      const groupStart = new Date(group.createdAt);
+      const duration = Number(group.duration) || 0;
+
+      if (duration <= 0) return;
+
+      const groupStartMonth = new Date(
+        groupStart.getFullYear(),
+        groupStart.getMonth(),
+        1,
+      );
+      const lastActiveMonth = new Date(
+        groupStart.getFullYear(),
+        groupStart.getMonth() + duration - 1,
+        1,
+      );
+
+      // Check if group was active this month
+      const isGroupActiveThisMonth =
+        currentMonthDate >= groupStartMonth &&
+        currentMonthDate <= lastActiveMonth;
+      if (!isGroupActiveThisMonth) return;
+      // Calculate expected income with student discounts
+      const monthlyExpectedIncome = group.Students.reduce(
+        (groupTotal, student) => {
+          const discountFactor = 1 - Number(student.discount) / 100;
+          const studentMonthlyPrice = Number(group.price) * discountFactor;
+          return groupTotal + studentMonthlyPrice;
+        },
+        0,
+      );
+      // Teacher gets 50% of expected income
+      expectedSalary += monthlyExpectedIncome * percentage;
+    });
+    const totalSalary = totalPaid * percentage; // percentage of actual payments
+    const totalAmount = expectedSalary  / percentage; // Full expected amount (before teacher split)
+    const monthName = getMonthName(year, month);
+    return {
+      teacherName: `${teacher.firstName} ${teacher.secondName}`,
+      month: monthName,
+      totalPaid: Number(totalPaid.toFixed(2)),
+      totalSalary: Number(totalSalary.toFixed(2)),
+      expectedSalary: Number(expectedSalary.toFixed(2)),
+      totalAmount: Number(totalAmount.toFixed(2)),
+      year,
+    };
+  } catch (error) {
+    console.error("Error in getTeacherMonthlyReport:", error);
+    throw error;
+  }
 }
-export async function calculateAllTeachersSalaries() {
+export async function calculateAllTeachersSalaries(
+  filterYear,
+  filterMonth,
+  percentage = 0.5,
+) {
   try {
-    // Get current year and month from system date
     const now = new Date();
-    const year = now.getFullYear();
-    const month = now.getMonth() + 1; // getMonth() is zero-based
-    // Validate year and month (optional but recommended)
+    const year = parseInt(filterYear, 10) || now.getFullYear();
+    const month = parseInt(filterMonth, 10) || now.getMonth() + 1;
     if (typeof year !== "number" || year < 0) {
       throw new Error("Invalid year");
     }
     if (typeof month !== "number" || month < 1 || month > 12) {
       throw new Error("Invalid month");
     }
-    // Fetch all teachers
     const teachers = await prisma.teacher.findMany({
       select: { id: true, firstName: true, secondName: true },
+      // where: {
+      //   Groups: {
+      //     some: {
+      //       isGroupFinished: false,
+      //     },
+      //   },
+      // },
     });
-    // For each teacher, calculate salary for the current month
     const results = await Promise.all(
       teachers.map(async (teacher) => {
-        // Pass year and month to getTeacherMonthlyReport
-        return await getTeacherMonthlyReport(teacher.id, year, month);
-      })
+        return await getTeacherMonthlyReport(
+          teacher.id,
+          year,
+          month,
+          percentage,
+        );
+      }),
     );
-    return results; // array of { teacherId, teacherName, monthlyReport }
+    return results.filter(
+      (report) => report.totalPaid > 0 || report.expectedSalary > 0,
+    );
   } catch (error) {
+    console.error("Error in calculateAllTeachersSalaries:", error);
     throw error;
   }
 }
-export async function calculateIncome() {
-  try {
-    const now = new Date();
-    const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
-    const endOfMonth = new Date(
-      now.getFullYear(),
-      now.getMonth() + 1,
-      0,
-      23,
-      59,
-      59
-    );
-
-    // 1. Fetch active groups with their students
-    const activeGroups = await prisma.group.findMany({
-      where: { isGroupFinished: false },
-      select: {
-        price: true,
-        Students: true, // fetch students array to get count
-      },
-    });
-
-    // 2. Calculate expected income: sum of (group price * number of students)
-    const expectedIncome = activeGroups.reduce(
-      (acc, group) => acc + Number(group.price) * group.Students.length,
-      0
-    );
-
-    // 3. Calculate total paid this month by summing payment amounts
-    const paidAggregate = await prisma.payment.aggregate({
-      _sum: { amount: true },
-      where: {
-        createdAt: {
-          gte: startOfMonth,
-          lte: endOfMonth,
-        },
-      },
-    });
-    const paidThisMonth = Number(paidAggregate._sum.amount) ?? 0;
-    const percentage = Math.floor((paidThisMonth / expectedIncome) * 100);
-    return { expectedIncome, paidThisMonth, percentage };
-  } catch (error) {
-    throw error;
-  }
-}
-export async function calculateIncomeForYear() {
+export async function calculateIncomeForYear(filterYear) {
   try {
     const results = [];
-    const year = new Date().getFullYear();
+    const year = filterYear || new Date().getFullYear();
 
     const activeGroups = await prisma.group.findMany({
-      where: { isGroupFinished: false },
+      where: { isActive: "ACTIVE" },
       select: {
+        id: true,
         price: true,
-        Students: true,
+        Students: {
+          select: {
+            id: true,
+            discount: true,
+            Payments: {
+              where: {
+                isRefunded: false,
+              },
+              include: {
+                refunds: true,
+              },
+            },
+          },
+        },
         createdAt: true,
         duration: true,
       },
     });
 
     for (let month = 0; month < 12; month++) {
-      const startOfMonth = new Date(year, month, 1);
-      const endOfMonth = new Date(year, month + 1, 0, 23, 59, 59);
-
+      const startOfMonth = new Date(year, month, 1, 0, 0, 0, 0);
+      const endOfMonth = new Date(year, month + 1, 0, 23, 59, 59, 999);
+      const currentMonth = new Date(year, month, 1);
       const expectedIncome = activeGroups.reduce((acc, group) => {
         const groupStart = new Date(group.createdAt);
-        const duration = Number(group.duration);
-        const groupEnd = new Date(groupStart);
-        groupEnd.setMonth(groupEnd.getMonth() + duration);
+        const duration = Number(group.duration) || 0;
+        if (duration <= 0) return acc;
 
-        // Check if current month is within group's active duration
-        const groupStartMonth = new Date(groupStart.getFullYear(), groupStart.getMonth(), 1);
-        const groupEndMonth = new Date(groupEnd.getFullYear(), groupEnd.getMonth(), 1);
-        const currentMonth = new Date(year, month, 1);
+        const groupStartMonth = new Date(
+          groupStart.getFullYear(),
+          groupStart.getMonth(),
+          1,
+        );
+        const lastActiveMonth = new Date(
+          groupStart.getFullYear(),
+          groupStart.getMonth() + duration - 1,
+          1,
+        );
 
         const isGroupActiveThisMonth =
-          currentMonth >= groupStartMonth && currentMonth < groupEndMonth;
+          currentMonth >= groupStartMonth && currentMonth <= lastActiveMonth;
 
-        if (isGroupActiveThisMonth && duration > 0) {
-          const monthlyPrice = Number(group.price) / duration;
-          return acc + monthlyPrice * (group.Students.length || 0);
-        }
+        if (!isGroupActiveThisMonth) return acc;
 
-        return acc;
+        const monthlyIncome = group.Students.reduce((groupTotal, student) => {
+          const discountFactor = 1 - Number(student.discount) / 100;
+          const studentMonthlyPrice = Number(group.price) * discountFactor;
+          return groupTotal + studentMonthlyPrice;
+        }, 0);
+
+        return acc + monthlyIncome;
       }, 0);
 
-      const paidAggregate = await prisma.payment.aggregate({
-        _sum: { amount: true },
+      const paymentsThisMonth = await prisma.payment.findMany({
         where: {
+          isRefunded: false,
           createdAt: {
             gte: startOfMonth,
             lte: endOfMonth,
           },
         },
+        include: {
+          refunds: true,
+        },
       });
-
-      const paidThisMonth = Number(paidAggregate._sum.amount) || 0;
-
+      const paidThisMonth = paymentsThisMonth.reduce((total, payment) => {
+        const refundedAmount = payment.refunds.reduce(
+          (sum, refund) => sum + Number(refund.amount),
+          0,
+        );
+        return total + (Number(payment.amount) - refundedAmount);
+      }, 0);
       const percentage =
         expectedIncome > 0
           ? Math.floor((paidThisMonth / expectedIncome) * 100)
@@ -206,14 +257,267 @@ export async function calculateIncomeForYear() {
           month: "long",
           year: "numeric",
         }),
-        expectedIncome,
-        paidThisMonth,
+        expectedIncome: Number(expectedIncome.toFixed(2)),
+        paidThisMonth: Number(paidThisMonth.toFixed(2)),
         percentage,
       });
     }
-
     return results;
+  } catch (error) {
+    console.error("Error calculating income:", error);
+    throw error;
+  }
+}
+
+export async function calculateStats(filterYear) {
+  try {
+    const yearFilter = parseInt(filterYear) || new Date().getFullYear();
+    const stats = await prisma.$transaction([
+      //  Active Groups
+      prisma.group.count({
+        where: {
+          isActive: "ACTIVE",
+          createdAt: {
+            gte: new Date(yearFilter, 0, 1),
+            lte: new Date(yearFilter, 11, 31, 23, 59, 59, 999),
+          },
+        },
+      }),
+      // finished Groups
+      prisma.group.count({
+        where: {
+          isActive: "FINISHED",
+          createdAt: {
+            gte: new Date(yearFilter, 0, 1),
+            lte: new Date(yearFilter, 11, 31, 23, 59, 59, 999),
+          },
+        },
+      }),
+      // total Teachers
+      prisma.teacher.count({
+        where: {
+          // createdAt: {
+          //   gte: new Date(yearFilter, 0, 1),
+          //   lte: new Date(yearFilter, 11, 31, 23, 59, 59, 999),
+          // },
+        },
+      }),
+      // total Courses
+      prisma.course.count({
+        where: {
+          // createdAt: {
+          //   gte: new Date(yearFilter, 0, 1),
+          //   lte: new Date(yearFilter, 11, 31, 23, 59, 59, 999),
+          // },
+        },
+      }),
+      // active Students
+      prisma.student.count({
+        where: {
+          Group: {
+            isActive: "ACTIVE",
+            createdAt: {
+              gte: new Date(yearFilter, 0, 1),
+              lte: new Date(yearFilter, 11, 31, 23, 59, 59, 999),
+            },
+          },
+        },
+      }),
+      // total Debtors
+      prisma.student.count({
+        where: {
+          debt: { gt: 0 },
+          Group: {
+            isActive: "ACTIVE",
+          },
+          createdAt: {
+            gte: new Date(yearFilter, 0, 1),
+            lte: new Date(yearFilter, 11, 31, 23, 59, 59, 999),
+          },
+        },
+      }),
+      // finished Students
+      prisma.student.count({
+        where: {
+          Group: {
+            isActive: "FINISHED",
+            finishedDate: {
+              gte: new Date(yearFilter, 0, 1),
+              lte: new Date(yearFilter, 11, 31, 23, 59, 59, 999),
+            },
+          },
+          debt: 0,
+        },
+      }),
+      // total students
+      prisma.student.count({
+        where: {
+          Group: {
+            isActive: "ACTIVE",
+          },
+          createdAt: {
+            gte: new Date(yearFilter, 0, 1),
+            lte: new Date(yearFilter, 11, 31, 23, 59, 59, 999),
+          },
+        },
+      }),
+      // total students MALE
+      prisma.student.count({
+        where: {
+          gender: "MALE",
+          Group: {
+            isActive: "ACTIVE",
+            ...yearFilter,
+          },
+          createdAt: {
+            gte: new Date(yearFilter, 0, 1),
+            lte: new Date(yearFilter, 11, 31, 23, 59, 59, 999),
+          },
+        },
+      }),
+      // total students FEMALE
+      prisma.student.count({
+        where: {
+          gender: "FEMALE",
+          Group: {
+            isActive: "ACTIVE",
+          },
+          createdAt: {
+            gte: new Date(yearFilter, 0, 1),
+            lte: new Date(yearFilter, 11, 31, 23, 59, 59, 999),
+          },
+        },
+      }),
+      // total finished students FEMALE
+      prisma.student.count({
+        where: {
+          gender: "FEMALE",
+          Group: {
+            isActive: "FINISHED",
+          },
+          debt: 0,
+          createdAt: {
+            gte: new Date(yearFilter, 0, 1),
+            lte: new Date(yearFilter, 11, 31, 23, 59, 59, 999),
+          },
+        },
+      }),
+      // total finished students MALE
+      prisma.student.count({
+        where: {
+          gender: "MALE",
+          Group: {
+            isActive: "FINISHED",
+          },
+          debt: 0,
+          createdAt: {
+            gte: new Date(yearFilter, 0, 1),
+            lte: new Date(yearFilter, 11, 31, 23, 59, 59, 999),
+          },
+        },
+      }),
+      // total new students NOT_CAME
+      prisma.newStudent.count({
+        where: {
+          isAttend: "NOT_CAME",
+          createdAt: {
+            gte: new Date(yearFilter, 0, 1),
+            lte: new Date(yearFilter, 11, 31, 23, 59, 59, 999),
+          },
+        },
+      }),
+      // total new students CAME
+      prisma.newStudent.count({
+        where: {
+          isAttend: "CAME",
+          createdAt: {
+            gte: new Date(yearFilter, 0, 1),
+            lte: new Date(yearFilter, 11, 31, 23, 59, 59, 999),
+          },
+        },
+      }),
+      // total new students PENDING
+      prisma.newStudent.count({
+        where: {
+          isAttend: "PENDING",
+          createdAt: {
+            gte: new Date(yearFilter, 0, 1),
+            lte: new Date(yearFilter, 11, 31, 23, 59, 59, 999),
+          },
+        },
+      }),
+      // total new students
+      prisma.newStudent.count({
+        where: {
+          createdAt: {
+            gte: new Date(yearFilter, 0, 1),
+            lte: new Date(yearFilter, 11, 31, 23, 59, 59, 999),
+          },
+        },
+      }),
+      // total new students pending
+      // prisma.student.count({
+      //   where: {
+      //     Group: {
+      //       isActive: "PENDING",
+      //     },
+      //     createdAt: {
+      //       gte: new Date(yearFilter, 0, 1),
+      //       lte: new Date(yearFilter, 11, 31, 23, 59, 59, 999),
+      //     },
+      //   },
+      // }),
+    ]);
+    const [
+      activeGroups,
+      finishedGroups,
+      totalTeachers,
+      totalCourses,
+      activeStudents,
+      totalDebtors,
+      finishedStudents,
+      totalStudents,
+      totalMaleStudents,
+      totalFemaleStudents,
+      totalFinishedFemaleStudents,
+      totalFinishedMaleStudents,
+      totalNewstudentNOT_CAME,
+      totalNewstudentCAME,
+      totalNewstudentPENDING,
+      totalNewstudent,
+      // totalPendingStudent,
+    ] = stats;
+    return {
+      stat: "Statistika",
+      yearFilter,
+      activeStudents,
+      activeGroups,
+      totalTeachers,
+      totalCourses,
+      totalMaleStudents,
+      totalFemaleStudents,
+      totalFinishedFemaleStudents,
+      totalFinishedMaleStudents,
+      totalStudents,
+      totalDebtors,
+      finishedStudents,
+      finishedGroups,
+      totalNewstudentNOT_CAME,
+      totalNewstudentCAME,
+      totalNewstudent,
+      totalNewstudentPENDING,
+      // totalPendingStudent
+    };
   } catch (error) {
     throw error;
   }
+}
+function getMonthName(year, month) {
+  const now = new Date();
+  const y = typeof year === "number" ? year : now.getFullYear();
+  const m = typeof month === "number" ? month - 1 : now.getMonth();
+  const date = new Date(y, m, 1);
+  return date.toLocaleString("default", {
+    month: "long",
+  });
 }

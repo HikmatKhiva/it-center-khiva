@@ -1,21 +1,19 @@
 import { configureStore } from "@reduxjs/toolkit";
-import admin from "./reducer/admin";
 import { persistStore, persistReducer, FLUSH, REHYDRATE, PAUSE, PERSIST, PURGE, REGISTER } from "redux-persist";
 import storage from "redux-persist/lib/storage";
+import { rootReducer } from "./reducer/rootReducer";
 const persistConfig = {
   key: "root",
   storage,
   whitelist: ["admin"], // persist only admin slice
 };
-const persistedAdminReducer = persistReducer(persistConfig, admin);
+const persistedReducer = persistReducer(persistConfig, rootReducer);
 export const store = configureStore({
-  reducer: {
-    admin: persistedAdminReducer,
-  },
+  reducer: persistedReducer,
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({
       serializableCheck: {
-        // Ignore redux-persist action types for serializable check
+        // Ignore redux-persist action types        ignoredActions: [FLUSH, REHYDRATE, PAUSE, PERSIST, PURGE, REGISTER],
         ignoredActions: [FLUSH, REHYDRATE, PAUSE, PERSIST, PURGE, REGISTER],
       },
     }),

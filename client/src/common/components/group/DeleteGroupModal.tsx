@@ -40,8 +40,8 @@ const DeleteGroupModal = ({
     },
   });
   const handleDelete = async () => {
-    await mutateAsync(id);
     idNotification.current = createNotification(isPending);
+    await mutateAsync(id);
   };
   return (
     <>
@@ -49,19 +49,19 @@ const DeleteGroupModal = ({
         disabled={disabled}
         onClick={open}
         color="red"
-        rightSection={<Trash2 size="16" />}
-        size="xs"
+        size="compact-md"
         variant="outline"
       >
-        O'chirish.
+        <Trash2 size="16" />
       </Button>
       <Modal
         centered
         opened={opened}
         onClose={close}
-        title="O'qituvchini o'chirish"
+        title="Guruhni o'chirish"
       >
         <Text size="md" className="text-center">
+          kasjnkasod
           Siz ushbu Guruhni o'chirishni xohlaysizmi?
         </Text>
         <Group mt={20} justify="end" gap="10">

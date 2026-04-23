@@ -138,7 +138,7 @@ const ReceptionUpdateModal = ({ id }: { id: number }) => {
               placeholder="Your password"
               value={form.values.password}
               onChange={(event) =>
-                form.setFieldValue("password", event.currentTarget.value)
+                form.setFieldValue("password", event.target.value)
               }
               error={form.errors.password}
               radius="md"

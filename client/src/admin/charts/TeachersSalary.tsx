@@ -1,23 +1,70 @@
 import { Server } from "@/api/api";
+import { percentSalary, selectMonths, years } from "@/config";
 import { useAppSelector } from "@/hooks/redux";
 import { selectUser } from "@/lib/redux/reducer/admin";
+// import { ITeacherChartResponse } from "@/types";
 import { BarChart } from "@mantine/charts";
+import { Group, Select } from "@mantine/core";
 import { useQuery } from "@tanstack/react-query";
+import { useState } from "react";
 const TeachersSalary = ({ isActive }: { isActive?: boolean }) => {
   const admin = useAppSelector(selectUser);
+  const current = new Date();
+  const [query, setQuery] = useState({
+    year: current.getFullYear().toString() || "",
+    month: String(current.getMonth() + 1) || "",
+    percentage: "0.5",
+  });
+  const params = new URLSearchParams({
+    year: query.year,
+    month: query.month,
+    percentage: query.percentage,
+  });
   const { data } = useQuery({
     queryFn: () =>
-      Server<ITeacherChartResponse[]>(`stats/teachers`, {
+      Server<ITeacherChartResponse[]>(`stats/teachers?${params}`, {
         method: "GET",
         headers: {
           authorization: `Bearer ${admin?.token}`,
         },
       }),
-    queryKey: ["stats"],
+    queryKey: ["stats", "teachers", "salary", query.year, query.month,query.percentage],
     enabled: !!admin?.token && isActive,
   });
   return (
     <>
+      <Group justify="flex-end" mb={20}>
+        <Select
+          defaultValue={query.year}
+          placeholder="2025"
+          data={years}
+          value={query.year}
+          onChange={(value) =>
+            setQuery((prev) => ({ ...prev, year: value || "" }))
+          }
+          w={90}
+        />
+        <Select
+          defaultValue={query.month}
+          placeholder="Month"
+          data={selectMonths}
+          value={query.month}
+          onChange={(value) =>
+            setQuery((prev) => ({ ...prev, month: value || "" }))
+          }
+          w={120}
+        />
+        <Select
+          defaultValue={query.percentage}
+          placeholder="Foiz"
+          data={percentSalary}
+          value={query.percentage}
+          onChange={(value) =>
+            setQuery((prev) => ({ ...prev, percentage: value || "" }))
+          }
+          w={80}
+        />
+      </Group>
       {data && (
         <BarChart
           h={350}

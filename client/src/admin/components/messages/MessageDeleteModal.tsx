@@ -10,6 +10,7 @@ import {
   showSuccessNotification,
 } from "@/utils/notification";
 import { Server } from "@/api/api";
+// import { IMessageResponse } from "@/types";
 const MessageDeleteModal = ({ id }: { id: number }) => {
   const [opened, { open, close }] = useDisclosure(false);
   const { admin } = useAppSelector((state) => state.admin);
@@ -38,14 +39,7 @@ const MessageDeleteModal = ({ id }: { id: number }) => {
   };
   return (
     <>
-      <ActionIcon
-        onClick={open}
-        bottom="5px"
-        right="5px"
-        color="red"
-        pos="absolute"
-        p="3"
-      >
+      <ActionIcon onClick={open} color="red" p="3">
         <Trash2 />
       </ActionIcon>
       <Modal

@@ -1,4 +1,4 @@
-FROM node:23-alpine
+FROM node:22-alpine3.20
 
 # Create app directory
 WORKDIR /usr/src/app
@@ -16,4 +16,5 @@ RUN npx prisma generate
 COPY . .
 EXPOSE 5000
 # Build the app
-CMD [ "npm", "run", "server" ]
+CMD [ "npm", "run", "server","&&", "npx", "prisma", "migrate", "deploy" ]
+# CMD npx prisma migrate deploy && npm run server

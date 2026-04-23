@@ -51,7 +51,7 @@ const AdminTeachers = () => {
               )
             }
             onChange={(event) =>
-              setQuery({ ...query, name: event.currentTarget.value })
+              setQuery({ ...query, name: event.target.value })
             }
             className=""
             placeholder="O'qituvchi qidirish"

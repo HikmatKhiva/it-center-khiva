@@ -30,8 +30,8 @@ const ReceptionLayout = () => {
             <LogoSVG />
           </div>
           <div className="flex items-center gap-4">
-            <ProfileConfigure />
             <ThemeControl />
+            <ProfileConfigure />
           </div>
         </Group>
       </AppShell.Header>

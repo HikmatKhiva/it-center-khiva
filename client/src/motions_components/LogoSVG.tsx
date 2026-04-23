@@ -1,6 +1,6 @@
-import { motion } from "motion/react";
+import { motion,Variants } from "motion/react";
 const LogoSVG = () => {
-  const svgVariants = {
+  const svgVariants:Variants = {
     start: {
       opacity: 0,
       pathLength: 0,
@@ -11,7 +11,7 @@ const LogoSVG = () => {
       transition: {
         duration: 0.8,
         ease: "easeInOut",
-        type: "spring",
+      type: 'spring' as const,  
       },
     },
   };

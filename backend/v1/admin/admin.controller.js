@@ -11,9 +11,9 @@ dotenv.config();
 const unlinkAsync = promisify(fs.unlink); // Promisify fs.unlink for async/await
 const { JWT_SECRET } = process.env;
 const expirationTime = new Date().getTime() + 3 * 24 * 60 * 60 * 1000; // 3 days from now
-const registerUser = async (req, res) => {
+const registerUser = async (req, res, next) => {
   try {
-    const { username, password, secret, role } = req.body;
+    const { username, password, secret } = req.body;
     const roles = ["ADMIN", "RECEPTION", "TEACHER"];
     const find = await prisma.admin.findFirst({
       where: {
@@ -30,14 +30,14 @@ const registerUser = async (req, res) => {
         username,
         password: hashedPassword,
         secret,
-        role,
+        role: "RECEPTION",
       },
     });
     res.status(201).json({
       message: "Hisob muaffaqiyatli yaratildi!",
     });
   } catch (error) {
-    res.status(500).json({ message: error });
+    next(error);
   }
 };
 const adminLogin = async (req, res) => {
@@ -65,7 +65,7 @@ const adminLogin = async (req, res) => {
     res.status(500).json({ message: error });
   }
 };
-const Verify2FA = async (req, res) => {
+const Verify2FA = async (req, res, next) => {
   try {
     const { username, token } = req.body;
     const find = await prisma.admin.findFirst({
@@ -95,10 +95,10 @@ const Verify2FA = async (req, res) => {
       JWT_SECRET,
       {
         expiresIn: expirationTime,
-      }
+      },
     );
     return res.json({
-      message: "Hisobga kirish muoffaqiyatli amalga oshirildi.",
+      message: "Hisobga kirish muvaffaqiyatli amalga oshirildi.",
       user: {
         id: find.id,
         token: jwToken,
@@ -107,11 +107,12 @@ const Verify2FA = async (req, res) => {
       },
     });
   } catch (error) {
+    next(error);
     console.error("Error during 2FA verification:", error); // Use console.error for errors
-    res.status(500).json({ message: "Internal server error" });
+    // res.status(500).json({ message: "Internal server error" });
   }
 };
-const userProfile = async (req, res) => {
+const userProfile = async (req, res, next) => {
   try {
     const { id } = req.params;
     const admin = await prisma.admin.findUnique({
@@ -128,10 +129,10 @@ const userProfile = async (req, res) => {
     });
     return res.status(200).json(admin);
   } catch (error) {
-    res.status(500).json({ message: error });
+    next(error);
   }
 };
-const uploadImage = async (req, res) => {
+const uploadImage = async (req, res, next) => {
   try {
     const image = req.file;
     const { username } = req.admin;
@@ -161,10 +162,10 @@ const uploadImage = async (req, res) => {
     });
     return res.status(200).json({ message: "Surat yuklandi." });
   } catch (error) {
-    return res.status(500).json({ error });
+    next(error);
   }
 };
-const updateProfile = async (req, res) => {
+const updateProfile = async (req, res, next) => {
   try {
     const { username, secret, password, id } = req.body;
     const find = await prisma.admin.findUnique({
@@ -191,7 +192,7 @@ const updateProfile = async (req, res) => {
       JWT_SECRET,
       {
         expiresIn: expirationTime,
-      }
+      },
     );
     res.status(200).json({
       message: "Hisob ma'lumotlari yangilandi.",
@@ -203,10 +204,10 @@ const updateProfile = async (req, res) => {
       },
     });
   } catch (error) {
-    return res.status(500).json({ error });
+    next(error);
   }
 };
-const deleteImage = async (req, res) => {
+const deleteImage = async (req, res, next) => {
   try {
     const { username } = req.admin;
     const find = await prisma.admin.findFirst({
@@ -227,7 +228,7 @@ const deleteImage = async (req, res) => {
     });
     return res.status(200).json({ message: "Surat o'chirildi." });
   } catch (error) {
-    return res.status(500).json({ error });
+    next(error);
   }
 };
 const generateSecret = async (req, res) => {

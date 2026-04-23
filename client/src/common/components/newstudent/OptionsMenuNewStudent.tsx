@@ -1,7 +1,14 @@
-import { Button, Menu } from "@mantine/core";
+import {
+  Button,
+  Group,
+  Modal,
+  Select,
+  Textarea,
+  TextInput,
+} from "@mantine/core";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { Check, Ellipsis, Trash2, X } from "lucide-react";
-import { useRef, useState } from "react";
+import { Settings } from "lucide-react";
+import { useEffect, useRef } from "react";
 import { useAppSelector } from "@/hooks/redux";
 import {
   createNotification,
@@ -9,85 +16,115 @@ import {
   showSuccessNotification,
 } from "@/utils/notification";
 import { Server } from "@/api/api";
-const OptionsMenuNewStudent = ({ id }: { id: number }) => {
-  const { admin } = useAppSelector((state) => state.admin);
+import { useDisclosure } from "@mantine/hooks";
+import { selectUser } from "@/lib/redux/reducer/admin";
+import { attends } from "@/config";
+import { useForm } from "@mantine/form";
+import { updateNewStudentValidation } from "@/validation";
+import useFormData from "@/hooks/useFormData";
+const OptionsMenuNewStudent = ({
+  id,
+  student,
+}: {
+  id: number;
+  student: INewStudent;
+}) => {
+  const admin = useAppSelector(selectUser);
+  const [opened, { open, close }] = useDisclosure(false);
   const idNotification = useRef<string>("");
-  const [opened, setOpened] = useState(false);
   const client = useQueryClient();
-  const { mutateAsync } = useMutation({
-    mutationFn: (status: string) =>
+  const { courses, loading } = useFormData();
+  const form = useForm({
+    initialValues: {
+      fullName: "",
+      isAttend: "",
+      reason: "",
+      courseId: "",
+    } as INewStudentUpdate,
+    validate: updateNewStudentValidation,
+  });
+
+  const { mutateAsync, isPending } = useMutation({
+    mutationFn: (newStudent: INewStudentUpdate) =>
       Server<IMessageResponse>(`newStudents/update/${id}`, {
         method: "PUT",
         headers: {
           authorization: `Bearer ${admin?.token}`,
         },
-        body: JSON.stringify({ status }),
+        body: JSON.stringify(newStudent),
       }),
     mutationKey: ["update", "newStudent", id],
     onSuccess: (success) => {
       client.invalidateQueries({ queryKey: ["newStudents"] });
       showSuccessNotification(idNotification.current, success?.message);
+      form.reset();
+      close();
     },
     onError: (error) => {
       showErrorNotification(idNotification.current, error.message);
     },
   });
-  const { mutateAsync: mutationDelete, isPending } = useMutation({
-    mutationFn: () =>
-      Server<IMessageResponse>(`newStudents/delete/${id}`, {
-        method: "DELETE",
-        headers: {
-          authorization: `Bearer ${admin?.token}`,
-        },
-      }),
-    mutationKey: ["delete", "newStudent", id],
-    onSuccess: (success) => {
-      client.invalidateQueries({ queryKey: ["newStudents"] });
-      showSuccessNotification(idNotification.current, success?.message);
-    },
-    onError: (error) => {
-      showErrorNotification(idNotification.current, error.message);
-    },
-  });
-  const handleUpdateStatus = async (status: string) => {
+  useEffect(() => {
+    if (student) {
+      form.setFieldValue("courseId", student.courseId.toString());
+      form.setFieldValue("fullName", student.fullName);
+      form.setFieldValue("isAttend", student.isAttend);
+      form.setFieldValue("reason", student.reason || "");
+    }
+  }, [student]);
+  const handleUpdateStatus = async (newStudent: INewStudentUpdate) => {
     idNotification.current = createNotification(isPending);
-    await mutateAsync(status);
-  };
-  const handleDelete = async () => {
-    idNotification.current = createNotification(isPending);
-    await mutationDelete();
+    await mutateAsync(newStudent);
   };
   return (
-    <Menu opened={opened} onChange={setOpened} shadow="md">
-      <Menu.Target>
-        <Button size="xs" variant="default">
-          <Ellipsis size="16" />
-        </Button>
-      </Menu.Target>
-      <Menu.Dropdown>
-        <Menu.Item
-          onClick={() => handleUpdateStatus("success")}
-          rightSection={<Check size={14} />}
-          color="green"
-        >
-          Darsga qatnashadigan
-        </Menu.Item>
-        <Menu.Item
-          onClick={() => handleUpdateStatus("reject")}
-          rightSection={<X size={14} />}
-          color="red"
-        >
-          Darsga qatnashmaydigan
-        </Menu.Item>
-        <Menu.Item
-          onClick={handleDelete}
-          rightSection={<Trash2 size={14} />}
-          color="red"
-        >
-          Ro'yxatdan o'chirish
-        </Menu.Item>
-      </Menu.Dropdown>
-    </Menu>
+    <>
+      <Modal opened={opened} onClose={close} size="md">
+        <form onSubmit={form.onSubmit(handleUpdateStatus)}>
+          <Group w="100%" mb={10}>
+            <TextInput
+              onChange={(event) =>
+                form.setFieldValue("fullName", event.target.value)
+              }
+              error={form.errors.fullName}
+              flex={1}
+              label="Ismi"
+              value={form.values.fullName}
+            />
+            <Select
+              disabled={loading}
+              label="Kurs turini tanlang."
+              onChange={(event) => form.setFieldValue("courseId", event || "")}
+              value={form.values.courseId}
+              error={form.errors.courseId}
+              data={courses}
+            />
+          </Group>
+          <Select
+            mb={10}
+            label="Holatni tanlash"
+            onChange={(event) => form.setFieldValue("isAttend", event || "")}
+            value={form.values.isAttend}
+            error={form.errors.isAttend}
+            data={attends}
+          />
+          <Textarea
+            onChange={(event) =>
+              form.setFieldValue("reason", event.target.value)
+            }
+            value={form.values.reason}
+            error={form.errors.reason}
+            placeholder="Sababini kiriting..."
+            rows={5}
+          />
+          <Button mt={10} color="green" type="submit" disabled={isPending}>
+            Yangilash
+          </Button>
+        </form>
+      </Modal>
+      <Button variant="default" size="compact-md" onClick={open}>
+        <Settings size={14} />
+      </Button>
+    </>
   );
 };
 export default OptionsMenuNewStudent;

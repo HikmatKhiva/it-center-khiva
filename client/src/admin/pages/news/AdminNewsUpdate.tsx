@@ -108,6 +108,7 @@ const AdminNewsUpdate = () => {
     },
   });
   const handleSubmit = () => {
+    idNotification.current = createNotification(isPending);
     const formData = new FormData();
     if (newsCard.image) {
       formData.append("image", newsCard.image);
@@ -117,7 +118,6 @@ const AdminNewsUpdate = () => {
     formData.append("content", content);
     formData.append("createdAt", createdAt.toISOString());
     mutateAsync(formData);
-    idNotification.current = createNotification(isPending);
   };
   const handleImageUpload = (file: File): Promise<string> => {
     return new Promise((resolve) => {

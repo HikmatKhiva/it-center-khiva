@@ -34,8 +34,8 @@ const NewsDeleteModal = ({ id }: { id: number }) => {
     },
   });
   const handleDelete = async () => {
-    mutateAsync();
     idNotification.current = createNotification(isPending);
+    mutateAsync();
   };
   return (
     <>

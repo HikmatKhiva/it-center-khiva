@@ -23,11 +23,10 @@ const getReceptionAccount = async (req, res) => {
     });
     return res.status(200).json(reception);
   } catch (error) {
-
     return res.status(500).json({ error });
   }
 };
-const deleteReceptionAccount = async (req, res) => {
+const deleteReceptionAccount = async (req, res, next) => {
   try {
     const { id } = req.params;
     await prisma.admin.delete({
@@ -38,12 +37,12 @@ const deleteReceptionAccount = async (req, res) => {
     });
     return res
       .status(200)
-      .json({ message: "Reception hisob muoffaqiyatli o'chirildi." });
+      .json({ message: "Reception hisob muvaffaqiyatli o'chirildi." });
   } catch (error) {
-    return res.status(500).json({ error });
+    next(error);
   }
 };
-const updateReception = async (req, res) => {
+const updateReception = async (req, res, next) => {
   try {
     const { id } = req.params;
     const { username, secret, password } = req.body;
@@ -70,10 +69,10 @@ const updateReception = async (req, res) => {
       message: "Hisob ma'lumotlari yangilandi.",
     });
   } catch (error) {
-    return res.status(500).json({ error });
+    next(error);
   }
 };
-const updateReceptionStatus = async (req, res) => {
+const updateReceptionStatus = async (req, res, next) => {
   try {
     const { username = "", isActive = true } = req.body;
     const find = await prisma.admin.findUnique({
@@ -94,9 +93,9 @@ const updateReceptionStatus = async (req, res) => {
     });
     return res
       .status(200)
-      .json({ message: "Reception status muoffaqiyatli yangilandi!" });
+      .json({ message: "Reception status muvaffaqiyatli yangilandi!" });
   } catch (error) {
-    return res.status(500).json({ error });
+    next(error);
   }
 };
 export {

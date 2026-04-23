@@ -1,0 +1,45 @@
+# syntax=docker/dockerfile:1
+
+# Builder: Install all deps + generate Prisma client
+FROM node:22-alpine3.20 AS builder
+WORKDIR /usr/src/app
+COPY package*.json ./
+RUN npm ci  # Full deps (prod + dev)
+COPY prisma ./prisma
+RUN npx prisma generate
+COPY . .
+
+# Engine-builder: Alpine-specific Prisma engines
+FROM node:22-alpine3.20 AS engine-builder
+WORKDIR /usr/src/app
+COPY --from=builder /usr/src/app/package*.json ./
+COPY --from=builder /usr/src/app/prisma ./prisma
+RUN npm ci --include=dev && npx prisma generate
+
+# Production runtime: Minimal, secure
+FROM node:22-alpine3.20 AS runtime
+WORKDIR /usr/src/app
+
+# Create non-root user FIRST
+RUN addgroup -g 1001 -S nodejs && \
+    adduser -S nodejs -u 1001
+
+# Install ONLY production deps + @prisma/client
+COPY package*.json ./
+RUN npm ci --only=production --no-optional && \
+    npm install @prisma/client && \
+    npm cache clean --force
+
+# Copy Prisma schema + Alpine engines + app code
+COPY --from=builder /usr/src/app/prisma ./prisma
+COPY --from=engine-builder /usr/src/app/node_modules/.prisma/client ./node_modules/.prisma/client/
+COPY --from=builder /usr/src/app . 
+
+# Entrypoint setup
+COPY --from=builder /usr/src/app/entrypoint.sh ./
+RUN chmod +x entrypoint.sh
+
+USER nodejs
+ENV NODE_ENV=production
+EXPOSE 5000
+ENTRYPOINT ["./entrypoint.sh"]

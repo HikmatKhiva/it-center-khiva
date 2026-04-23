@@ -1,31 +1,31 @@
 export const addNewStudentValidation = {
   fullName: (val: string) =>
-    /^.{4,}$/?.test(val) ? null : "Ism 4 kirilishi shart",
+    /^.{4,}$/?.test(val) ? null : "Ism 4 kirilishi shart!",
   phone: (number: number | string) =>
     /^\+99 \(\d{3}\) \d{3}-\d{2}-\d{2}$/.test(String(number))
       ? null
-      : "Raqam kiriting",
+      : "Raqam kiriting!",
   courseId: (val: string) =>
-    /^(?!\s*$).+/.test(val) ? null : "Bu joy to'ldirilishi shart",
+    /^(?!\s*$).+/.test(val) ? null : "Bu joy to'ldirilishi shart!",
   courseTime: (val: string) =>
-    /^(?!\s*$).+/?.test(val) ? null : "Bu joy to'ldirilishi shart",
+    /^(?!\s*$).+/?.test(val) ? null : "Bu joy to'ldirilishi shart!",
 };
 export const anonymMessageValidation = {
   fullName: (val: string) =>
-    /^.{4,}$/.test(val) ? null : "Ism kiritlishi shart.",
+    val.length > 4 ? null : "4 ta belgidan ko'p bo'lishi kerak!",
   message: (val: string) =>
-    /^.{4,}$/.test(val) ? null : "Xabar kiritlishi shart.",
+    val.length > 10 ? null : "10 ta belgidan ko'p bo'lishi kerak shart!",
 };
 export const createCourseValidation = {
   name: (value: string) =>
     value.trim().length < 3
-      ? "Kurs nomi 3 ta belgidan kam bo'lishi mumkin emas"
+      ? "Kurs nomi 3 ta belgidan kam bo'lishi mumkin emas!"
       : null,
   nameCertificate: (value: string) =>
     value.trim().length < 20
-      ? "Kurs nomi 20 harfdan kam bo'lishi mumkin emas"
+      ? "Kurs nomi 20 harfdan kam bo'lishi mumkin emas!"
       : null,
-  teacherId: (value: string) => (value ? null : "O'qituvchini tanlang"),
+  teacherId: (value: string) => (value ? null : "O'qituvchini tanlang!"),
 };
 export const createGroupValidation = {
   name: (value: string) =>
@@ -36,32 +36,40 @@ export const createGroupValidation = {
     value < 100000 ? "To'lov puli 100000 kam bo'lmasin!" : null,
   courseId: (value: string) => (!value ? "Kursni tanlash shart!" : null),
   teacherId: (value: string) => (!value ? "O'qituvchini tanlash shart!" : null),
-  // groupTime: {
-  //   day: (value: string) =>
-  //     value.trim().length === 0 ? "Kuni belgilang." : null,
-  //   hour: (value: string) =>
-  //     value.trim().length === 0 ? "Soatni belgilang." : null,
-  // },
+  schedules: {
+    weekType: (value: string) =>
+      value.trim().length === 0 ? "Kuni belgilang!" : null,
+    time: (value: string) =>
+      value.trim().length === 0 ? "Vaqtni belgilang!" : null,
+    roomId: (value: string | number) => (!value ? "Xonani belgilang!" : null),
+  },
 };
 export const updateGroupValidation = {
   teacherId: (value: string) => (!value ? "O'qituvchini tanlash shart!" : null),
+  schedules: {
+    weekType: (value: string) =>
+      value.trim().length === 0 ? "Kuni belgilang!" : null,
+    time: (value: string) =>
+      value.trim().length === 0 ? "Vaqtni belgilang!" : null,
+    roomId: (value: string | number) => (!value ? "Xonani belgilang!" : null),
+  },
 };
 export const createPaymentValidation = {
   amount: (number: number) =>
-    number <= 0 ? "Summani to'g'ri kiriting!" : null,
+    number <= 1000 ? "Summana 1000 katta bo'lishi kerak" : null,
   studentId: (id: number) =>
     typeof id === "undefined" ? "Ma'lumot to'liq emas!" : null,
-  paymentDate: (date: Date) => date ? null : "To'lov sanasini kiriting!",
+  paymentDate: (date: Date) => (date ? null : "To'lov sanasini kiriting!"),
 };
 export const adminValidation = {
   username: (val: string) =>
     val.trim().length >= 4
       ? null
-      : "Username eng kamida 6 belgi bo'lishi kerak.",
+      : "Username eng kamida 6 belgi bo'lishi kerak!",
   password: (val: string) =>
     val.trim().length >= 6
       ? null
-      : "Password eng kamida 6 belgi bo'lishi kerak.",
+      : "Password eng kamida 6 belgi bo'lishi kerak!",
 };
 export const studentValidation = {
   firstName: (value: string) => {
@@ -77,29 +85,62 @@ export const studentValidation = {
       return "Familiya harflar 3 dan ko'p bo'lishi kerak!";
     return null;
   },
+  address: (value: string) => {
+    if (!value) return "Manzil bo'lishi shart!";
+    if (typeof value !== "string") return "Ismni harflar bilan kiriting!";
+    if (value?.length <= 3) return "Manzil harflar 3 dan ko'p bo'lishi kerak!";
+    return null;
+  },
   gender: (value: string) =>
-    !["male", "female"].includes(value) ? "Iltimos jinsni tanlang" : null,
+    !["male", "female"].includes(value) ? "Iltimos jinsni tanlang!" : null,
+  docType: (value: string) =>
+    !["PASSPORT", "BIRTHCERTIFICATE"].includes(value)
+      ? "Iltimos xujjat turini tanlang!"
+      : null,
 };
 export const tokenValidation = {
   token: (token: string) =>
     !/^\d*$/.test(token)
-      ? "Iltmos faqat raqam kiriting"
+      ? "Iltmos faqat raqam kiriting!"
       : token?.length !== 6
-      ? "Code to'liq kiriting"
-      : null,
+        ? "Code to'liq kiriting!"
+        : null,
 };
 export const adminValidate = {
   password: (val: string) =>
     val.trim().length >= 6
       ? null
-      : "Password eng kamida 6 belgi bo'lishi kerak.",
-  secret: (val: string) => (val.length ? null : "secret key bo'lishi kerak."),
+      : "Password eng kamida 6 belgi bo'lishi kerak!",
+  secret: (val: string) => (val.length ? null : "secret key bo'lishi kerak!"),
   username: (val: string) =>
-    /^.{4,}$/.test(val) ? null : "Username kiritlishi shart.",
+    /^.{4,}$/.test(val) ? null : "Username kiritlishi shart!",
 };
 export const teacherValidate = {
   firstName: (value: string) =>
     value?.trim().length > 0 ? null : "Ismingizni to'ldiring!",
   secondName: (value: string) =>
     value?.trim().length > 0 ? null : "Familiyangizni to'ldiring!",
+};
+
+export const RoomCreateValidate = {
+  name: (value: string) =>
+    value.trim().length >= 3 ? null : "Eng kami 3 belgi bo'lishi kerak!",
+  capacity: (value: number) =>
+    value >= 5 && value <= 30 ? null : "Eng kami 5 ko'pi 30 bo'lishi kerak!",
+};
+
+export const updateNewStudentValidation = {
+  fullName: (val: string) =>
+    val.length < 3 ? "Ism 3 ta harfdan katta bo'lishi kerak!" : null,
+  isAttend: (val: string) => (!val ? "Bu joy bo'sh bo'lmasligi kerak" : null),
+  // reason: (val: string) => null,
+};
+
+export const paymentRefundValidation = {
+  amount: (val: number) =>
+    val < 1000 ? "Qiymat 10000 dan katta bo'lishi kerak!" : null,
+  reason: (val: string) =>
+    val.trim().length <= 10
+      ? `Sababini kiriting eng kamida 10 ta harf... yana(${10 - val.trim().length} harf)`
+      : null,
 };

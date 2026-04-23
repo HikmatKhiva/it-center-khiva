@@ -9,15 +9,22 @@ import {
 import { upload } from "../../lib/multer.js";
 import { checkRole } from "../../middleware/checkRole.js";
 import { downloadGroupCertificateZip } from "../certificates/certificates.controller.js";
+import {
+  getUnconfirmedPayments,
+  confirmedPayments,
+} from "../payments/payments.controller.js";
 export const adminRoutes = Router();
 adminRoutes.get("/messages", checkRole, getMessages);
 adminRoutes.delete("/messages/:id", checkRole, deleteMessage);
 adminRoutes.get(
   "/download/certificate/:id",
-  checkRole,
-  downloadGroupCertificateZip
+  // checkRole,
+  downloadGroupCertificateZip,
 );
 adminRoutes.post("/upload-image", upload.single("image"), uploadImage);
-adminRoutes.put("/update", updateProfile);
+adminRoutes.put("/profile/update", updateProfile);
 adminRoutes.get("/profile/:id", userProfile);
 adminRoutes.delete("/photo-delete", deleteImage);
+
+adminRoutes.get("/payments", checkRole, getUnconfirmedPayments);
+adminRoutes.patch("/payments/confirmed", checkRole, confirmedPayments);

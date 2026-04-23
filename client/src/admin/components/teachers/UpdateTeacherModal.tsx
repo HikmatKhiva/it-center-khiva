@@ -11,7 +11,7 @@ import {
 import { useForm } from "@mantine/form";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useAppSelector } from "@/hooks/redux";
-import { Pen, Trash2 } from "lucide-react";
+import { Trash2, UserRoundPen } from "lucide-react";
 import {
   createNotification,
   showErrorNotification,
@@ -42,7 +42,6 @@ const UpdateTeacherModal = ({ teacher }: { teacher: ITeacher }) => {
       showSuccessNotification(idNotification.current, success?.message);
       close();
       form.reset();
-      
     },
     onError: (error) => {
       showErrorNotification(idNotification.current, error.message);
@@ -58,6 +57,7 @@ const UpdateTeacherModal = ({ teacher }: { teacher: ITeacher }) => {
     validate: teacherValidate,
   });
   const handleSubmit = async (teacher: ITeacherForm) => {
+    idNotification.current = createNotification(isPending);
     const formData = new FormData();
     formData.append("firstName", teacher.firstName);
     formData.append("secondName", teacher.secondName);
@@ -66,7 +66,6 @@ const UpdateTeacherModal = ({ teacher }: { teacher: ITeacher }) => {
       formData.append("image", teacher.image);
     }
     mutateAsync(formData);
-    idNotification.current = createNotification(isPending);
   };
   const setFile = (file: File | null) => {
     form.setFieldValue("image", file);
@@ -87,14 +86,8 @@ const UpdateTeacherModal = ({ teacher }: { teacher: ITeacher }) => {
   };
   return (
     <>
-      <Button
-        onClick={open}
-        rightSection={<Pen size={16} />}
-        color="green"
-        size="xs"
-        variant="outline"
-      >
-        O'zgartirish
+      <Button onClick={open} color="green" size="xs" variant="outline">
+        <UserRoundPen size="16" />
       </Button>
       <Modal opened={opened} onClose={close}>
         <form onSubmit={form.onSubmit(handleSubmit)}>
@@ -134,7 +127,7 @@ const UpdateTeacherModal = ({ teacher }: { teacher: ITeacher }) => {
           <Stack>
             <TextInput
               onChange={(e) =>
-                form.setFieldValue("firstName", e.currentTarget.value.trim())
+                form.setFieldValue("firstName", e.target.value.trim())
               }
               value={form.values.firstName}
               error={form.errors.firstName}
@@ -145,7 +138,7 @@ const UpdateTeacherModal = ({ teacher }: { teacher: ITeacher }) => {
             />
             <TextInput
               onChange={(e) =>
-                form.setFieldValue("secondName", e.currentTarget.value.trim())
+                form.setFieldValue("secondName", e.target.value.trim())
               }
               value={form.values.secondName}
               error={form.errors.secondName}

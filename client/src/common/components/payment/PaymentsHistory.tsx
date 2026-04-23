@@ -31,7 +31,11 @@ const PaymentsHistory = ({ id }: { id: number }) => {
   });
   return (
     <>
-      <Drawer opened={opened} onClose={close}>
+      <Drawer
+        opened={opened}
+        size="600"
+        onClose={close}
+      >
         <Group mb="10" justify="space-between" px="20">
           <Text>
             O'quvchi: <strong>{data?.student?.firstName}</strong>
@@ -42,7 +46,7 @@ const PaymentsHistory = ({ id }: { id: number }) => {
         </Group>
         <Group mb="10" justify="space-between" px="20">
           <Text>
-            Oylik to'lovi: <strong>{data?.student?.Group.price}</strong>
+            Oylik to'lovi: <strong>{data?.monthlyPrice}</strong>
           </Text>
           <Text>
             Berilgan chegirma: <strong>{data?.student?.discount}%</strong>
@@ -50,14 +54,28 @@ const PaymentsHistory = ({ id }: { id: number }) => {
         </Group>
         <Tabs defaultValue="total" orientation="horizontal">
           <Tabs.List mb="20">
-            <Tabs.Tab fz="lg" value="total" rightSection={<ReceiptText size="16" />}>Umumiy</Tabs.Tab>
-            <Tabs.Tab fz="lg" value="monthly" rightSection={<ChartArea size="16" />}>Oylik to'lovlari</Tabs.Tab>
+            <Tabs.Tab
+              fz="lg"
+              value="total"
+              rightSection={<ReceiptText size="16" />}
+            >
+              Umumiy
+            </Tabs.Tab>
+            <Tabs.Tab
+              fz="lg"
+              value="monthly"
+              rightSection={<ChartArea size="16" />}
+            >
+              Oylik to'lovlari
+            </Tabs.Tab>
           </Tabs.List>
           <Tabs.Panel value="total">
             <Stack justify="space-between" h={"100%"}>
-              <PaymentTable payments={data?.payments || []} />
+              <PaymentTable studentId={id} payments={data?.payments || []} />
               <Group justify="center">
                 <RingProgress
+                  size={210}
+                  thickness={16}
                   sections={[
                     {
                       value: data?.percentagePaid || 0,
@@ -77,7 +95,7 @@ const PaymentsHistory = ({ id }: { id: number }) => {
                           <Check size={22} />
                         </ActionIcon>
                       ) : (
-                        <Text c="red" fw={700} ta="center" size="md">
+                        <Text c="red" fw={700} ta="center" size="xl">
                           {data?.student?.debt || ""} <br />
                           {!isNaN(data?.percentagePaid || 0)
                             ? `${Math.floor(data?.percentagePaid || 0)}%`

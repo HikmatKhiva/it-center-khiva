@@ -26,7 +26,7 @@ const CertificateTable = ({
         </Table.Td>
         <Table.Td>{`${student?.course?.teacher?.firstName} ${student?.course?.teacher?.secondName}`}</Table.Td>
         <Table.Td>{student.course.name}</Table.Td>
-        <Table.Td>{formatTime.DateTime(student?.Group?.finishedDate)}</Table.Td>
+        <Table.Td>{formatTime.DateTime(student?.finishedDate)}</Table.Td>
         <Table.Td>
           <ActionIcon
             component="a"

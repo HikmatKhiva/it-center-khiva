@@ -11,7 +11,7 @@ import {
 import { InputMask } from "@react-input/mask";
 import { useForm } from "@mantine/form";
 import { addNewStudentValidation } from "../../validation";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { courseTimes } from "@/config";
 import { useRef } from "react";
 import {
@@ -23,6 +23,7 @@ import useFormData from "@/hooks/useFormData";
 import { Server } from "@/api/api";
 const AddNewStudent = (props: PaperProps) => {
   const idNotification = useRef<string>("");
+  const client = useQueryClient();
   const form = useForm({
     initialValues: {
       fullName: "",
@@ -41,6 +42,8 @@ const AddNewStudent = (props: PaperProps) => {
       }),
     mutationKey: ["newStudent"],
     onSuccess: (success) => {
+      client.invalidateQueries({ queryKey: ["newStudents"] });
+
       showSuccessNotification(idNotification.current, success?.message);
       form.reset();
     },
@@ -79,7 +82,7 @@ const AddNewStudent = (props: PaperProps) => {
             value={form.values.fullName}
             size="sm"
             onChange={(event) =>
-              form.setFieldValue("fullName", event.currentTarget.value.trim())
+              form.setFieldValue("fullName", event.target.value.trim())
             }
             error={form.errors.fullName}
             radius="md"

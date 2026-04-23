@@ -35,8 +35,8 @@ const ProfilePhotoDelete = ({ photo }: { photo: string | null }) => {
     },
   });
   const handleDeleteImage = async () => {
-    await mutateAsync();
     idNotification.current = createNotification(isPending);
+    await mutateAsync();
   };
   return (
     <>

@@ -16,7 +16,8 @@ import "@/css/index.css";
 import "@mantine/core/styles.css";
 import "@mantine/notifications/styles.css";
 import "@mantine/dates/styles.css";
-import '@mantine/charts/styles.css';
+import "@mantine/charts/styles.css";
+import { SocketProvider } from "./context/SocketContext";
 // import NavigationProgressComponent from "./loading/NavigationProgressComponent.tsx";
 // Create a client
 const queryClient = new QueryClient();
@@ -35,10 +36,13 @@ createRoot(document.getElementById("root")!).render(
       <MantineProvider theme={theme}>
         {/* redux wrapper */}
         <Provider store={store}>
-          <PersistGate loading={null} persistor={persistor}>
-            {/* react-router */}
-            <RouterProvider router={routes} />
-          </PersistGate>
+          {/* socket provider */}
+          <SocketProvider>
+            <PersistGate loading={null} persistor={persistor}>
+              {/* react-router */}
+              <RouterProvider router={routes} />
+            </PersistGate>
+          </SocketProvider>
         </Provider>
         {/* mantine notification component */}
         <Notifications />
@@ -46,5 +50,5 @@ createRoot(document.getElementById("root")!).render(
       {/* tanstack query devtool */}
       <ReactQueryDevtools initialIsOpen={false} />
     </QueryClientProvider>
-  </StrictMode>
+  </StrictMode>,
 );

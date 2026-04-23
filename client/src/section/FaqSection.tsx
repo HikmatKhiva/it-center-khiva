@@ -61,8 +61,8 @@ const FaqSection = () => {
           <Accordion.Item value="certificate">
             <Accordion.Control>Sertifiqat taqdim etiladimi.</Accordion.Control>
             <Accordion.Panel>
-              Kursni muoffaqiyatli tugatganingizdan keyin sizdan kursni
-              yakunlaningiz bo'yicha maxsus sinov olinadi.Sinovdan muoffaqiyatli
+              Kursni muvaffaqiyatli tugatganingizdan keyin sizdan kursni
+              yakunlaningiz bo'yicha maxsus sinov olinadi.Sinovdan muvaffaqiyatli
               o'tgan o'quvchilarni Sertifiqat bilan taqdirlanadi.
             </Accordion.Panel>
           </Accordion.Item>

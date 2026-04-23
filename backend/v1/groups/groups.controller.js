@@ -1,26 +1,39 @@
+import { Prisma } from "@prisma/client";
 import { prisma } from "../../app.js";
 import { formatterGroups } from "./group.helper.js";
 // getAll groups
 const getAllGroup = async (req, res) => {
   try {
-    const { name, isGroupFinished, limit = 10, page = 1 } = req.query;
+    let { name, isActive, limit = 10, page = 1, year, orderBy } = req.query;
+    const yearFilter = parseInt(year, 10) || new Date().getFullYear();
+    orderBy = !["desc", "asc"].includes(orderBy) ? "asc" : orderBy;
+    isActive = ["PENDING", "ACTIVE", "FINISHED"].includes(isActive)
+      ? isActive
+      : "ACTIVE";
     const groups = await prisma.group.findMany({
       where: {
         name: {
           contains: name,
+          mode: "insensitive",
         },
-        isGroupFinished: isGroupFinished === "true",
+        ...(isActive && { isActive: isActive }),
+        createdAt: {
+          gte: new Date(yearFilter, 0, 1),
+          lte: new Date(yearFilter, 11, 31, 23, 59, 59, 999),
+        },
+      },
+      orderBy: {
+        createdAt: orderBy,
       },
       select: {
         id: true,
         name: true,
-        groupTime: true,
         duration: true,
+        isActive: true,
         finishedDate: true,
         Students: true,
         price: true,
         createdAt: true,
-        isGroupFinished: true,
         teacher: {
           select: {
             id: true,
@@ -43,9 +56,14 @@ const getAllGroup = async (req, res) => {
         name: {
           contains: name,
         },
-        isGroupFinished: isGroupFinished === "true" ? true : false,
+        createdAt: {
+          gte: new Date(yearFilter, 0, 1),
+          lte: new Date(yearFilter, 11, 31, 23, 59, 59, 999),
+        },
+        ...(isActive && { isActive: isActive }),
       },
     });
+
     const totalPages = Math.ceil(totalCount / limit);
     return res.status(200).json({
       groups,
@@ -56,69 +74,75 @@ const getAllGroup = async (req, res) => {
   }
 };
 // create a group
-const createGroup = async (req, res) => {
+const createGroup = async (req, res, next) => {
   try {
-    let { teacherId, name, courseId, duration, price, groupTime } = req.body;
+    let { teacherId, name, courseId, duration, price, schedules } = req.body;
+    duration = parseInt(duration, 10);
     if (duration > 13) {
       return res.status(400).json({ message: "Oy xato kiritildi." });
     }
-    let currentDate = new Date();
-    // Add  months to the current date
-    currentDate.setMonth(currentDate.getMonth() + duration);
+    const group = await prisma.group.findUnique({
+      where: { name },
+    });
+    if (group) {
+      return res.status(400).json({ message: "Guruh nomi bazada mavjud!" });
+    }
     await prisma.group.create({
       data: {
-        teacherId: parseInt(teacherId),
+        teacherId: parseInt(teacherId, 10),
         name,
-        courseId: parseInt(courseId),
-        duration,
-        finishedDate: currentDate,
-        price,
-        groupTime,
+        courseId: parseInt(courseId, 10),
+        duration: duration,
+        price: new Prisma.Decimal(price),
+        schedules: {
+          create: {
+            weekType: schedules.weekType,
+            time: schedules.time,
+            roomId: parseInt(schedules.roomId),
+          },
+        },
       },
     });
-    return res.status(201).json({ message: "Guruh muoffaqiyatli yaratildi." });
+    return res.status(201).json({ message: "Guruh muvaffaqiyatli yaratildi." });
   } catch (error) {
-    return res.status(500).json({ error });
+    next(error);
   }
 };
 // update a group
-const updateGroup = async (req, res) => {
+const updateGroup = async (req, res, next) => {
   try {
-    const { teacherId, groupTime } = req.body;
+    const { teacherId, schedules } = req.body;
     const { id } = req.params;
-    // Add six months to the current date
     await prisma.group.update({
       where: {
         id: parseInt(id),
       },
       data: {
         teacherId: parseInt(teacherId),
-        groupTime,
+        schedules: {
+          deleteMany: {},
+          create: {
+            ...schedules,
+            roomId: parseInt(schedules.roomId, 10),
+          },
+        },
       },
     });
-    return res.status(200).json({ message: "Guruh muoffaqiyatli yangilandi." });
+    return res
+      .status(200)
+      .json({ message: "Guruh muvaffaqiyatli yangilandi." });
   } catch (error) {
-    return res.status(500).json({ error });
+    next(error);
   }
 };
 // get a group
 const getGroup = async (req, res) => {
   try {
     const { id } = req.params;
+    const { limit = 10, page = 1, name } = req.query;
     const group = await prisma.group.findUnique({
-      where: {
-        id: parseInt(id),
-      },
-      select: {
-        id: true,
-        name: true,
-        groupTime: true,
-        duration: true,
-        finishedDate: true,
-        Students: true,
-        price: true,
-        createdAt: true,
-        isGroupFinished: true,
+      where: { id: parseInt(id) },
+      include: {
         teacher: {
           select: {
             id: true,
@@ -133,47 +157,68 @@ const getGroup = async (req, res) => {
             nameCertificate: true,
           },
         },
+        schedules: true,
+        Students: {
+          where: name
+            ? { firstName: { contains: name, mode: "insensitive" } }
+            : {},
+          include: {
+            guarantor: true,
+          },
+          skip: (parseInt(page) - 1) * parseInt(limit),
+          take: parseInt(limit),
+        },
       },
     });
     if (!group) {
       return res.status(404).json({ message: "Guruh topilmadi." });
     }
-    return res.status(200).json(group);
+    const totalStudents = await prisma.student.count({
+      where: {
+        groupId: parseInt(id),
+        ...(name ? { firstName: { contains: name, mode: "insensitive" } } : {}),
+      },
+    });
+    return res.status(200).json({
+      ...group,
+      totalPages: Math.ceil(totalStudents / limit),
+    });
   } catch (error) {
     return res.status(500).json({ error });
   }
 };
 // delete a group
-const deleteGroup = async (req, res) => {
+const deleteGroup = async (req, res, next) => {
   try {
     const { id } = req.params;
     const groupId = parseInt(id); // Ensure groupId is defined
-    // Step 1: Delete payments associated with students in the group
-    await prisma.payment.deleteMany({
-      where: {
-        Student: {
-          groupId: groupId, // Use the correct variable here
+    await prisma.$transaction([
+      // 1) Delete schedules that reference this group
+      prisma.schedule.deleteMany({
+        where: { groupId },
+      }),
+      // 2) Delete payments for students in this group
+      prisma.payment.deleteMany({
+        where: {
+          Student: {
+            groupId,
+          },
         },
-      },
-    });
+      }),
+      // 3) Delete students in this group
+      prisma.student.deleteMany({
+        where: { groupId },
+      }),
 
-    // Step 2: Delete students in the group
-    await prisma.student.deleteMany({
-      where: {
-        groupId: groupId,
-      },
-    });
-    // Step 3: Delete the group itself
-    await prisma.group.delete({
-      where: {
-        id: groupId,
-      },
-    });
-    return res.status(200).json({ message: "Guruh muoffaqiyatli o'chirildi" });
+      // 4) Delete the group
+      prisma.group.delete({
+        where: { id: groupId },
+      }),
+    ]);
+
+    return res.status(200).json({ message: "Guruh muvaffaqiyatli o'chirildi" });
   } catch (error) {
-    return res
-      .status(500)
-      .json({ error: "An error occurred while deleting the group." });
+    next(error);
   }
 };
 // get a opened group
@@ -186,10 +231,9 @@ const getNewGroups = async (req, res) => {
         createdAt: {
           gte: oneWeekAgo,
         },
-        isGroupFinished: false,
+        isActive: "ACTIVE",
       },
       select: {
-        groupTime: true,
         createdAt: true,
         course: {
           select: {
@@ -202,6 +246,17 @@ const getNewGroups = async (req, res) => {
             secondName: true,
           },
         },
+        schedules: {
+          select: {
+            Room: {
+              select: {
+                name: true,
+              },
+            },
+            weekType: true,
+            time: true,
+          },
+        },
       },
     });
     const groups = await formatterGroups(data);
@@ -210,8 +265,53 @@ const getNewGroups = async (req, res) => {
     return res.status(500).json({ error });
   }
 };
+// activate a  group
+const activateGroup = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const groupId = parseInt(id);
+    const { startTime, finishedDate } = req.body;
+    const group = await prisma.group.findUnique({
+      where: { id: groupId },
+    });
+    if (!group) {
+      return res.status(404).json({ message: "Guruh topilmadi." });
+    }
+    await prisma.$transaction(async (tx) => {
+      const group = await tx.group.update({
+        where: { id: groupId },
+        data: {
+          isActive: "ACTIVE",
+          startTime: new Date(startTime),
+          finishedDate: finishedDate,
+        },
+      });
+      const students = await tx.student.findMany({ where: { groupId } });
+      const updates = students.map((student) => {
+        const debt =
+          parseInt(group.price) *
+          parseInt(group.duration) *
+          (1 - student.discount / 100);
+        return tx.student.update({
+          where: { id: student.id },
+          data: {
+            debt,
+            debtStatus: "ACTIVE",
+            createdAt: new Date(startTime),
+            finishedDate: finishedDate,
+          },
+        });
+      });
+      await Promise.all(updates);
+      return { group, updatedStudents: students.length };
+    });
+    return res.status(200).json({ message: "Guruh faollashtirildi!" });
+  } catch (error) {
+    next(error);
+  }
+};
 // finish a group
-const finishGroup = async (req, res) => {
+const finishGroup = async (req, res, next) => {
   try {
     const { id } = req.params;
     const now = new Date();
@@ -228,13 +328,16 @@ const finishGroup = async (req, res) => {
         id: parseInt(id),
       },
       data: {
-        isGroupFinished: true,
+        schedules: {
+          deleteMany: {},
+        },
+        isActive: "FINISHED",
         finishedDate: now,
       },
     });
     return res.status(200).json({ message: "Guruh yakunlandi!" });
   } catch (error) {
-    return res.status(500).json({ error });
+    next(error);
   }
 };
 export {
@@ -245,4 +348,5 @@ export {
   getNewGroups,
   updateGroup,
   finishGroup,
+  activateGroup,
 };

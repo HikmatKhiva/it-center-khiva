@@ -9,7 +9,7 @@ import {
   showErrorNotification,
   showSuccessNotification,
 } from "@/utils/notification";
-import { Trash } from "lucide-react";
+import { Trash2 } from "lucide-react";
 import { Server } from "@/api/api";
 const DeleteTeacherModal = ({ id }: { id: number }) => {
   const admin = useAppSelector(selectUser);
@@ -35,19 +35,13 @@ const DeleteTeacherModal = ({ id }: { id: number }) => {
     },
   });
   const handleDelete = async () => {
-    await mutateAsync();
     idNotification.current = createNotification(isPending);
+    await mutateAsync();
   };
   return (
     <>
-      <Button
-        onClick={open}
-        rightSection={<Trash size="16" />}
-        color="red"
-        size="xs"
-        variant="outline"
-      >
-        O'chirish.
+      <Button onClick={open} color="red" size="xs" variant="outline">
+        <Trash2 size="16" />
       </Button>
       <Modal
         centered

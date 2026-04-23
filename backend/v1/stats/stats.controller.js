@@ -1,111 +1,22 @@
-import { prisma } from "../../app.js";
 import {
   calculateIncomeForYear,
   calculateAllTeachersSalaries,
+  calculateStats,
 } from "./stats.helper.js";
 // get stats
 const getStats = async (req, res) => {
   try {
-    const activeGroups = await prisma.group.count({
-      where: {
-        isGroupFinished: false,
-      },
-    });
-    const finishedGroups = await prisma.group.count({
-      where: {
-        isGroupFinished: true,
-      },
-    });
-    const totalTeachers = await prisma.teacher.count();
-    const totalCourses = await prisma.course.count();
-    const activeStudents = await prisma.student.count({
-      where: {
-        Group: {
-          isGroupFinished: false,
-        },
-      },
-    });
-    const totalDebtors = await prisma.student.count({
-      where: {
-        debt: {
-          gt: 0,
-        },
-      },
-    });
-    const finishedStudents = await prisma.student.count({
-      where: {
-        Group: {
-          isGroupFinished: true,
-        },
-        debt: 0,
-      },
-    });
-
-    const totalStudents = await prisma.student.count({
-      where: {
-        Group: {
-          isGroupFinished: false,
-        },
-      },
-    });
-    const totalMaleStudents = await prisma.student.count({
-      where: {
-        gender: "MALE",
-        Group: {
-          isGroupFinished: false,
-        },
-      },
-    });
-    const totalFinishedFemaleStudents = await prisma.student.count({
-      where: {
-        gender: "FEMALE",
-        Group: {
-          isGroupFinished: true,
-        },
-        debt: 0,
-      },
-    });
-    const totalFinishedMaleStudents = await prisma.student.count({
-      where: {
-        gender: "MALE",
-        Group: {
-          isGroupFinished: true,
-        },
-        debt: 0,
-      },
-    });
-    const totalFemaleStudents = await prisma.student.count({
-      where: {
-        gender: "FEMALE",
-        Group: {
-          isGroupFinished: false,
-        },
-      },
-    });
-    res.status(200).json([
-      {
-        stat: "Statistika",
-        activeStudents,
-        activeGroups,
-        totalTeachers,
-        totalCourses,
-        totalMaleStudents,
-        totalFemaleStudents,
-        totalFinishedFemaleStudents,
-        totalFinishedMaleStudents,
-        totalStudents,
-        totalDebtors,
-        finishedStudents,
-        finishedGroups,
-      },
-    ]);
+    const { year } = req.query;
+    const stats = await calculateStats(year);
+    res.status(200).json([stats]);
   } catch (error) {
     return res.status(500).json({ error });
   }
 };
 const getYearlyIncome = async (req, res) => {
   try {
-    const yearly = await calculateIncomeForYear();
+    const { year } = req.query;
+    const yearly = await calculateIncomeForYear(year);
     res.status(200).json(yearly);
   } catch (error) {
     return res.status(500).json({ error });
@@ -113,7 +24,17 @@ const getYearlyIncome = async (req, res) => {
 };
 const getTeachersSalary = async (req, res) => {
   try {
-    const teachers = await calculateAllTeachersSalaries();
+    const date = new Date();
+    const {
+      year = date.getFullYear(),
+      month = date.getMonth(),
+      percentage = 0.5,
+    } = req.query;
+    const teachers = await calculateAllTeachersSalaries(
+      parseInt(year, 10),
+      parseInt(month, 10),
+      Number(percentage),
+    );
     res.status(200).json(teachers);
   } catch (error) {
     return res.status(500).json({ error });

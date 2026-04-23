@@ -14,6 +14,7 @@ import { useRef } from "react";
 import useFormData from "@/hooks/useFormData";
 import { Server } from "@/api/api";
 import { Pencil } from "lucide-react";
+// import { IMessageResponse, INewCourse } from "@/types";
 const CreateCourseModal = () => {
   const admin = useAppSelector(selectUser);
   const idNotification = useRef<string>("");

@@ -1,80 +1,62 @@
-import { ActionIcon, Group, Text, TextInput, Tooltip } from "@mantine/core";
-import { ArrowLeft, CalendarOff, CalendarPlus, Search } from "lucide-react";
-import UpdateGroupModal from "./UpdateGroupModal";
+import { Group, Text, TextInput, Tooltip } from "@mantine/core";
+import { CalendarOff, CalendarPlus, Search } from "lucide-react";
 import { formatTime } from "@/utils/helper";
-import CreateStudent from "../student/CreateStudentModal";
-import FinishGroupModal from "./FinishGroupModal";
-import DownloadCertificate from "./DownloadCertificate";
-import { useNavigate } from "react-router-dom";
-import { ChangeEvent } from "react";
-const GroupIdHeader = ({
-  group,
-  name,
-  handleChangeInput,
-}: {
-  group: IGroup;
-  name: string;
-  handleChangeInput: (event: ChangeEvent<HTMLInputElement>) => void;
-}) => {
-  const navigate = useNavigate();
-  return (
-    <Group pb="20" justify="space-between">
-      <Group gap="20">
-        <ActionIcon
-          onClick={() => navigate(-1)}
-          color="red"
-          variant="outline"
-          size="md"
-        >
-          <ArrowLeft size={16} />
-        </ActionIcon>
-        {group && !group.isGroupFinished && <UpdateGroupModal id={group?.id} />}
-        <Text fz="14">
-          Guruh nomi: <b>{group?.name}</b>
-        </Text>
-        {group?.createdAt && (
-          <Tooltip label="Boshlangan sana!">
-            <Text className="flex gap-1 items-center" fz="14">
-              <CalendarPlus size="16" />
-              <b>{formatTime.DateTime(group?.createdAt)}</b>
-            </Text>
-          </Tooltip>
-        )}
-        {group?.finishedDate && (
-          <Tooltip
-            label={`${
-              group?.isGroupFinished ? "Yakunlangan sana!" : "Yakunlash sanasi!"
-            }`}
-          >
-            <Text className="flex gap-1 items-center" fz="14">
-              <CalendarOff size="16" />
-              <b>{formatTime.DateTime(group?.finishedDate)}</b>
-            </Text>
-          </Tooltip>
-        )}
-      </Group>
-      <Group>
-        <TextInput
-          rightSection={<Search size="16" />}
-          placeholder="O'quvchi qidirish."
-          onChange={handleChangeInput}
-          value={name}
-        />
-        {group?.course?.id && group?.id && (
-          <CreateStudent
-            courseId={group?.course?.id}
-            isGroupFinished={group.isGroupFinished}
-            groupId={group?.id}
+import { ChangeEvent, memo } from "react";
+import BackButton from "../BackButton";
+import GroupHeaderMenu from "./GroupHeaderMenu";
+const GroupIdHeader = memo(
+  ({
+    group,
+    name,
+    handleChangeInput,
+  }: {
+    group: IGroup;
+    name: string;
+    handleChangeInput: (event: ChangeEvent<HTMLInputElement>) => void;
+  }) => {
+    const startTimeStr = group?.startTime
+      ? formatTime.DateTime(group.startTime)
+      : null;
+    const finishedDateStr = group?.finishedDate
+      ? formatTime.DateTime(group.finishedDate)
+      : null;
+    return (
+      <Group pb="20" justify="space-between">
+        <Group gap="20">
+          <BackButton />
+          <Text fz="14">
+            Guruh nomi: <b>{group?.name}</b>
+          </Text>
+          <Group hidden={group.isActive == "PENDING"}>
+            {startTimeStr && (
+              <Tooltip label="Boshlangan sana!">
+                <Text className="flex gap-1 items-center" fz="14">
+                  <CalendarPlus size="16" />
+                  <b>{startTimeStr}</b>
+                </Text>
+              </Tooltip>
+            )}
+            {finishedDateStr && (
+              <Tooltip label="Yakunlangan sana!">
+                <Text className="flex gap-1 items-center" fz="14">
+                  <CalendarOff size="16" />
+                  <b>{finishedDateStr}</b>
+                </Text>
+              </Tooltip>
+            )}
+          </Group>
+        </Group>
+        <Group>
+          <TextInput
+            rightSection={<Search size="16" />}
+            placeholder="O'quvchi qidirish."
+            onChange={handleChangeInput}
+            value={name}
           />
-        )}
-        {!group?.isGroupFinished && group?.Students.length !== 0 && (
-          <FinishGroupModal id={group?.id} />
-        )}
-        {group?.isGroupFinished && (
-          <DownloadCertificate name={group.name} id={group?.id} />
-        )}
+          <GroupHeaderMenu group={group} />
+        </Group>
       </Group>
-    </Group>
-  );
-};
+    );
+  },
+);
 export default GroupIdHeader;

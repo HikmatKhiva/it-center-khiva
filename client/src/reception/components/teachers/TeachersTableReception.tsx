@@ -1,6 +1,5 @@
 import ImageModal from "@/admin/components/ImageModal";
 import { Table } from "@mantine/core";
-
 const TeachersTableReception = ({ teachers }: { teachers: ITeacher[] }) => {
   const rows =
     Array.isArray(teachers) &&
@@ -41,5 +40,4 @@ const TeachersTableReception = ({ teachers }: { teachers: ITeacher[] }) => {
     </>
   );
 };
-
 export default TeachersTableReception;

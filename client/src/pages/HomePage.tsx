@@ -12,7 +12,7 @@ const HomePage = () => {
       <section className="h-[calc(100vh-60px)] flex items-center justify-center">
         <Container size="xl" className="h-full w-full">
           <div className="flex justify-between h-full items-center w-full flex-wrap">
-            <h2 className="md:text-5xl  text-3xl flex-grow">
+            <h2 className="md:text-5xl  text-3xl grow">
               Sizning <span className="text-[#7DBA28]">IT </span> karyerangizni
               <br />{" "}
               <TextAnimate animation="blurInUp" by="character">
