@@ -1,5 +1,5 @@
 ![Logo](https://res.cloudinary.com/djvbo9hhs/image/upload/v1745166328/news/qihpge922nokapofp6vy.png)
-# IT-Khiva 
+# [IT-Khiva](https://it-khiva.uz)
 
 ![License](https://img.shields.io/badge/license-MIT-green)
 ![Frontend](https://img.shields.io/badge/frontend-React-blue)
