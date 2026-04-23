@@ -98,6 +98,7 @@ app.use((err, req, res, next) => {
 
   errorHandler(err, req, res, next);
 });
+app.set('trust proxy', 1);
 // Centralized error handler
 server.listen(PORT, () => {
   logger.info({ msg: `Server running on port ${PORT}` });

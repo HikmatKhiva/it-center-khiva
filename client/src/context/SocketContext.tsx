@@ -14,6 +14,8 @@ interface SocketContextType {
 }
 const SOCKET_SERVER_URL =
   import.meta.env.VITE_BACKEND_URL || "https://it-khiva.uz";
+  console.log(SOCKET_SERVER_URL);
+  
 const SocketContext = createContext<SocketContextType>({ socket: null });
 export const SocketProvider = ({ children }: { children: ReactNode }) => {
   const [socket, setSocket] = useState<Socket | null>(null);

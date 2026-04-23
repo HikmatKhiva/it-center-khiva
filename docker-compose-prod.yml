@@ -7,28 +7,24 @@ services:
       dockerfile: Dockerfile.prod
     ports:
       - "5000:5000"
-    command: sh -c "npx prisma migrate deploy  && npm run server"
+    command: sh -c "npx prisma migrate deploy && npm run server"  # Fixed spacing
     environment:
       CHOKIDAR_USEPOLLING: true
-      DATABASE_URL: postgres://${DB_USER}:${DB_PASSWORD}@db:${DB_PORT}/${DB_NAME}
+      DATABASE_URL: postgres://${DB_USER}:${DB_PASSWORD}@db:5432/${DB_NAME}  # Fixed port
       LOGO_URL: ${LOGO_URL}
-
       JWT_SECRET: ${JWT_SECRET}
-      # Cloudinary keys
       CLOUDINARY_CLOUD_NAME: ${CLOUDINARY_CLOUD_NAME}
       CLOUDINARY_API_KEY: ${CLOUDINARY_API_KEY}
       CLOUDINARY_API_SECRET: ${CLOUDINARY_API_SECRET}
       CORS_ORIGIN: ${CORS_ORIGIN}
-
       PORT: 5000
     working_dir: /usr/src/app
     depends_on:
       db:
         condition: service_healthy
-    tty: true # Keeps the container running for debugging
+    tty: true
     networks:
-      it-network:
-        ipv4_address: 172.0.0.2
+      - it-network
     volumes:
       - ./backend:/usr/src/app
       - /usr/src/app/node_modules
@@ -36,17 +32,13 @@ services:
   frontend:
     build:
       context: ./client
-      dockerfile: Dockerfile
+      dockerfile: Dockerfile  # Needs prod build
     container_name: frontend
-    working_dir: /usr/src/app
-    ports:
-      - "3000:3000"
     volumes:
       - ./client:/usr/src/app
       - /usr/src/app/node_modules
     networks:
-      it-network:
-        ipv4_address: 172.0.0.3
+      - it-network
     environment:
       - VITE_BACKEND_URL= ${VITE_BACKEND_URL}
       - CHOKIDAR_USEPOLLING=true
@@ -61,9 +53,7 @@ services:
     volumes:
       - db_data:/var/lib/postgresql/data
     networks:
-      it-network:
-        ipv4_address: 172.0.0.4
-
+      - it-network
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${DB_USER} -d ${DB_NAME}"]
       interval: 5s
@@ -71,56 +61,39 @@ services:
       retries: 5
     ports:
       - "5432:5432"
+
   nginx:
     build:
       context: ./nginx
       dockerfile: Dockerfile
     container_name: nginx_it-khiva
     environment:
-      - DOMAIN=${DOMAIN}
-      - EMAIL=${EMAIL}
+      DOMAIN: ${DOMAIN}
+      EMAIL: ${EMAIL}
     ports:
       - "80:80"
       - "443:443"
-    # volumes:
-      # - ./certbot/conf:/etc/letsencrypt
-      # - ./certbot/www:/var/www/certbot
+    volumes:
+      - ./certbot/conf:/etc/letsencrypt
+      - ./certbot/www:/var/www/certbot
     depends_on:
       - backend
       - frontend
-      # - pgadmin
     networks:
-      it-network:
-        ipv4_address: 172.0.0.5
-  # certbot:
-  #   image: certbot/certbot
-  #   container_name: certbot
-  #   volumes:
-  #     - ./certbot/conf:/etc/letsencrypt
-  #     - ./certbot/www:/var/www/certbot
-  #   command: certonly --webroot -w /var/www/certbot --force-renewal --email xikmatkiva.4s@gmail.com -d it-khiva.uz --agree-tos
-#   pgadmin:
-#     image: dpage/pgadmin4
-#     container_name: pgadmin
-#     environment:
-#       PGADMIN_DEFAULT_EMAIL: ${PGADMIN_EMAIL}
-#       PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_PASSWORD}
-#       PGADMIN_CONFIG_SERVER_MODE: 'False'
-#     ports:
-#       - "8080:80"
-#     depends_on:
-#       - db
-#     networks:
-#       it-network:
-#         ipv4_address: 172.0.0.6
+      - it-network
+
+  certbot:
+    image: certbot/certbot
+    container_name: certbot
+    volumes:
+      - ./certbot/conf:/etc/letsencrypt
+      - ./certbot/www:/var/www/certbot
+    command: certonly --webroot -w /var/www/certbot --force-renewal --email xikmatkiva.4s@gmail.com -d it-khiva.uz --agree-tos
+
 volumes:
   db_data:
+  frontend_build:  # New shared volume
 
 networks:
   it-network:
-    driver: bridge
-    ipam:
-      config:
-        - subnet: 172.0.0.0/16
-
-
+    driver: bridge  # ✅ CORRECT - default & works fine

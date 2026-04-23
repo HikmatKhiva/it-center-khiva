@@ -52,6 +52,7 @@ const TabVerify2FA = ({ username }: { username: string }) => {
     },
     onError: (error) => {
       showErrorNotification(idNotification.current, error.message);
+      playErrorSound();
     },
   });
   const handleSubmit2FA = async (data: I2FAData) => {

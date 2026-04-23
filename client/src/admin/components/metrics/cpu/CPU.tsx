@@ -3,6 +3,9 @@ import { Sparkline } from "@mantine/charts";
 import { Box, Card, Group, Skeleton, Stack, Text } from "@mantine/core";
 import { useEffect, useState } from "react";
 const CPU = ({ isActive }: { isActive: boolean }) => {
+  const SOCKET_SERVER_URL =
+  import.meta.env.VITE_BACKEND_URL || "https://it-khiva.uz";
+  console.log(SOCKET_SERVER_URL);
   const { metrics } = useAdminMetrics();
   const [cpuHistory, setCpuHistory] = useState<number[]>([]);
   useEffect(() => {

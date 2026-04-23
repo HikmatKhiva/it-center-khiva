@@ -18,7 +18,6 @@ export const useAdminMetrics = () => {
         const newLogs = [...logsArray, log];
         return newLogs.slice(-200); 
       });
-      console.log("[LOG]", log);
     });
     return () => {
       socket.off("admin:connected");
