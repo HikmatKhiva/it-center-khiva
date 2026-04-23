@@ -48,7 +48,7 @@ services:
       it-network:
         ipv4_address: 172.0.0.3
     environment:
-      - VITE_BACKEND_URL= ${VITE_BACKEND_URL}
+      - VITE_BACKEND_URL=${VITE_BACKEND_URL}
       - CHOKIDAR_USEPOLLING=true
 
   db:
